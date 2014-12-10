@@ -1,0 +1,28 @@
+VAGRANTFILE_API_VERSION = "2"
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
+  # config.vm.define "elasticsearch" do |v|
+  #   v.vm.provider "docker" do |d|
+  #     d.name = "elasticsearch"
+  #     d.image = "orchardup/elasticsearch"
+  #     d.ports = ["9200:9200"]
+  #     d.vagrant_vagrantfile = "./proxy.Vagrantfile"
+  #   end
+  # end
+
+  config.vm.define "postgres" do |v|
+    v.vm.provider "docker" do |d|
+      d.name = "postgres"
+      d.image = "library/postgres"
+      d.volumes = ["/var/lib/postgresql/data:/data"]
+      d.ports = ["5432:5432"]
+      d.env = {
+        USER: "root",
+        PASS: "Better to conquer yourself than others.",
+        DB: "brahma"
+      }
+      d.vagrant_vagrantfile = "./proxy.Vagrantfile"
+    end
+  end
+
+end
