@@ -22,20 +22,20 @@ CREATE TYPE brahma.session_state AS ENUM ('REQUESTED', 'PROGRAMMED', 'UNDERWAY',
 -- Tables --
 
 CREATE TABLE IF NOT EXISTS brahma.colective (
-  id INT NOT NULL,
+  id SERIAL NOT NULL,
   name TEXT NOT NULL,
   PRIMARY KEY (id))
 ;
 
 CREATE TABLE IF NOT EXISTS brahma.institution (
-  id INT NOT NULL,
+  id SERIAL NOT NULL,
   name TEXT NOT NULL,
   meta JSON NOT NULL,
   PRIMARY KEY (id))
 ;
 
 CREATE TABLE IF NOT EXISTS brahma.user (
-  id INT NOT NULL,
+  id SERIAL NOT NULL,
   type brahma.user_type NOT NULL,
   manager_user_id INT NULL,
   colective_colective_id INT NULL,
@@ -66,13 +66,13 @@ CREATE TABLE IF NOT EXISTS brahma.user (
 CREATE INDEX user_login ON brahma.user (login ASC);
 
 CREATE TABLE IF NOT EXISTS brahma.field (
-  id INT NOT NULL,
+  id SERIAL NOT NULL,
   name TEXT NOT NULL,
   PRIMARY KEY (id))
 ;
 
 CREATE TABLE IF NOT EXISTS brahma.service_type (
-  id INT NOT NULL,
+  id SERIAL NOT NULL,
   field_id INT NOT NULL,
   price INT NOT NULL,
   name TEXT NOT NULL,
@@ -84,7 +84,7 @@ CREATE TABLE IF NOT EXISTS brahma.service_type (
 ;
 
 CREATE TABLE IF NOT EXISTS brahma.service (
-  id INT NOT NULL,
+  id SERIAL NOT NULL,
   user_id INT NOT NULL,
   service_type_id INT NOT NULL,
   earnings INT NOT NULL,
@@ -100,7 +100,7 @@ CREATE INDEX service_user_id ON brahma.service (user_id ASC);
 CREATE INDEX service_service_type_id ON brahma.service (service_type_id ASC);
 
 CREATE TABLE IF NOT EXISTS brahma.availability (
-  id INT NOT NULL,
+  id SERIAL NOT NULL,
   user_id INT NOT NULL,
   repeat_start_date DATE NOT NULL,
   repeat_end_date DATE NULL,
@@ -115,7 +115,7 @@ CREATE TABLE IF NOT EXISTS brahma.availability (
 CREATE INDEX availability_user_id ON brahma.availability (user_id ASC);
 
 CREATE TABLE IF NOT EXISTS brahma.session (
-  id INT NOT NULL,
+  id SERIAL NOT NULL,
   client_user_id INT NOT NULL,
   professional_user_id INT NOT NULL,
   service_id INT NOT NULL,
@@ -144,7 +144,7 @@ CREATE INDEX session_professional_user_id ON brahma.session (professional_user_i
 CREATE INDEX session_availability_id ON brahma.session (availability_id ASC);
 
 CREATE TABLE IF NOT EXISTS brahma.session_log (
-  id INT NOT NULL,
+  id SERIAL NOT NULL,
   session_id INT NOT NULL,
   user_id INT NOT NULL,
   timestamp TIMESTAMP NOT NULL,
@@ -160,7 +160,7 @@ CREATE TABLE IF NOT EXISTS brahma.session_log (
 CREATE INDEX session_log_session_id ON brahma.session_log (user_id ASC);
 
 CREATE TABLE IF NOT EXISTS brahma.transaction (
-  id INT NOT NULL,
+  id SERIAL NOT NULL,
   user_id INT NOT NULL,
   amount INT NOT NULL,
   reason TEXT NULL,
@@ -177,7 +177,7 @@ CREATE TABLE IF NOT EXISTS brahma.history_entry_type (
 ;
 
 CREATE TABLE IF NOT EXISTS brahma.history_current (
-  id INT NOT NULL,
+  id SERIAL NOT NULL,
   client_user_id INT NOT NULL,
   professional_user_id INT NULL,
   modification_date TIMESTAMP NOT NULL,
@@ -192,7 +192,7 @@ CREATE TABLE IF NOT EXISTS brahma.history_current (
 CREATE INDEX history_current_client_user_id ON brahma.history_current (client_user_id ASC);
 
 CREATE TABLE IF NOT EXISTS brahma.history_entry (
-  id INT NOT NULL,
+  id SERIAL NOT NULL,
   history_current_id INT NOT NULL,
   history_entry_type_id TEXT NOT NULL,
   title TEXT NOT NULL,
@@ -211,7 +211,7 @@ CREATE INDEX history_entry_history_current_id ON brahma.history_entry (history_c
 
 
 CREATE TABLE IF NOT EXISTS brahma.history_archive (
-  id INT NOT NULL,
+  id SERIAL NOT NULL,
   client_user_id INT NOT NULL,
   professional_user_id INT NULL,
   creation_date TIMESTAMP NOT NULL,
@@ -228,7 +228,7 @@ CREATE TABLE IF NOT EXISTS brahma.history_archive (
 CREATE INDEX history_archive_client_user_id ON brahma.history_archive (client_user_id ASC);
 
 CREATE TABLE IF NOT EXISTS brahma.access_log (
-  id INT NOT NULL,
+  id SERIAL NOT NULL,
   user_id INT NOT NULL,
   history_current_id INT NOT NULL,
   timestamp TIMESTAMP NOT NULL,
@@ -244,7 +244,7 @@ CREATE INDEX access_log_user_id ON brahma.access_log (user_id ASC);
 CREATE INDEX access_log_history_current_id ON brahma.access_log (history_current_id ASC);
 
 CREATE TABLE IF NOT EXISTS brahma.prescriptions (
-  id INT NOT NULL,
+  id SERIAL NOT NULL,
   history_entry_id INT NOT NULL,
   name TEXT NOT NULL,
   timestamp TIMESTAMP NOT NULL,
@@ -260,7 +260,7 @@ CREATE TABLE IF NOT EXISTS brahma.prescriptions (
 CREATE INDEX prescriptions_history_entry_id ON brahma.prescriptions (history_entry_id ASC);
 
 CREATE TABLE IF NOT EXISTS brahma.attachment (
-  id INT NOT NULL,
+  id SERIAL NOT NULL,
   history_entry_id INT NULL,
   session_id INT NULL,
   user_id INT NULL,
@@ -281,7 +281,7 @@ CREATE INDEX attachment_session_id ON brahma.attachment (session_id ASC);
 CREATE INDEX attachment_user_id ON brahma.attachment (user_id ASC);
 
 CREATE TABLE IF NOT EXISTS brahma.notifications (
-  id INT NOT NULL,
+  id SERIAL NOT NULL,
   prescriptions_id INT NULL,
   session_id INT NULL,
   user_id INT NOT NULL,
