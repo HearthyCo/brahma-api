@@ -38,6 +38,7 @@ CREATE TABLE IF NOT EXISTS brahma.user (
   id SERIAL NOT NULL,
   type brahma.user_type NOT NULL,
   manager_user_id INT NULL,
+  tutor_user_id INT NULL,
   colective_colective_id INT NULL,
   institution_institution_id INT NULL,
   login TEXT NOT NULL,
@@ -53,8 +54,11 @@ CREATE TABLE IF NOT EXISTS brahma.user (
   online_limit TIMESTAMP NULL,
   meta JSON NULL,
   PRIMARY KEY (id),
-  CONSTRAINT fk_user_user
+  CONSTRAINT fk_user_user1
     FOREIGN KEY (manager_user_id)
+    REFERENCES brahma.user (id),
+  CONSTRAINT fk_user_user2
+    FOREIGN KEY (tutor_user_id)
     REFERENCES brahma.user (id),
   CONSTRAINT fk_user_colective1
     FOREIGN KEY (colective_colective_id)

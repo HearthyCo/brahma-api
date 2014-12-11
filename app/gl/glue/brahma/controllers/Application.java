@@ -1,6 +1,7 @@
 package gl.glue.brahma.controllers;
 
-import gl.glue.brahma.model.Colective;
+import gl.glue.brahma.model.colective.Colective;
+import gl.glue.brahma.model.user.Client;
 import play.db.jpa.JPA;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -14,13 +15,9 @@ public class Application extends Controller {
     @play.db.jpa.Transactional
     public static Result index() {
 
-        /*
-        Colective col = new Colective();
-        col.setName("Clientes Mutua Madrileña");
-        JPA.em().persist(col);
-        */
-        List<Colective> colectives = JPA.em().createQuery("select c from Colective c", Colective.class).getResultList();
-        String message = Arrays.toString(colectives.toArray());
+        Client client = JPA.em().createQuery("select c from Client c", Client.class).getSingleResult();
+        String message = client.toString();
+        message += " - tutorized by: " + client.getTutor();
 
         return ok(index.render(message));
     }
