@@ -1,6 +1,6 @@
-package controllers;
+package gl.glue.brahma.controllers;
 
-import model.Colective;
+import gl.glue.brahma.model.Colective;
 import play.db.jpa.JPA;
 import play.mvc.Controller;
 import play.mvc.Result;

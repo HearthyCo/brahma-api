@@ -1,4 +1,4 @@
-package model;
+package gl.glue.brahma.model;
 
 import javax.persistence.*;
 
