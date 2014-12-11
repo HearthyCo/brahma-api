@@ -1,0 +1,65 @@
+{
+  "events": [
+    {
+      "tag": "body weight",
+      "timestamp": "2011-05-09T19:48:36.000-0700",
+      "weight": {
+        "@value": 70.3,
+        "unit": "kg"
+      },
+      "source": {
+        "title": "Withings",
+        "url": "http://withings.com/"
+      }
+    },
+    {
+      "tag": "heart rate",
+      "timestamp": "2014-10-20T06:27:00.000-0700",
+      "duration": 60000,
+      "frequency": {
+        "@value": 55,
+        "unit": "bpm"
+      },
+      "source": {
+        "title": "Sleep Cycle",
+        "url": "http://www.sleepcycle.com/"
+      }
+    },
+    {
+      "tag": "body fat",
+      "timestamp": "2011-05-09T19:49:37.000-0700",
+      "percentage": 7,
+      "source": {
+        "title": "Withings",
+        "url": "http://withings.com/"
+      }
+    },
+    {
+      "tag": "steps",
+      "timestamp": "2014-10-20T00:00:00.000-0700",
+      "duration": 60000,
+      "count": 6623
+    },
+    {
+      "tag": "activity",
+      "timestamp": "2014-10-20T00:00:00.000-0700",
+      "duration": 60000,
+      "distance": {
+        "@value": 4748.69,
+        "unit": "m"
+      }
+    },
+    {
+      "tag": "sleep",
+      "timestamp": [
+        "2013-08-07T00:01:31.000-0700",
+        "2013-08-07T06:59:09.000-0700"
+      ],
+      "duration": 25058000,
+      "source": {
+        "title": "Sleep Cycle",
+        "url": "http://www.sleepcycle.com/"
+      }
+    }
+  ]
+}

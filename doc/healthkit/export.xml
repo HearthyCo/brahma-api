@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<HealthData locale="en_US">
+  <ExportDate value="20141020222740-0700"/>
+  <Me HKCharacteristicTypeIdentifierDateOfBirth="19810505" HKCharacteristicTypeIdentifierBiologicalSex="2" HKCharacteristicTypeIdentifierBloodType="0"/>
+  <Record type="HKQuantityTypeIdentifierHeight" source="Withings" unit="m" creationDate="20141009142545-0700" startDate="20110509194836-0700" endDate="20110509194836-0700" Manual Measure="NO" Health Mate App Version="2.3.0" Withings Link="withings-bd2://timeline/measure?userid=251099&amp;amp;date=326688516&amp;amp;type=4" Withings User Identifier="251099" Modified Date="2014-10-09 21:25:43 +0000" value="1.73"/>
+  <Record type="HKQuantityTypeIdentifierBodyMass" source="Withings" unit="kg" creationDate="20141009142543-0700" startDate="20110509194836-0700" endDate="20110509194836-0700" Manual Measure="NO" Health Mate App Version="2.3.0" Withings Link="withings-bd2://timeline/measure?userid=251099&amp;amp;date=326688516&amp;amp;type=1" Withings User Identifier="251099" Modified Date="2001-01-01 00:00:00 +0000" value="70.3"/>
+  <Record type="HKQuantityTypeIdentifierHeartRate" source="Sleep Cycle" unit="count/s" startDate="20141020062700-0700" endDate="20141020062800-0700" min="0.916667" max="0.916667" average="0.916667" recordCount="1"/>
+  <Record type="HKQuantityTypeIdentifierBodyFatPercentage" source="Withings" unit="%" creationDate="20141009142546-0700" startDate="20110509194937-0700" endDate="20110509194937-0700" Manual Measure="NO" Health Mate App Version="2.3.0" Withings Link="withings-bd2://timeline/measure?userid=251099&amp;amp;date=326688577&amp;amp;type=1" Withings User Identifier="251099" Modified Date="2001-01-01 00:00:00 +0000" value="0.0724843"/>
+  <Record type="HKQuantityTypeIdentifierStepCount" source="Wristband" unit="count" startDate="20141020000000-0700" endDate="20141020000100-0700" value="6623" recordCount="1"/>
+  <Record type="HKQuantityTypeIdentifierDistanceWalkingRunning" source="Wristband" unit="m" startDate="20141020000000-0700" endDate="20141020000100-0700" value="4748.69" recordCount="1"/>
+  <Record type="HKQuantityTypeIdentifierDietaryFatTotal" source="MyFitnessPal" unit="g" creationDate="20141004124651-0700" startDate="20141004124622-0700" endDate="20141004124622-0700" meal="Snacks" Meal="Snacks"/>
+  <Record type="HKCategoryTypeIdentifierSleepAnalysis" source="Sleep Cycle" unit="" creationDate="20141016065005-0700" startDate="20130807000131-0700" endDate="20130807065909-0700" sessionId="p1" value="1"/>
+</HealthData>
