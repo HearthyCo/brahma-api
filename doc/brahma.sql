@@ -65,6 +65,23 @@ CREATE TABLE IF NOT EXISTS brahma.user (
 ;
 CREATE INDEX user_login ON brahma.user (login ASC);
 
+CREATE TABLE IF NOT EXISTS brahma.notification (
+  id SERIAL NOT NULL,
+  user_id INT NOT NULL,
+  type TEXT NOT NULL,
+  meta JSON NULL,
+  creation_date TIMESTAMP NOT NULL,
+  notification_date TIMESTAMP NOT NULL,
+  delivered_date TIMESTAMP NULL,
+  viewed_date TIMESTAMP NULL,
+  done_date TIMESTAMP NULL,
+  PRIMARY KEY (id),
+  CONSTRAINT fk_notification_user1
+    FOREIGN KEY (user_id)
+    REFERENCES brahma.user (id))
+;
+CREATE INDEX notification_user_id ON brahma.notification (user_id ASC);
+
 CREATE TABLE IF NOT EXISTS brahma.field (
   id SERIAL NOT NULL,
   name TEXT NOT NULL,
@@ -117,7 +134,9 @@ CREATE INDEX availability_user_id ON brahma.availability (user_id ASC);
 CREATE TABLE IF NOT EXISTS brahma.session (
   id SERIAL NOT NULL,
   client_user_id INT NOT NULL,
+  client_notification_id INT NULL,
   professional_user_id INT NOT NULL,
+  professional_notification_id INT NULL,
   service_id INT NOT NULL,
   availability_id INT NOT NULL,
   start_date TIMESTAMP NOT NULL,
@@ -132,6 +151,12 @@ CREATE TABLE IF NOT EXISTS brahma.session (
   CONSTRAINT fk_session_user2
     FOREIGN KEY (professional_user_id)
     REFERENCES brahma.user (id),
+  CONSTRAINT fk_session_notification1
+    FOREIGN KEY (client_notification_id)
+    REFERENCES brahma.notification (id),
+  CONSTRAINT fk_session_notification2
+    FOREIGN KEY (professional_notification_id)
+    REFERENCES brahma.notification (id),
   CONSTRAINT fk_session_service1
     FOREIGN KEY (service_id)
     REFERENCES brahma.service (id),
@@ -243,7 +268,7 @@ CREATE TABLE IF NOT EXISTS brahma.access_log (
 CREATE INDEX access_log_user_id ON brahma.access_log (user_id ASC);
 CREATE INDEX access_log_history_current_id ON brahma.access_log (history_current_id ASC);
 
-CREATE TABLE IF NOT EXISTS brahma.prescriptions (
+CREATE TABLE IF NOT EXISTS brahma.prescription (
   id SERIAL NOT NULL,
   history_entry_id INT NOT NULL,
   name TEXT NOT NULL,
@@ -252,12 +277,16 @@ CREATE TABLE IF NOT EXISTS brahma.prescriptions (
   interval INT NOT NULL,
   dosage FLOAT NOT NULL,
   meta JSON NULL,
+  notification_id INT NULL,
   PRIMARY KEY (id),
-  CONSTRAINT fk_prescriptions_history_entry1
+  CONSTRAINT fk_prescription_history_entry1
     FOREIGN KEY (history_entry_id)
-    REFERENCES brahma.history_entry (id))
+    REFERENCES brahma.history_entry (id),
+  CONSTRAINT fk_prescription_notification1
+    FOREIGN KEY (notification_id)
+    REFERENCES brahma.notification (id))
 ;
-CREATE INDEX prescriptions_history_entry_id ON brahma.prescriptions (history_entry_id ASC);
+CREATE INDEX prescription_history_entry_id ON brahma.prescription (history_entry_id ASC);
 
 CREATE TABLE IF NOT EXISTS brahma.attachment (
   id SERIAL NOT NULL,
@@ -279,25 +308,3 @@ CREATE TABLE IF NOT EXISTS brahma.attachment (
 CREATE INDEX attachment_history_entry_id ON brahma.attachment (history_entry_id ASC);
 CREATE INDEX attachment_session_id ON brahma.attachment (session_id ASC);
 CREATE INDEX attachment_user_id ON brahma.attachment (user_id ASC);
-
-CREATE TABLE IF NOT EXISTS brahma.notifications (
-  id SERIAL NOT NULL,
-  prescriptions_id INT NULL,
-  session_id INT NULL,
-  user_id INT NOT NULL,
-  history_current_id INT NULL,
-  PRIMARY KEY (id),
-  CONSTRAINT fk_notifications_prescriptions1
-    FOREIGN KEY (prescriptions_id)
-    REFERENCES brahma.prescriptions (id),
-  CONSTRAINT fk_notifications_session1
-    FOREIGN KEY (session_id)
-    REFERENCES brahma.session (id),
-  CONSTRAINT fk_notifications_user1
-    FOREIGN KEY (user_id)
-    REFERENCES brahma.user (id),
-  CONSTRAINT fk_notifications_history_current1
-    FOREIGN KEY (history_current_id)
-    REFERENCES brahma.history_current (id))
-;
-CREATE INDEX notifications_user_id ON brahma.notifications (user_id ASC);
