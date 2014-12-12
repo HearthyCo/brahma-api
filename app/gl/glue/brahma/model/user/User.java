@@ -144,6 +144,7 @@ public abstract class User {
     }
 
 
+    @Override
     public String toString() {
         String fullname = name + " " + surname1;
         if (surname2 != null) {

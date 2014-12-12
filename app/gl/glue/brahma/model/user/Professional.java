@@ -14,6 +14,7 @@ public class Professional extends User {
     @JoinColumn(name="manager_user_id")
     private Coordinator manager;
 
+
     public Coordinator getManager() {
         return manager;
     }
