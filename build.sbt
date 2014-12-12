@@ -12,5 +12,6 @@ libraryDependencies ++= Seq(
   javaWs,
   javaJpa.exclude("org.hibernate.javax.persistence", "hibernate-jpa-2.0-api"),
   "org.postgresql" % "postgresql" % "9.3-1102-jdbc41",
-  "org.hibernate" % "hibernate-entitymanager" % "4.3.7.Final"
+  "org.hibernate" % "hibernate-entitymanager" % "4.3.7.Final",
+  "org.mindrot" % "jbcrypt" % "0.3m"
 )

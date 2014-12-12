@@ -21,7 +21,7 @@ CREATE TYPE brahma.session_state AS ENUM ('REQUESTED', 'PROGRAMMED', 'UNDERWAY',
 
 -- Tables --
 
-CREATE TABLE IF NOT EXISTS brahma.colective (
+CREATE TABLE IF NOT EXISTS brahma.collective (
   id SERIAL NOT NULL,
   name TEXT NOT NULL,
   PRIMARY KEY (id))
@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS brahma.user (
   type brahma.user_type NOT NULL,
   manager_user_id INT NULL,
   tutor_user_id INT NULL,
-  colective_colective_id INT NULL,
+  collective_collective_id INT NULL,
   institution_institution_id INT NULL,
   login TEXT NOT NULL,
   password TEXT NULL,
@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS brahma.user (
   name TEXT NOT NULL,
   surname1 TEXT NULL,
   surname2 TEXT NULL,
-  birthdate TIMESTAMP NOT NULL,
+  birthdate DATE NOT NULL,
   avatar TEXT NULL,
   national_id TEXT NULL,
   gender brahma.gender NOT NULL,
@@ -60,9 +60,9 @@ CREATE TABLE IF NOT EXISTS brahma.user (
   CONSTRAINT fk_user_user2
     FOREIGN KEY (tutor_user_id)
     REFERENCES brahma.user (id),
-  CONSTRAINT fk_user_colective1
-    FOREIGN KEY (colective_colective_id)
-    REFERENCES brahma.colective (id),
+  CONSTRAINT fk_user_collective1
+    FOREIGN KEY (collective_collective_id)
+    REFERENCES brahma.collective (id),
   CONSTRAINT fk_user_institution1
     FOREIGN KEY (institution_institution_id)
     REFERENCES brahma.institution (id))
@@ -145,7 +145,7 @@ CREATE TABLE IF NOT EXISTS brahma.session (
   availability_id INT NOT NULL,
   start_date TIMESTAMP NOT NULL,
   end_date TIMESTAMP NULL,
-  state brahma.session_state NULL,
+  state brahma.session_state NOT NULL,
   report TEXT NULL,
   meta JSON NULL,
   PRIMARY KEY (id),
