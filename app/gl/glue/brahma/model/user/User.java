@@ -47,8 +47,6 @@ public abstract class User {
 
     private Date onlineLimit;
 
-    private int adminLevel;
-
     @NotNull // Fake to prevent typing bug
     private String meta;
 
@@ -135,14 +133,6 @@ public abstract class User {
 
     public void setOnlineLimit(Date onlineLimit) {
         this.onlineLimit = onlineLimit;
-    }
-
-    public int getAdminLevel() {
-        return adminLevel;
-    }
-
-    public void setAdminLevel(int adminLevel) {
-        this.adminLevel = adminLevel;
     }
 
     public String getMeta() {
