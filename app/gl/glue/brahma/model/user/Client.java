@@ -13,6 +13,7 @@ public class Client extends User {
     @JoinColumn(name="tutor_user_id")
     private Tutor tutor;
 
+
     public Tutor getTutor() {
         return tutor;
     }

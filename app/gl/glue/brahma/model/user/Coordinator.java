@@ -12,6 +12,7 @@ public class Coordinator extends User {
     @OneToMany(mappedBy="manager")
     private Set<Professional> professionals;
 
+
     public Set<Professional> getProfessionals() {
         return professionals;
     }
