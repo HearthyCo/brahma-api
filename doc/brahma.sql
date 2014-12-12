@@ -52,6 +52,7 @@ CREATE TABLE IF NOT EXISTS brahma.user (
   national_id TEXT NULL,
   gender brahma.gender NOT NULL,
   online_limit TIMESTAMP NULL,
+  admin_level INT NULL DEFAULT 0,
   meta JSON NULL,
   PRIMARY KEY (id),
   CONSTRAINT fk_user_user1
