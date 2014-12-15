@@ -1,11 +1,21 @@
 package gl.glue.brahma.controllers;
 
+import gl.glue.brahma.model.accesslog.AccessLog;
+import gl.glue.brahma.model.attachment.Attachment;
 import gl.glue.brahma.model.availability.Availability;
 import gl.glue.brahma.model.collective.Collective;
 import gl.glue.brahma.model.field.Field;
+import gl.glue.brahma.model.historyarchive.HistoryArchive;
+import gl.glue.brahma.model.historycurrent.HistoryCurrent;
+import gl.glue.brahma.model.historyentry.HistoryEntry;
+import gl.glue.brahma.model.historyentrytype.HistoryEntryType;
 import gl.glue.brahma.model.institution.Institution;
+import gl.glue.brahma.model.notification.Notification;
 import gl.glue.brahma.model.service.Service;
 import gl.glue.brahma.model.servicetype.ServiceType;
+import gl.glue.brahma.model.session.Session;
+import gl.glue.brahma.model.sessionlog.SessionLog;
+import gl.glue.brahma.model.transaction.Transaction;
 import gl.glue.brahma.model.user.User;
 import play.db.jpa.JPA;
 import play.db.jpa.Transactional;
@@ -40,6 +50,36 @@ public class Application extends Controller {
 
         System.out.println("\n-- Availability --");
         JPA.em().createQuery("select x from Availability x", Availability.class).getResultList().forEach((i)-> System.out.println(i));
+
+        System.out.println("\n-- Notification --");
+        JPA.em().createQuery("select x from Notification x", Notification.class).getResultList().forEach((i)-> System.out.println(i));
+
+        System.out.println("\n-- Session --");
+        JPA.em().createQuery("select x from Session x", Session.class).getResultList().forEach((i)-> System.out.println(i));
+
+        System.out.println("\n-- SessionLog --");
+        JPA.em().createQuery("select x from SessionLog x", SessionLog.class).getResultList().forEach((i)-> System.out.println(i));
+
+        System.out.println("\n-- HistoryCurrent --");
+        JPA.em().createQuery("select x from HistoryCurrent x", HistoryCurrent.class).getResultList().forEach((i)-> System.out.println(i));
+
+        System.out.println("\n-- AccessLog --");
+        JPA.em().createQuery("select x from AccessLog x", AccessLog.class).getResultList().forEach((i)-> System.out.println(i));
+
+        System.out.println("\n-- HistoryEntryType --");
+        JPA.em().createQuery("select x from HistoryEntryType x", HistoryEntryType.class).getResultList().forEach((i)-> System.out.println(i));
+
+        System.out.println("\n-- HistoryEntry --");
+        JPA.em().createQuery("select x from HistoryEntry x", HistoryEntry.class).getResultList().forEach((i)-> System.out.println(i));
+
+        System.out.println("\n-- Attachment --");
+        JPA.em().createQuery("select x from Attachment x", Attachment.class).getResultList().forEach((i)-> System.out.println(i));
+
+        System.out.println("\n-- Transaction --");
+        JPA.em().createQuery("select x from Transaction x", Transaction.class).getResultList().forEach((i)-> System.out.println(i));
+
+        System.out.println("\n-- HistoryArchive --");
+        JPA.em().createQuery("select x from HistoryArchive x", HistoryArchive.class).getResultList().forEach((i)-> System.out.println(i));
 
         System.out.println("\n########## Success ##########");
 

@@ -10,8 +10,8 @@ import java.util.Date;
 public class Availability {
 
     @Id
-    @SequenceGenerator(name="availability_type_id_seq", sequenceName="availability_type_id_seq", allocationSize=1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator="availability_type_id_seq")
+    @SequenceGenerator(name="availability_id_seq", sequenceName="availability_id_seq", allocationSize=1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator="availability_id_seq")
     private int id;
 
     @ManyToOne

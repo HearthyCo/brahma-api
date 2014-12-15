@@ -1,4 +1,4 @@
-﻿TRUNCATE brahma.availability, brahma.service, brahma.service_type, brahma.field, brahma.user, brahma.collective, brahma.institution CASCADE;
+﻿TRUNCATE brahma.history_archive, brahma.transaction, brahma.attachment, brahma.history_entry, brahma.history_entry_type, brahma.access_log, brahma.history_current, brahma.session_log, brahma.session, brahma.notification, brahma.availability, brahma.service, brahma.service_type, brahma.field, brahma.user, brahma.institution, brahma.collective CASCADE;
 
 
 INSERT INTO brahma.collective (id, name) VALUES
@@ -33,10 +33,51 @@ INSERT INTO brahma.service_type (id, name, field_id, price, mode) VALUES
 INSERT INTO brahma.service (id, user_id, service_type_id, earnings) VALUES
     (90400, 90005, 90300, 400),
     (90401, 90005, 90301, 900),
-    (90402, 90008, 90301, 1400);
+    (90402, 90008, 90301, 900);
 
 INSERT INTO brahma.availability (id, user_id, repeat_start_date, repeat_end_date, schedule_start_time, schedule_end_time, repeat) VALUES
     (90500, 90005, '2014-12-01', null, '08:00:00', '13:00:00', 31),
     (90501, 90005, '2014-12-02', null, '16:00:00', '19:00:00', 31),
     (90502, 90008, '2014-12-01', null, '08:00:00', '13:00:00', 96);
 
+INSERT INTO brahma.notification (id, user_id, type, meta, creation_date, notification_date) VALUES
+    (90600, 90000, 'session', '{}', '2014-12-15 08:00:00', '2015-03-02 17:00:00'),
+    (90601, 90005, 'session', '{}', '2014-12-15 09:00:00', '2015-03-02 17:00:00');
+
+INSERT INTO brahma.session (id, client_user_id, client_notification_id, professional_user_id, professional_notification_id, service_id, availability_id, start_date, end_date, state) VALUES
+    (90700, 90000, 90600, 90005, 90601, 90401, 90501, '2015-03-02 17:00:00', '2015-03-02 17:15:00', 'PROGRAMMED'),
+    (90701, 90001, null, 90008, null, 90402, 90502, '2015-03-01 12:00:00', '2015-03-01 12:15:00', 'CANCELED');
+
+INSERT INTO brahma.session_log (id, session_id, user_id, timestamp, action) VALUES
+    (90800, 90700, 90005, '2014-12-15 08:00:00', 'ACCEPT'),
+    (90801, 90701, 90008, '2014-12-15 09:00:00', 'ACCEPT'),
+    (90802, 90701, 90008, '2014-12-15 12:00:00', 'REJECT');
+
+INSERT INTO brahma.history_current (id, client_user_id, professional_user_id, modification_date) VALUES
+    (90900, 90000, 90005, '2014-12-16 10:00:00'),
+    (90901, 90001, 90008, '2014-12-16 11:00:00');
+
+INSERT INTO brahma.access_log (id, user_id, history_current_id, timestamp) VALUES
+    (91000, 90005, 90900, '2014-12-16 10:00:00'),
+    (91001, 90005, 90900, '2014-12-17 09:00:00');
+
+INSERT INTO brahma.history_entry_type (id) VALUES
+    ('Allergies'),
+    ('Treatments');
+
+INSERT INTO brahma.history_entry (id, history_current_id, history_entry_type_id, title, timestamp) VALUES
+    (91100, 90900, 'Allergies', 'Lactosa', '2014-12-15 08:30:00'),
+    (91101, 90900, 'Allergies', 'Gluten', '2014-12-15 08:30:00'),
+    (91102, 90900, 'Treatments', 'Caminar', '2014-12-15 08:30:00');
+
+INSERT INTO brahma.attachment (id, history_entry_id, session_id, user_id, path) VALUES
+    (91200, 91102, null, 90005, 'infographic.pdf'),
+    (91201, null, 90700, 90000, 'xray.jpg');
+
+INSERT INTO brahma.transaction (id, user_id, session_id, amount, timestamp, reason) VALUES
+    (91300, 90000, 90700, -1000, '2014-12-15 08:00:00', 'Reserva de sesión'),
+    (91301, 90000, 90701, -1000, '2014-12-15 09:00:00', 'Reserva de sesión'),
+    (91302, 90000, 90701, 1000, '2014-12-15 12:00:00', 'Devolución sesión cancelada');
+
+INSERT INTO brahma.history_archive (id, client_user_id, professional_user_id, creation_date, archive_date, meta) VALUES
+    (91400, 90000, 90005, '2014-12-16 10:00:00', '2014-12-16 10:00:00', '{}');

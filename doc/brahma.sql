@@ -74,12 +74,13 @@ CREATE TABLE IF NOT EXISTS brahma.notification (
   id SERIAL NOT NULL,
   user_id INT NOT NULL,
   type TEXT NOT NULL,
-  meta JSON NULL,
+  meta JSON NOT NULL,
   creation_date TIMESTAMP NOT NULL,
   notification_date TIMESTAMP NOT NULL,
   delivered_date TIMESTAMP NULL,
   viewed_date TIMESTAMP NULL,
   done_date TIMESTAMP NULL,
+  reply JSON NULL,
   PRIMARY KEY (id),
   CONSTRAINT fk_notification_user1
     FOREIGN KEY (user_id)
@@ -192,12 +193,17 @@ CREATE INDEX session_log_session_id ON brahma.session_log (user_id ASC);
 CREATE TABLE IF NOT EXISTS brahma.transaction (
   id SERIAL NOT NULL,
   user_id INT NOT NULL,
+  session_id INT NULL,
   amount INT NOT NULL,
+  timestamp TIMESTAMP NOT NULL,
   reason TEXT NULL,
   PRIMARY KEY (id),
   CONSTRAINT fk_transaction_user1
     FOREIGN KEY (user_id)
-    REFERENCES brahma.user (id))
+    REFERENCES brahma.user (id),
+  CONSTRAINT fk_transaction_session1
+    FOREIGN KEY (session_id)
+    REFERENCES brahma.session (id))
 ;
 CREATE INDEX transaction_user_id ON brahma.transaction (user_id ASC);
 
