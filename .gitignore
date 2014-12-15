@@ -16,3 +16,4 @@ dist
 vagrant/.vagrant
 projectFilesBackup
 app/views/html
+doc/brahma.mwb.bak

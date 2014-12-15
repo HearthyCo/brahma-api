@@ -1,8 +1,10 @@
+import play.PlayJava
+
 name := """brahma"""
 
 version := "1.0-SNAPSHOT"
 
-lazy val root = (project in file(".")).enablePlugins(PlayJava)
+lazy val brahma = (project in file(".")).enablePlugins(PlayJava)
 
 scalaVersion := "2.11.1"
 

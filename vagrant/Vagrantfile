@@ -17,9 +17,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       d.volumes = ["/var/lib/postgresql/data:/data"]
       d.ports = ["5432:5432"]
       d.env = {
-        USER: "root",
-        PASS: "Better to conquer yourself than others.",
-        DB: "brahma"
+        POSTGRES_USER: "brahma",
+        POSTGRES_PASSWORD: "Better to conquer yourself than others.",
+        POSTGRES_DB: "brahma"
       }
       d.vagrant_vagrantfile = "./proxy.Vagrantfile"
     end
@@ -29,13 +29,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     v.vm.provider "docker" do |d|
       d.name = "activator"
       d.image = "duncan/activator"
-      d.volumes = ["/var/lib/postgresql/data:/data"]
       d.ports = ["8888:8889"]
-      d.env = {
-        USER: "root",
-        PASS: "Better to conquer yourself than others.",
-        DB: "brahma"
-      }
       d.vagrant_vagrantfile = "./proxy.Vagrantfile"
     end
   end
