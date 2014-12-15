@@ -9,7 +9,7 @@ import java.util.Set;
 @DiscriminatorValue("TUTOR")
 public class Tutor extends User {
 
-    @OneToMany(mappedBy="tutor")
+    @OneToMany(mappedBy = "tutor")
     private Set<Client> clients;
 
 

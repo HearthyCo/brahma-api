@@ -11,17 +11,17 @@ import java.util.Date;
 public class Transaction {
 
     @Id
-    @SequenceGenerator(name="transaction_id_seq", sequenceName="transaction_id_seq", allocationSize=1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator="transaction_id_seq")
+    @SequenceGenerator(name = "transaction_id_seq", sequenceName = "transaction_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "transaction_id_seq")
     private int id;
 
     @ManyToOne
-    @JoinColumn(name="user_id")
+    @JoinColumn(name = "user_id")
     @NotNull
     private User user;
 
     @ManyToOne
-    @JoinColumn(name="session_id")
+    @JoinColumn(name = "session_id")
     private Session session;
 
     @NotNull

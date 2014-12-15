@@ -8,15 +8,15 @@ import java.util.Date;
 
 @Entity
 @Inheritance
-@DiscriminatorColumn(name="type")
+@DiscriminatorColumn(name = "type")
 public abstract class User {
 
     public enum Gender {MALE, FEMALE, OTHER}
 
 
     @Id
-    @SequenceGenerator(name="user_id_seq", sequenceName="user_id_seq", allocationSize=1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator="user_id_seq")
+    @SequenceGenerator(name = "user_id_seq", sequenceName = "user_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_id_seq")
     private int id;
 
     @NotNull

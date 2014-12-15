@@ -34,52 +34,52 @@ public class Application extends Controller {
         JPA.em().createQuery("select x from Collective x", Collective.class).getResultList().forEach((i) -> System.out.println(i));
 
         System.out.println("\n-- Institution --");
-        JPA.em().createQuery("select x from Institution x", Institution.class).getResultList().forEach((i)-> System.out.println(i));
+        JPA.em().createQuery("select x from Institution x", Institution.class).getResultList().forEach((i) -> System.out.println(i));
 
         System.out.println("\n-- User --");
-        JPA.em().createQuery("select x from User x", User.class).getResultList().forEach((i)-> System.out.println(i));
+        JPA.em().createQuery("select x from User x", User.class).getResultList().forEach((i) -> System.out.println(i));
 
         System.out.println("\n-- Field --");
-        JPA.em().createQuery("select x from Field x", Field.class).getResultList().forEach((i)-> System.out.println(i));
+        JPA.em().createQuery("select x from Field x", Field.class).getResultList().forEach((i) -> System.out.println(i));
 
         System.out.println("\n-- ServiceType --");
-        JPA.em().createQuery("select x from ServiceType x", ServiceType.class).getResultList().forEach((i)-> System.out.println(i));
+        JPA.em().createQuery("select x from ServiceType x", ServiceType.class).getResultList().forEach((i) -> System.out.println(i));
 
         System.out.println("\n-- Service --");
-        JPA.em().createQuery("select x from Service x", Service.class).getResultList().forEach((i)-> System.out.println(i));
+        JPA.em().createQuery("select x from Service x", Service.class).getResultList().forEach((i) -> System.out.println(i));
 
         System.out.println("\n-- Availability --");
-        JPA.em().createQuery("select x from Availability x", Availability.class).getResultList().forEach((i)-> System.out.println(i));
+        JPA.em().createQuery("select x from Availability x", Availability.class).getResultList().forEach((i) -> System.out.println(i));
 
         System.out.println("\n-- Notification --");
-        JPA.em().createQuery("select x from Notification x", Notification.class).getResultList().forEach((i)-> System.out.println(i));
+        JPA.em().createQuery("select x from Notification x", Notification.class).getResultList().forEach((i) -> System.out.println(i));
 
         System.out.println("\n-- Session --");
-        JPA.em().createQuery("select x from Session x", Session.class).getResultList().forEach((i)-> System.out.println(i));
+        JPA.em().createQuery("select x from Session x", Session.class).getResultList().forEach((i) -> System.out.println(i));
 
         System.out.println("\n-- SessionLog --");
-        JPA.em().createQuery("select x from SessionLog x", SessionLog.class).getResultList().forEach((i)-> System.out.println(i));
+        JPA.em().createQuery("select x from SessionLog x", SessionLog.class).getResultList().forEach((i) -> System.out.println(i));
 
         System.out.println("\n-- HistoryCurrent --");
-        JPA.em().createQuery("select x from HistoryCurrent x", HistoryCurrent.class).getResultList().forEach((i)-> System.out.println(i));
+        JPA.em().createQuery("select x from HistoryCurrent x", HistoryCurrent.class).getResultList().forEach((i) -> System.out.println(i));
 
         System.out.println("\n-- AccessLog --");
-        JPA.em().createQuery("select x from AccessLog x", AccessLog.class).getResultList().forEach((i)-> System.out.println(i));
+        JPA.em().createQuery("select x from AccessLog x", AccessLog.class).getResultList().forEach((i) -> System.out.println(i));
 
         System.out.println("\n-- HistoryEntryType --");
-        JPA.em().createQuery("select x from HistoryEntryType x", HistoryEntryType.class).getResultList().forEach((i)-> System.out.println(i));
+        JPA.em().createQuery("select x from HistoryEntryType x", HistoryEntryType.class).getResultList().forEach((i) -> System.out.println(i));
 
         System.out.println("\n-- HistoryEntry --");
-        JPA.em().createQuery("select x from HistoryEntry x", HistoryEntry.class).getResultList().forEach((i)-> System.out.println(i));
+        JPA.em().createQuery("select x from HistoryEntry x", HistoryEntry.class).getResultList().forEach((i) -> System.out.println(i));
 
         System.out.println("\n-- Attachment --");
-        JPA.em().createQuery("select x from Attachment x", Attachment.class).getResultList().forEach((i)-> System.out.println(i));
+        JPA.em().createQuery("select x from Attachment x", Attachment.class).getResultList().forEach((i) -> System.out.println(i));
 
         System.out.println("\n-- Transaction --");
-        JPA.em().createQuery("select x from Transaction x", Transaction.class).getResultList().forEach((i)-> System.out.println(i));
+        JPA.em().createQuery("select x from Transaction x", Transaction.class).getResultList().forEach((i) -> System.out.println(i));
 
         System.out.println("\n-- HistoryArchive --");
-        JPA.em().createQuery("select x from HistoryArchive x", HistoryArchive.class).getResultList().forEach((i)-> System.out.println(i));
+        JPA.em().createQuery("select x from HistoryArchive x", HistoryArchive.class).getResultList().forEach((i) -> System.out.println(i));
 
         System.out.println("\n########## Success ##########");
 

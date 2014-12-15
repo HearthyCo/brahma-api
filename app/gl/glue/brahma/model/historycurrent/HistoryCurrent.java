@@ -11,17 +11,17 @@ import java.util.Date;
 public class HistoryCurrent {
 
     @Id
-    @SequenceGenerator(name="history_current_id_seq", sequenceName="history_current_id_seq", allocationSize=1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator="history_current_id_seq")
+    @SequenceGenerator(name = "history_current_id_seq", sequenceName = "history_current_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "history_current_id_seq")
     private int id;
 
     @ManyToOne
-    @JoinColumn(name="client_user_id")
+    @JoinColumn(name = "client_user_id")
     @NotNull
     private Client client;
 
     @ManyToOne
-    @JoinColumn(name="professional_user_id")
+    @JoinColumn(name = "professional_user_id")
     private Professional professional;
 
     @NotNull

@@ -14,17 +14,17 @@ public class SessionLog {
 
 
     @Id
-    @SequenceGenerator(name="session_log_id_seq", sequenceName="session_log_id_seq", allocationSize=1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator="session_log_id_seq")
+    @SequenceGenerator(name = "session_log_id_seq", sequenceName = "session_log_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "session_log_id_seq")
     private int id;
 
     @ManyToOne
-    @JoinColumn(name="session_id")
+    @JoinColumn(name = "session_id")
     @NotNull
     private Session session;
 
     @ManyToOne
-    @JoinColumn(name="user_id")
+    @JoinColumn(name = "user_id")
     @NotNull
     private User user;
 

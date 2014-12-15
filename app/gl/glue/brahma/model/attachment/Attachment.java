@@ -10,20 +10,20 @@ import javax.persistence.*;
 public class Attachment {
 
     @Id
-    @SequenceGenerator(name="attachment_id_seq", sequenceName="attachment_id_seq", allocationSize=1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator="attachment_id_seq")
+    @SequenceGenerator(name = "attachment_id_seq", sequenceName = "attachment_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "attachment_id_seq")
     private int id;
 
     @ManyToOne
-    @JoinColumn(name="history_entry_id")
+    @JoinColumn(name = "history_entry_id")
     private HistoryEntry historyEntry;
 
     @ManyToOne
-    @JoinColumn(name="session_id")
+    @JoinColumn(name = "session_id")
     private Session session;
 
     @ManyToOne
-    @JoinColumn(name="user_id")
+    @JoinColumn(name = "user_id")
     private User user;
 
     private String path;

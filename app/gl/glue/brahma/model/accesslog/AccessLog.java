@@ -11,17 +11,17 @@ import java.util.Date;
 public class AccessLog {
 
     @Id
-    @SequenceGenerator(name="access_log_id_seq", sequenceName="access_log_id_seq", allocationSize=1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator="access_log_id_seq")
+    @SequenceGenerator(name = "access_log_id_seq", sequenceName = "access_log_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "access_log_id_seq")
     private int id;
 
     @ManyToOne
-    @JoinColumn(name="user_id")
+    @JoinColumn(name = "user_id")
     @NotNull
     private Professional user;
 
     @ManyToOne
-    @JoinColumn(name="history_current_id")
+    @JoinColumn(name = "history_current_id")
     @NotNull
     private HistoryCurrent historyCurrent;
 

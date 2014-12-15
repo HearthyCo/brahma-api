@@ -17,35 +17,35 @@ public class Session {
 
 
     @Id
-    @SequenceGenerator(name="session_id_seq", sequenceName="session_id_seq", allocationSize=1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator="session_id_seq")
+    @SequenceGenerator(name = "session_id_seq", sequenceName = "session_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "session_id_seq")
     private int id;
 
     @ManyToOne
-    @JoinColumn(name="client_user_id")
+    @JoinColumn(name = "client_user_id")
     @NotNull
     private Client client;
 
     @OneToOne
-    @JoinColumn(name="client_notification_id")
+    @JoinColumn(name = "client_notification_id")
     private Notification clientNotification;
 
     @ManyToOne
-    @JoinColumn(name="professional_user_id")
+    @JoinColumn(name = "professional_user_id")
     @NotNull
     private Professional professional;
 
     @OneToOne
-    @JoinColumn(name="professional_notification_id")
+    @JoinColumn(name = "professional_notification_id")
     private Notification professionalNotification;
 
     @ManyToOne
-    @JoinColumn(name="service_id")
+    @JoinColumn(name = "service_id")
     @NotNull
     private Service service;
 
     @ManyToOne
-    @JoinColumn(name="availability_id")
+    @JoinColumn(name = "availability_id")
     @NotNull
     private Availability availability;
 

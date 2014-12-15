@@ -7,8 +7,8 @@ import javax.validation.constraints.NotNull;
 public class Institution {
 
     @Id
-    @SequenceGenerator(name="institution_id_seq", sequenceName="institution_id_seq", allocationSize=1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator="institution_id_seq")
+    @SequenceGenerator(name = "institution_id_seq", sequenceName = "institution_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "institution_id_seq")
     private int id;
 
     @NotNull

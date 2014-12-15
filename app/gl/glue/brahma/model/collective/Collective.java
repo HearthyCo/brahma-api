@@ -7,8 +7,8 @@ import javax.validation.constraints.NotNull;
 public class Collective {
 
     @Id
-    @SequenceGenerator(name="collective_id_seq", sequenceName="collective_id_seq", allocationSize=1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator="collective_id_seq")
+    @SequenceGenerator(name = "collective_id_seq", sequenceName = "collective_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "collective_id_seq")
     private int id;
 
     @NotNull

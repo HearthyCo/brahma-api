@@ -11,7 +11,7 @@ import javax.persistence.ManyToOne;
 public class Professional extends User {
 
     @ManyToOne
-    @JoinColumn(name="manager_user_id")
+    @JoinColumn(name = "manager_user_id")
     private Coordinator manager;
 
 

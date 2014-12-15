@@ -9,7 +9,7 @@ import java.util.Set;
 @DiscriminatorValue("COORDINATOR")
 public class Coordinator extends User {
 
-    @OneToMany(mappedBy="manager")
+    @OneToMany(mappedBy = "manager")
     private Set<Professional> professionals;
 
 

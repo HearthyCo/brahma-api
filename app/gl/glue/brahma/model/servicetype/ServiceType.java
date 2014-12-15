@@ -11,12 +11,12 @@ public class ServiceType {
     public enum ServiceMode {ASYNC, VIDEO}
 
     @Id
-    @SequenceGenerator(name="service_type_id_seq", sequenceName="service_type_id_seq", allocationSize=1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator="service_type_id_seq")
+    @SequenceGenerator(name = "service_type_id_seq", sequenceName = "service_type_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "service_type_id_seq")
     private int id;
 
     @ManyToOne
-    @JoinColumn(name="field_id")
+    @JoinColumn(name = "field_id")
     @NotNull
     private Field field;
 

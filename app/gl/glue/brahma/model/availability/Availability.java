@@ -10,12 +10,12 @@ import java.util.Date;
 public class Availability {
 
     @Id
-    @SequenceGenerator(name="availability_id_seq", sequenceName="availability_id_seq", allocationSize=1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator="availability_id_seq")
+    @SequenceGenerator(name = "availability_id_seq", sequenceName = "availability_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "availability_id_seq")
     private int id;
 
     @ManyToOne
-    @JoinColumn(name="user_id")
+    @JoinColumn(name = "user_id")
     @NotNull
     private Professional user;
 
@@ -31,7 +31,6 @@ public class Availability {
     private Date scheduleEndTime;
 
     private int repeat;
-
 
     public int getId() {
         return id;

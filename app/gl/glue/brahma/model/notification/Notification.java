@@ -10,12 +10,12 @@ import java.util.Date;
 public class Notification {
 
     @Id
-    @SequenceGenerator(name="notification_id_seq", sequenceName="notification_id_seq", allocationSize=1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator="notification_id_seq")
+    @SequenceGenerator(name = "notification_id_seq", sequenceName = "notification_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "notification_id_seq")
     private int id;
 
     @ManyToOne
-    @JoinColumn(name="user_id")
+    @JoinColumn(name = "user_id")
     @NotNull
     private User user;
 

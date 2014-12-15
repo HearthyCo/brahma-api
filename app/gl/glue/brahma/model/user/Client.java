@@ -10,7 +10,7 @@ import javax.persistence.ManyToOne;
 public class Client extends User {
 
     @ManyToOne
-    @JoinColumn(name="tutor_user_id")
+    @JoinColumn(name = "tutor_user_id")
     private Tutor tutor;
 
 
