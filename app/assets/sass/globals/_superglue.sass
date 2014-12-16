@@ -1,0 +1,135 @@
+// Mobile
+$screen-width-max-mobile: 767px
+=only-mobile
+  :max-width $screen-width-max-mobile
+
+// Tablet
+$screen-width-min-tablet: ($screen-width-max-mobile + 1)
+$screen-width-max-tablet: 991px
+// Desktop
+$screen-width-min-desktop-ld: ($screen-width-max-tablet + 1)
+$screen-width-max-desktop-ld: 1399px
+$screen-width-min-desktop-hd: ($screen-width-max-desktop-ld + 1)
+$screen-width-max-desktop-hd: 1919px
+$screen-width-min-desktop-fullhd: ($screen-width-max-desktop-hd + 1)
+
+$screen-sizes: xs s m l xl
+$device-types: mobile tablet desktop
+$device-desktop-types: desktop-ld desktop-hd desktop-fullhd
+
+$columns: 16
+
+//.superglue
+//.row
+//.column
+//.columns
+//.stackable
+//.hide
+//.only
+//.show
+
+/****************************
+  Column
+  ****************************
+
+.column
+  :display inline-block
+
+=column-n($n)
+  :width ((100% / $columns) * $n)
+
+// Common
+@for $i from 1 through $columns
+  .column-#{$i}
+    +column-n($i)
+    :display inline-block
+
+// Mobile only
+@media only screen and (max-width: $screen-width-max-mobile)
+  @for $i from 1 through $columns
+    .column-#{$i}-mobile
+      +column-n($i)
+
+// Tablet only
+@media only screen and (min-width: $screen-width-min-tablet) and (max-width: $screen-width-max-tablet)
+  @for $i from 1 through $columns
+    .column-#{$i}-tablet
+      +column-n($i)
+
+// Desktop only
+@media only screen and (min-width: $screen-width-min-desktop-ld)
+  @for $i from 1 through $columns
+    .column-#{$i}-desktop
+      +column-n($i)
+
+// Desktop LD
+@media only screen and (min-width: $screen-width-min-desktop-ld) and (max-width: $screen-width-max-desktop-ld)
+  @for $i from 1 through $columns
+    .column-#{$i}-desktop-ld
+      +column-n($i)
+
+// Desktop HD
+@media only screen and (min-width: $screen-width-min-desktop-hd) and (max-width: $screen-width-max-desktop-hd)
+  @for $i from 1 through $columns
+    .column-#{$i}-desktop-hd
+      +column-n($i)
+
+// Desktop Full HD
+@media only screen and (min-width: $screen-width-min-desktop-fullhd)
+  @for $i from 1 through $columns
+    .column-#{$i}-desktop-fullhd
+      +column-n($i)
+
+/****************************
+  Columns
+  ****************************
+
+=columns-n($n)
+  :width (100% / $n)
+
+// Common
+@for $i from 1 through $columns
+  .columns-#{$i} > .column
+    +columns-n($i)
+
+=columns-n-suffix($suffix)
+  // Common
+  @for $i from 1 through $columns
+    .columns-#{$i}-#{$suffix} > .column
+      +columns-n($i)
+
+@each $device in $device-types
+  @media only screen and (max-width: $screen-width-max-mobile)
+    @for $i from 1 through $columns
+      .columns-#{$i}-mobile > .column
+        +columns-n($i)
+
+// Tablet only
+@media only screen and (min-width: $screen-width-min-tablet) and (max-width: $screen-width-max-tablet)
+  @for $i from 1 through $columns
+    .columns-#{$i}-tablet > .column
+      +columns-n($i)
+
+// Desktop only
+@media only screen and (min-width: $screen-width-min-desktop-ld)
+  @for $i from 1 through $columns
+    .columns-#{$i}-desktop > .column
+      +columns-n($i)
+
+// Desktop LD
+@media only screen and (min-width: $screen-width-min-desktop-ld) and (max-width: $screen-width-max-desktop-ld)
+  @for $i from 1 through $columns
+    .columns-#{$i}-desktop-ld > .column
+      +columns-n($i)
+
+// Desktop HD
+@media only screen and (min-width: $screen-width-min-desktop-hd) and (max-width: $screen-width-max-desktop-hd)
+  @for $i from 1 through $columns
+    .columns-#{$i}-desktop-hd > .column
+      +columns-n($i)
+
+// Desktop Full HD
+@media only screen and (min-width: $screen-width-min-desktop-fullhd)
+  @for $i from 1 through $columns
+    .columns-#{$i}-desktop-fullhd > .column
+      +columns-n($i)
