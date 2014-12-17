@@ -14,7 +14,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     v.vm.provider "docker" do |d|
       d.name = "postgres"
       d.image = "library/postgres"
-      d.volumes = ["/var/lib/postgresql/data:/data"]
+      d.volumes = ["/data:/var/lib/postgresql/data"]
       d.ports = ["5432:5432"]
       d.env = {
         POSTGRES_USER: "brahma",
@@ -23,6 +23,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       }
       d.vagrant_vagrantfile = "./proxy.Vagrantfile"
     end
+    v.vm.synced_folder "docker-entrypoint-initdb.d", "/docker-entrypoint-initdb.d"
   end
 
   config.vm.define "activator" do |v|
