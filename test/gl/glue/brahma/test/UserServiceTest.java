@@ -22,8 +22,6 @@ public class UserServiceTest extends TransactionalTest {
         user.setBirthdate(new Date());
         user.setGender(User.Gender.OTHER);
         user.setName("Test User");
-        user.setMeta("{}");
-        user.setCanLogin(true);
         return user;
     }
 

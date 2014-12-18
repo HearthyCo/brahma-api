@@ -1,6 +1,10 @@
 package gl.glue.brahma.model.user;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.mindrot.jbcrypt.BCrypt;
+import play.libs.Json;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -22,10 +26,12 @@ public abstract class User {
     @NotNull
     private String login;
 
+    @JsonIgnore
     private String password;
 
     @NotNull
-    private boolean canLogin;
+    @JsonIgnore
+    private boolean canLogin = true;
 
     @NotNull
     private String name;
@@ -35,6 +41,7 @@ public abstract class User {
     private String surname2;
 
     @NotNull
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
     private Date birthdate;
 
     private String avatar;
@@ -45,10 +52,14 @@ public abstract class User {
     @NotNull
     private Gender gender;
 
+    @JsonIgnore
     private Date onlineLimit;
 
     @NotNull // Fake to prevent typing bug
-    private String meta;
+    private String meta = "{}";
+
+    @Transient
+    private JsonNode metaParsed; // Cache for meta parsing
 
 
     public int getId() {
@@ -135,12 +146,16 @@ public abstract class User {
         this.onlineLimit = onlineLimit;
     }
 
-    public String getMeta() {
-        return meta;
+    public JsonNode getMeta() {
+        if (metaParsed == null) {
+            metaParsed = meta == null ? Json.newObject() : Json.parse(meta);
+        }
+        return metaParsed;
     }
 
-    public void setMeta(String meta) {
-        this.meta = meta;
+    public void setMeta(JsonNode meta) {
+        this.metaParsed = meta;
+        this.meta = meta == null ? "{}" : meta.toString();
     }
 
 
