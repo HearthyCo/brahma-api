@@ -1,11 +1,8 @@
 package gl.glue.brahma.service;
 
-import gl.glue.brahma.model.user.Client;
 import gl.glue.brahma.model.user.User;
 import gl.glue.brahma.model.user.UserDao;
 import play.db.jpa.Transactional;
-
-import java.util.Date;
 
 public class UserService {
 

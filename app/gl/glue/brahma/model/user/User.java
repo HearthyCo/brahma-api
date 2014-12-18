@@ -26,7 +26,6 @@ public abstract class User {
     @NotNull
     private String login;
 
-    @JsonIgnore
     private String password;
 
     @NotNull

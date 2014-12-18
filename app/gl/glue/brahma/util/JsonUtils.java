@@ -1,5 +1,6 @@
 package gl.glue.brahma.util;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
@@ -7,8 +8,16 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import play.libs.Json;
 
+import java.util.*;
+
 public class JsonUtils {
 
+    /**
+     * Generates a simple JSON error response for the specified error.
+     * @param status The HTTP status code.
+     * @param title A human-readable error description.
+     * @return A JSON containing the specified error.
+     */
     public static ObjectNode simpleError(String status, String title) {
         ObjectNode result = Json.newObject();
         ArrayNode errors = result.arrayNode();
@@ -20,18 +29,27 @@ public class JsonUtils {
         return result;
     }
 
+    /**
+     * Generates a JSON error response for body decode errors.
+     * @return A JSON detailing the error.
+     */
     public static ObjectNode noJsonBodyError() {
         return simpleError("400", "Expected a JSON body in the request.");
     }
 
+    /**
+     * Generates a JSON error response for a missing field.
+     * @param field The name of the field.
+     * @return A JSON detailing the error.
+     */
     public static ObjectNode missingRequiredField(String field) {
         return simpleError("400", "Missing required field \"" + field + "\"");
     }
 
     /**
      * Check if a JSON request contains all the required fields.
-     * @param json The request JSON
-     * @param args The required fields (specified by strings such as "user.login")
+     * @param json The request JSON.
+     * @param args The required fields (specified by strings such as "user.login").
      * @return An error for the first missing field, or null if no errors found.
      */
     public static ObjectNode checkRequiredFields(JsonNode json, String... args) {
@@ -39,13 +57,11 @@ public class JsonUtils {
             return noJsonBodyError();
         } else {
             for (String arg : args) {
-                System.out.println("Checking for: " + arg);
                 JsonNode t = json;
                 for (String field: arg.split("\\.")) {
                     if (!t.has(field)) {
                         return missingRequiredField(arg);
                     }
-                    System.out.println("Found field: " + field);
                     t = t.get(field);
                 }
             }
@@ -53,8 +69,14 @@ public class JsonUtils {
         return null;
     }
 
+    /**
+     * Generates a JSON response for the given error during the deserialization.
+     * @param e The exception thrown by Jackson.
+     * @param where The entity name that was being decoded.
+     * @return A JSON detailing the error.
+     */
     public static ObjectNode handleDeserializeException(Throwable e, String where) {
-        String msg = "Unknown error while decoding user.";
+        String msg = "Unknown error while decoding " + where + ".";
         if (e.getCause() instanceof UnrecognizedPropertyException) {
             msg = "Received unrecognized field: \"";
             msg += ((UnrecognizedPropertyException)e.getCause()).getPropertyName();
@@ -63,8 +85,58 @@ public class JsonUtils {
             msg = "Invalid value for field: \"";
             msg += ((InvalidFormatException)e.getCause()).getPath().get(0).getFieldName();
             msg += "\"";
+        } else if (e.getCause() instanceof JsonMappingException) {
+            msg = "Invalid value for field: \"";
+            msg += ((JsonMappingException)e.getCause()).getPath().get(0).getFieldName();
+            msg += "\"";
         }
         return simpleError("400", msg);
+    }
+
+
+    /**
+     * Similar to {@link #cleanFields(ObjectNode, TreeMap)}, but receiving the allowed fields list as multiple parameters.
+     * @param json The JSON object to clean. It will be modified in place.
+     * @param allowed The list of allowed fields, specified as "path.to.leaf".
+     * @return The same JSON object after cleaning it.
+     */
+    public static ObjectNode cleanFields(ObjectNode json, String... allowed) {
+        TreeMap<String> map = new TreeMap<>();
+        for (String s: allowed) map.add(s.split("\\."));
+        return cleanFields(json, map);
+    }
+
+    /**
+     * Similar to {@link #cleanFields(ObjectNode, TreeMap)}, but receiving the allowed fields list as a list of strings.
+     * @param json The JSON object to clean. It will be modified in place.
+     * @param allowed The list of allowed fields, specified as "path.to.leaf".
+     * @return The same JSON object after cleaning it.
+     */
+    public static ObjectNode cleanFields(ObjectNode json, List<String> allowed) {
+        TreeMap<String> map = new TreeMap<>();
+        allowed.forEach(s -> map.add(s.split("\\.")));
+        return cleanFields(json, map);
+    }
+
+    /**
+     * Cleans a JSON object removing all the fields not on the allowed list.
+     * @param json The JSON object to clean. It will be modified in place.
+     * @param allowed The list of allowed fields.
+     * @return The same JSON object after cleaning it.
+     */
+    public static ObjectNode cleanFields(ObjectNode json, TreeMap<String> allowed) {
+        json.fields().forEachRemaining(i -> {
+            String key = i.getKey();
+            TreeMap<String> submap = allowed.get(key);
+            if (submap != null) {
+                if (i.getValue().isObject()) {
+                    json.replace(key, cleanFields((ObjectNode)i.getValue(), submap));
+                }
+            } else {
+                json.remove(key);
+            }
+        });
+        return json;
     }
 
 }
