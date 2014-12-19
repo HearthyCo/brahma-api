@@ -2,8 +2,6 @@ package gl.glue.brahma.test;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
-import javax.persistence.Persistence;
-import javax.transaction.Transaction;
 
 import com.typesafe.config.ConfigFactory;
 import org.junit.After;
@@ -11,7 +9,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 
 import org.junit.BeforeClass;
-import play.Configuration;
 import play.db.jpa.JPA;
 import play.db.jpa.JPAPlugin;
 import play.test.FakeApplication;
@@ -19,12 +16,12 @@ import play.test.Helpers;
 import scala.Option;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 
 public abstract class TransactionalTest {
 
+    protected static play.api.test.FakeApplication app;
     protected static EntityManager em;
     protected EntityTransaction tx;
 
@@ -33,10 +30,11 @@ public abstract class TransactionalTest {
         Map<String, String> settings = new HashMap<String, String>();
         ConfigFactory.parseResourcesAnySyntax("application-test.conf").entrySet().forEach(
                 entry -> settings.put(entry.getKey(), entry.getValue().unwrapped().toString()));
-        FakeApplication app = Helpers.fakeApplication(settings);
-        Helpers.start(app);
-        Option<JPAPlugin> jpaPlugin = app.getWrappedApplication().plugin(JPAPlugin.class);
-        em = jpaPlugin.get().em("test");
+        FakeApplication myapp = Helpers.fakeApplication(settings);
+        Helpers.start(myapp);
+        app = myapp.getWrappedApplication();
+        Option<JPAPlugin> jpaPlugin = app.plugin(JPAPlugin.class);
+        em = jpaPlugin.get().em("default");
         JPA.bindForCurrentThread(em);
     }
 

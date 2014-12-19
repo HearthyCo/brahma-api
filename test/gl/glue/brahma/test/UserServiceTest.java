@@ -6,7 +6,6 @@ import gl.glue.brahma.service.UserService;
 import org.junit.Test;
 
 import javax.persistence.PersistenceException;
-import javax.validation.ConstraintViolationException;
 import java.util.Date;
 
 import static org.junit.Assert.*;
@@ -77,7 +76,7 @@ public class UserServiceTest extends TransactionalTest {
 
     @Test
     public void testLoginBlockedUser() {
-        User ret = userService.login("testNonexistentUser", "anyPassword");
+        User ret = userService.login("testPet1", "testPet1");
         assertNull(ret);
     }
 

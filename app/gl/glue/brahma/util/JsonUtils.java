@@ -6,8 +6,12 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import play.api.libs.iteratee.Enumerator;
 import play.libs.Json;
+import play.mvc.Result;
+import scala.collection.mutable.WrappedArray;
 
+import java.lang.reflect.Field;
 import java.util.*;
 
 public class JsonUtils {
@@ -137,6 +141,29 @@ public class JsonUtils {
             }
         });
         return json;
+    }
+
+    /**
+     * Extracts the JSON body of a Result object.
+     * @param result The Result returned by the appllication.
+     * @return The JSON it contained in the body, or null if not available.
+     */
+    @SuppressWarnings("unchecked")
+    public static ObjectNode result2json(Result result) {
+        Enumerator<byte[]> enumerator = result.toScala().body();
+        /* No f***ing way I'm going to do all that Iteratee nonsense! */
+        try {
+            Field f = enumerator.getClass().getDeclaredFields()[0];
+            WrappedArray<Object> wa = (WrappedArray<Object>)f.get(enumerator);
+            Field f2 = wa.getClass().getDeclaredFields()[0];
+            f2.setAccessible(true);
+            byte[][] bytes = (byte[][])f2.get(wa);
+            String body = new String(bytes[0]);
+            return (ObjectNode)Json.parse(body);
+        } catch (Exception e) {
+            return null;
+        }
+
     }
 
 }
