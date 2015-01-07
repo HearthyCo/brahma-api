@@ -96,6 +96,7 @@ public class JsonUtils {
         }
         else {
             msg += e.getMessage();
+            e.printStackTrace();
         }
         return simpleError("400", msg);
     }
@@ -132,6 +133,7 @@ public class JsonUtils {
      * @return The same JSON object after cleaning it.
      */
     public static ObjectNode cleanFields(ObjectNode json, TreeMap<String> allowed) {
+        List<String> remove = new ArrayList<>();
         json.fields().forEachRemaining(i -> {
             String key = i.getKey();
             TreeMap<String> submap = allowed.get(key);
@@ -140,9 +142,10 @@ public class JsonUtils {
                     json.replace(key, cleanFields((ObjectNode)i.getValue(), submap));
                 }
             } else {
-                json.remove(key);
+                remove.add(key);
             }
         });
+        remove.forEach(i -> json.remove(i));
         return json;
     }
 
