@@ -35,9 +35,9 @@ public class UserControllerTest extends TransactionalTest {
         ObjectNode user = Json.newObject();
         user.put("login", login);
         user.put("password", pass);
-        ObjectNode body = Json.newObject();
-        body.put("user", user);
-        FakeRequest fr = fakeRequest(POST, "/v1/user/login").withJsonBody(body);
+        //ObjectNode body = Json.newObject();
+        //body.put("user", user);
+        FakeRequest fr = fakeRequest(POST, "/v1/user/login").withJsonBody(user);
         Result result = routeAndCall(fr, REQUEST_TIMEOUT);
         assertNotNull(result);
         return result;
@@ -61,9 +61,7 @@ public class UserControllerTest extends TransactionalTest {
         user.put("login", login);
         user.put("password", login);
         user.put("canLogin", true);
-        ObjectNode body = Json.newObject();
-        body.put("user", user);
-        FakeRequest fr = fakeRequest(POST, "/v1/user/login").withJsonBody(body);
+        FakeRequest fr = fakeRequest(POST, "/v1/user/login").withJsonBody(user);
         Result result = routeAndCall(fr, REQUEST_TIMEOUT);
         assertNotNull(result);
         assertEquals(200, result.toScala().header().status());
@@ -95,6 +93,25 @@ public class UserControllerTest extends TransactionalTest {
         assertEquals(401, result.toScala().header().status());
         assertFalse(hasCookies(result));
         assertError(toJson(result), 401);
+    }
+
+    //@Test // Disabled: there is some problem with transactions on this layer...
+    public void testRegisterOk() {
+        String login = "testNonexistentUser";
+        ObjectNode user = Json.newObject();
+        user.put("login", login);
+        user.put("password", "anyPassword");
+        user.put("name", "testName");
+        user.put("gender", "OTHER");
+        user.put("birthdate", "1970-01-01");
+        FakeRequest fr = fakeRequest(POST, "/v1/user").withJsonBody(user);
+        Result result = routeAndCall(fr, REQUEST_TIMEOUT);
+        assertNotNull(result);
+        assertEquals(200, result.toScala().header().status());
+        assertTrue(hasCookies(result));
+        ObjectNode ret = toJson(result);
+        assertTrue(ret.has("users"));
+        assertEquals(login, ret.get("users").get("login").asText());
     }
 
 }

@@ -80,19 +80,22 @@ public class JsonUtils {
      * @return A JSON detailing the error.
      */
     public static ObjectNode handleDeserializeException(Throwable e, String where) {
-        String msg = "Unknown error while decoding " + where + ".";
+        String msg = "Error while decoding " + where + ": ";
         if (e.getCause() instanceof UnrecognizedPropertyException) {
-            msg = "Received unrecognized field: \"";
+            msg += "Received unrecognized field: \"";
             msg += ((UnrecognizedPropertyException)e.getCause()).getPropertyName();
             msg += "\"";
         } else if (e.getCause() instanceof InvalidFormatException) {
-            msg = "Invalid value for field: \"";
+            msg += "Invalid value for field: \"";
             msg += ((InvalidFormatException)e.getCause()).getPath().get(0).getFieldName();
             msg += "\"";
         } else if (e.getCause() instanceof JsonMappingException) {
-            msg = "Invalid value for field: \"";
+            msg += "Invalid value for field: \"";
             msg += ((JsonMappingException)e.getCause()).getPath().get(0).getFieldName();
             msg += "\"";
+        }
+        else {
+            msg += e.getMessage();
         }
         return simpleError("400", msg);
     }

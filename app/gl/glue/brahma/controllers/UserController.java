@@ -23,10 +23,10 @@ public class UserController extends Controller {
     @BodyParser.Of(BodyParser.Json.class)
     public static Result login() {
         JsonNode json = request().body().asJson();
-        ObjectNode result = JsonUtils.checkRequiredFields(json, "user.login", "user.password");
+        ObjectNode result = JsonUtils.checkRequiredFields(json, "login", "password");
         if (result != null) return badRequest(result);
-        String login = json.findPath("user").findPath("login").textValue();
-        String pass = json.findPath("user").findPath("password").textValue();
+        String login = json.findPath("login").textValue();
+        String pass = json.findPath("password").textValue();
         User user = userService.login(login, pass);
         if (user == null) {
             return status(401, JsonUtils.simpleError("401", "Invalid username or password."));
@@ -48,7 +48,7 @@ public class UserController extends Controller {
         Client client;
         try {
             json = JsonUtils.cleanFields((ObjectNode)json, ModelSecurity.USER_MODIFICABLE_FIELDS);
-            client = Json.fromJson(json.get("user"), Client.class);
+            client = Json.fromJson(json, Client.class);
         } catch (RuntimeException e) {
             return status(400, JsonUtils.handleDeserializeException(e, "user"));
         }
