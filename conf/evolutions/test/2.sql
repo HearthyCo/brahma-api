@@ -49,9 +49,16 @@ INSERT INTO notification (id, user_id, type, meta, creation_date, notification_d
     (90600, 90000, 'session', '{}', '2014-12-15 08:00:00', '2015-03-02 17:00:00'),
     (90601, 90005, 'session', '{}', '2014-12-15 09:00:00', '2015-03-02 17:00:00');
 
-INSERT INTO session (id, client_user_id, client_notification_id, professional_user_id, professional_notification_id, service_id, availability_id, start_date, end_date, state) VALUES
-    (90700, 90000, 90600, 90005, 90601, 90401, 90501, '2015-03-02 17:00:00', '2015-03-02 17:15:00', 'PROGRAMMED'),
-    (90701, 90001, null, 90008, null, 90402, 90502, '2015-03-01 12:00:00', '2015-03-01 12:15:00', 'CANCELED');
+INSERT INTO session (id, start_date, end_date, state, timestamp) VALUES
+    (90700, '2015-03-02 17:00:00', '2015-03-02 17:15:00', 'PROGRAMMED', '2014-12-15 08:00:00'),
+    (90701, '2015-03-01 12:00:00', '2015-03-01 12:15:00', 'CANCELED', '2014-12-15 09:00:00');
+
+INSERT INTO "session_user" (id, session_id, user_id, notification_id, service_id, availability_id) VALUES
+    (91600, 90700, 90000, 90600, 90401, 90501),
+    (91601, 90701, 90001, null, 90402, 90502),
+    (91602, 90700, 90005, 90601, 90401, 90501),
+    (91603, 90701, 90008, null, 90402, 90502);
+
 
 INSERT INTO session_log (id, session_id, user_id, timestamp, action) VALUES
     (90800, 90700, 90005, '2014-12-15 08:00:00', 'ACCEPT'),

@@ -141,40 +141,44 @@ CREATE INDEX availability_user_id ON availability (user_id ASC);
 
 CREATE TABLE IF NOT EXISTS session (
   id                           SERIAL        NOT NULL,
-  client_user_id               INT           NOT NULL,
-  client_notification_id       INT           NULL,
-  professional_user_id         INT           NOT NULL,
-  professional_notification_id INT           NULL,
-  service_id                   INT           NOT NULL,
-  availability_id              INT           NOT NULL,
   start_date                   TIMESTAMP     NOT NULL,
   end_date                     TIMESTAMP     NULL,
   state                        session_state NOT NULL,
-  report                       TEXT          NULL,
   meta                         JSON          NULL,
+  timestamp                    TIMESTAMP     NOT NULL,
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS "session_user" (
+  id                           SERIAL        NOT NULL,
+  user_id                      INT           NOT NULL,
+  session_id                   INT           NOT NULL,
+  viewed_date                  TIMESTAMP     NULL,
+  notification_id              INT           NULL,
+  service_id                   INT           NULL,
+  availability_id              INT           NULL,
+  meta                         JSON          NULL,
+  report                       TEXT          NULL,
   PRIMARY KEY (id),
-  CONSTRAINT fk_session_user1
-  FOREIGN KEY (client_user_id)
+  CONSTRAINT fk_session_user_user1
+  FOREIGN KEY (user_id)
   REFERENCES "user" (id),
-  CONSTRAINT fk_session_user2
-  FOREIGN KEY (professional_user_id)
-  REFERENCES "user" (id),
-  CONSTRAINT fk_session_notification1
-  FOREIGN KEY (client_notification_id)
+  CONSTRAINT fk_session_user_session1
+  FOREIGN KEY (session_id)
+  REFERENCES session (id),
+  CONSTRAINT fk_session_user_notification1
+  FOREIGN KEY (notification_id)
   REFERENCES notification (id),
-  CONSTRAINT fk_session_notification2
-  FOREIGN KEY (professional_notification_id)
-  REFERENCES notification (id),
-  CONSTRAINT fk_session_service1
+  CONSTRAINT fk_session_user_service1
   FOREIGN KEY (service_id)
   REFERENCES service (id),
-  CONSTRAINT fk_session_availability1
+  CONSTRAINT fk_session_user_availability1
   FOREIGN KEY (availability_id)
   REFERENCES availability (id)
 );
-CREATE INDEX session_client_user_id ON session (client_user_id ASC);
-CREATE INDEX session_professional_user_id ON session (professional_user_id ASC);
-CREATE INDEX session_availability_id ON session (availability_id ASC);
+CREATE INDEX session_user_user_id ON "session_user" (user_id ASC);
+CREATE INDEX session_user_session_id ON "session_user" (session_id ASC);
+CREATE INDEX session_user_availability_id ON "session_user" (availability_id ASC);
 
 CREATE TABLE IF NOT EXISTS session_log (
   id         SERIAL         NOT NULL,
