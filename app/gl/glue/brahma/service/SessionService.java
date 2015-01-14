@@ -8,8 +8,8 @@ public class SessionService {
     private SessionDao sessionDao = new SessionDao();
 
     @Transactional
-    public Session get(int id) {
-        Session session = sessionDao.findById(id);
+    public Session get(int id, String login) {
+        Session session = sessionDao.findById(id, login);
         if (session != null) {
             return session;
         } else {
