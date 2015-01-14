@@ -2,7 +2,6 @@ package gl.glue.brahma.test;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.FluentIterable;
-import gl.glue.brahma.model.session.Session;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -27,32 +26,32 @@ public class SessionControllerTest extends TransactionalTest {
     }
 
     @test
-    private void returnSessionWithoutParams() {
+    public void returnSessionWithoutParams() {
 
     }
 
     @test
-    private void returnSessionWithoutAuthentication() {
+    public void returnSessionWithoutAuthentication() {
 
     }
 
     @test
-    private void returnSessionWithInvalidAuthentication() {
+    public void returnSessionWithInvalidAuthentication() {
 
     }
 
     @test
-    private void returnSessionInvalidId() {
+    public void returnSessionInvalidId() {
 
     }
 
     @test
-    private void returnSessionValidId() {
+    public void returnSessionValidId() {
         String login = "testClient1";
-        Result result = makeLoginRequest(login, login);
+        Result response = makeLoginRequest(login, login);
 
         int id = 90700;
-        Http.Cookie[] cookies = FluentIterable.from(cookies(result)).toArray(Http.Cookie.class);
+        Http.Cookie[] cookies = FluentIterable.from(cookies(response)).toArray(Http.Cookie.class);
 
         FakeRequest fr = fakeRequest(GET, "/v1/session/" + id).withCookies(cookies);
         Result result = routeAndCall(fr, REQUEST_TIMEOUT);
