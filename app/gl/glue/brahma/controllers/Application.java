@@ -15,6 +15,7 @@ import gl.glue.brahma.model.service.Service;
 import gl.glue.brahma.model.servicetype.ServiceType;
 import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.model.sessionlog.SessionLog;
+import gl.glue.brahma.model.sessionuser.SessionUser;
 import gl.glue.brahma.model.transaction.Transaction;
 import gl.glue.brahma.model.user.User;
 import play.db.jpa.JPA;
@@ -56,6 +57,9 @@ public class Application extends Controller {
 
         System.out.println("\n-- Session --");
         JPA.em().createQuery("select x from Session x", Session.class).getResultList().forEach((i) -> System.out.println(i));
+
+        System.out.println("\n-- SessionUser --");
+        JPA.em().createQuery("select x from SessionUser x", SessionUser.class).getResultList().forEach((i) -> System.out.println(i));
 
         System.out.println("\n-- SessionLog --");
         JPA.em().createQuery("select x from SessionLog x", SessionLog.class).getResultList().forEach((i) -> System.out.println(i));

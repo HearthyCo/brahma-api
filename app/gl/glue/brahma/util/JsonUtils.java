@@ -80,19 +80,23 @@ public class JsonUtils {
      * @return A JSON detailing the error.
      */
     public static ObjectNode handleDeserializeException(Throwable e, String where) {
-        String msg = "Unknown error while decoding " + where + ".";
+        String msg = "Error while decoding " + where + ": ";
         if (e.getCause() instanceof UnrecognizedPropertyException) {
-            msg = "Received unrecognized field: \"";
+            msg += "Received unrecognized field: \"";
             msg += ((UnrecognizedPropertyException)e.getCause()).getPropertyName();
             msg += "\"";
         } else if (e.getCause() instanceof InvalidFormatException) {
-            msg = "Invalid value for field: \"";
+            msg += "Invalid value for field: \"";
             msg += ((InvalidFormatException)e.getCause()).getPath().get(0).getFieldName();
             msg += "\"";
         } else if (e.getCause() instanceof JsonMappingException) {
-            msg = "Invalid value for field: \"";
+            msg += "Invalid value for field: \"";
             msg += ((JsonMappingException)e.getCause()).getPath().get(0).getFieldName();
             msg += "\"";
+        }
+        else {
+            msg += e.getMessage();
+            e.printStackTrace();
         }
         return simpleError("400", msg);
     }
@@ -129,6 +133,7 @@ public class JsonUtils {
      * @return The same JSON object after cleaning it.
      */
     public static ObjectNode cleanFields(ObjectNode json, TreeMap<String> allowed) {
+        List<String> remove = new ArrayList<>();
         json.fields().forEachRemaining(i -> {
             String key = i.getKey();
             TreeMap<String> submap = allowed.get(key);
@@ -137,9 +142,10 @@ public class JsonUtils {
                     json.replace(key, cleanFields((ObjectNode)i.getValue(), submap));
                 }
             } else {
-                json.remove(key);
+                remove.add(key);
             }
         });
+        remove.forEach(i -> json.remove(i));
         return json;
     }
 
