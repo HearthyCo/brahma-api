@@ -3,9 +3,13 @@
 # ~~~~
 
 # Home page
-GET         /                    gl.glue.brahma.controllers.Application.index()
-POST        /v1/user/login       gl.glue.brahma.controllers.UserController.login()
-POST        /v1/user/register    gl.glue.brahma.controllers.UserController.register()
+GET         /                        gl.glue.brahma.controllers.Application.index()
+POST        /v1/user/login           gl.glue.brahma.controllers.UserController.login()
+POST        /v1/user/register        gl.glue.brahma.controllers.UserController.register()
+
+# Sessions
+GET         /v1/sessions/:session   gl.glue.brahma.controllers.SessionController.get(session: int)
+
 
 # Map static resources from the /public folder to the /assets URL path
-GET         /assets/*file        controllers.Assets.at(path="/public", file)
+GET         /assets/*file            controllers.Assets.at(path="/public", file)
