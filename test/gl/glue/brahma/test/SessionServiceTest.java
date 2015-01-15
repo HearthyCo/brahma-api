@@ -15,7 +15,7 @@ public class SessionServiceTest extends TransactionalTest {
     public void returnSessionWithInvalidAuthentication() {
         int session = 90700;
         String login = "testClient2";
-        Session result = sessionService.get(session, login);
+        Session result = sessionService.getSession(session, login);
         assertEquals(null, result);
     }
 
@@ -23,7 +23,7 @@ public class SessionServiceTest extends TransactionalTest {
     public void returnSessionInvalidId() {
         int session = 0;
         String login = "testClient1";
-        Session result = sessionService.get(session, login);
+        Session result = sessionService.getSession(session, login);
         assertEquals(null, result);
     }
 
@@ -31,7 +31,7 @@ public class SessionServiceTest extends TransactionalTest {
     public void returnSessionOk() {
         int session = 90700;
         String login = "testClient1";
-        Session result = sessionService.get(session, login);
+        Session result = sessionService.getSession(session, login);
         assertNotNull(result);
         assertEquals(session, result.getId());
     }
