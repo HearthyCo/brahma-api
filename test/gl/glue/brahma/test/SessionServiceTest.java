@@ -36,4 +36,19 @@ public class SessionServiceTest extends TransactionalTest {
         assertEquals(session, result.getId());
     }
 
+    @Test // Request with an invalid session state
+    public void requestInvalidSessionState() {
+
+    }
+
+    @Test // Request with an valid session state
+    public void requestValidSessionState() {
+
+    }
+
+    @Test // Request session with closed (closed and finished) state
+    public void requestClosedSession() {
+
+    }
+
 }

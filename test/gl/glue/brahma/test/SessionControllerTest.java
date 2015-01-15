@@ -43,7 +43,7 @@ public class SessionControllerTest extends TransactionalTest {
     }
 
     @Test // Request without id param
-    public void returnSessionWithoutParams() {
+    public void requestSessionWithoutParams() {
         String login = "testClient1";
         Result responseLogin = makeLoginRequest(login, login);
 
@@ -56,7 +56,7 @@ public class SessionControllerTest extends TransactionalTest {
 
 
     @Test // Request without user authentication
-    public void returnSessionWithoutAuthentication() {
+    public void requestSessionWithoutAuthentication() {
         int id = 90700;
         FakeRequest fr = fakeRequest(GET, "/v1/session/" + id);
         Result result = routeAndCall(fr, REQUEST_TIMEOUT);
@@ -65,7 +65,7 @@ public class SessionControllerTest extends TransactionalTest {
     }
 
     @Test // Request with invalid user Authentication. User "testClient2" is not an user for session 90700
-    public void returnSessionWithInvalidAuthentication() {
+    public void requestSessionWithInvalidAuthentication() {
         String login = "testClient2";
         Result responseLogin = makeLoginRequest(login, login);
 
@@ -75,7 +75,7 @@ public class SessionControllerTest extends TransactionalTest {
     }
 
     @Test // Request with an non-existent session id
-    public void returnSessionInvalidId() {
+    public void requestSessionInvalidId() {
         String login = "testClient1";
         Result responseLogin = makeLoginRequest(login, login);
 
@@ -85,7 +85,7 @@ public class SessionControllerTest extends TransactionalTest {
     }
 
     @Test // Valid request
-    public void returnSessionOk() {
+    public void requestSessionOk() {
         String login = "testClient1";
         Result responseLogin = makeLoginRequest(login, login);
 
@@ -96,5 +96,20 @@ public class SessionControllerTest extends TransactionalTest {
         assertNotNull(result);
         assertEquals(200, result.toScala().header().status());
         assertEquals(id, ret.get("session").get("id").asInt());
+    }
+
+    @Test // Request with an invalid session state
+    public void requestInvalidSessionState() {
+
+    }
+
+    @Test // Request with an valid session state
+    public void requestValidSessionState() {
+
+    }
+
+    @Test // Request session with closed (closed and finished) state
+    public void requestClosedSession() {
+
     }
 }
