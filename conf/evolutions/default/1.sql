@@ -141,6 +141,7 @@ CREATE INDEX availability_user_id ON availability (user_id ASC);
 
 CREATE TABLE IF NOT EXISTS session (
   id                           SERIAL        NOT NULL,
+  title                        TEXT          NOT NULL,
   start_date                   TIMESTAMP     NOT NULL,
   end_date                     TIMESTAMP     NULL,
   state                        session_state NOT NULL,

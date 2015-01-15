@@ -1,11 +1,5 @@
 package gl.glue.brahma.model.session;
 
-import gl.glue.brahma.model.availability.Availability;
-import gl.glue.brahma.model.notification.Notification;
-import gl.glue.brahma.model.service.Service;
-import gl.glue.brahma.model.user.Client;
-import gl.glue.brahma.model.user.Professional;
-
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
@@ -20,6 +14,9 @@ public class Session {
     @SequenceGenerator(name = "session_id_seq", sequenceName = "session_id_seq", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "session_id_seq")
     private int id;
+
+    @NotNull
+    private String title;
 
     @NotNull
     private Date startDate;
@@ -38,6 +35,10 @@ public class Session {
     public int getId() {
         return id;
     }
+
+    public String getTitle() { return title; }
+
+    public void setTitle(String title) { this.title = title; }
 
     public Date getStartDate() {
         return startDate;
