@@ -24,7 +24,7 @@ public class SessionController extends Controller {
 
         Session session = sessionService.get(id, login);
         if (session == null) {
-            return status(401, JsonUtils.simpleError("401", "Invalid identifier"));
+            return status(404, JsonUtils.simpleError("404", "Invalid identifier"));
         }
 
         ObjectNode result = Json.newObject();
