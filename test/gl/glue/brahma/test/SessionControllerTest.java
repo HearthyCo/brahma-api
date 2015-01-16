@@ -9,9 +9,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.test.FakeRequest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 import static play.test.Helpers.*;
 
 public class SessionControllerTest extends TransactionalTest {
@@ -39,6 +37,13 @@ public class SessionControllerTest extends TransactionalTest {
         Http.Cookie[] cookies = FluentIterable.from(cookies(responseLogin)).toArray(Http.Cookie.class);
 
         FakeRequest fr = fakeRequest(GET, "/v1/session/" + id).withCookies(cookies);
+        return routeAndCall(fr, REQUEST_TIMEOUT);
+    }
+
+    private Result getSessionStateRequest(String state, Result responseLogin) {
+        Http.Cookie[] cookies = FluentIterable.from(cookies(responseLogin)).toArray(Http.Cookie.class);
+
+        FakeRequest fr = fakeRequest(GET, "/v1/user/sessions/" + state).withCookies(cookies);
         return routeAndCall(fr, REQUEST_TIMEOUT);
     }
 
@@ -100,16 +105,56 @@ public class SessionControllerTest extends TransactionalTest {
 
     @Test // Request with an invalid session state
     public void requestInvalidSessionState() {
+        String login = "testClient1";
+        Result responseLogin = makeLoginRequest(login, login);
 
+        String state = "dummystate";
+        Result result = getSessionStateRequest(state, responseLogin);
+
+        assertNull(result);
     }
 
-    @Test // Request with an valid session state
-    public void requestValidSessionState() {
+    @Test // Request session with an valid programmed state
+    public void requestProgrammedSession() {
+        String login = "testClient1";
+        Result responseLogin = makeLoginRequest(login, login);
 
+        String state = "programmed";
+        Result result = getSessionStateRequest(state, responseLogin);
+        ObjectNode ret = toJson(result);
+
+        assertNotNull(result);
+        assertEquals(200, result.toScala().header().status());
+        assertEquals(1, ret.get("sessions").size());
+        assertEquals(state, ret.get("state").asText().toLowerCase());
+    }
+
+    @Test // Request session with an valid underway state (Count 0)
+    public void requestUnderwaySession() {
+        String login = "testClient1";
+        Result responseLogin = makeLoginRequest(login, login);
+
+        String state = "underway";
+        Result result = getSessionStateRequest(state, responseLogin);
+        ObjectNode ret = toJson(result);
+
+        assertNotNull(result);
+        assertEquals(200, result.toScala().header().status());
+        assertEquals(0, ret.get("sessions").size());
     }
 
     @Test // Request session with closed (closed and finished) state
     public void requestClosedSession() {
+        String login = "testClient1";
+        Result responseLogin = makeLoginRequest(login, login);
 
+        String state = "closed";
+        Result result = getSessionStateRequest(state, responseLogin);
+        ObjectNode ret = toJson(result);
+
+        assertNotNull(result);
+        assertEquals(200, result.toScala().header().status());
+        assertEquals(2, ret.get("sessions").size());
+        assertEquals(state, ret.get("state").asText().toLowerCase());
     }
 }

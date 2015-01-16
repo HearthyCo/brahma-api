@@ -4,8 +4,9 @@ import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.service.SessionService;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 public class SessionServiceTest extends TransactionalTest {
 
@@ -38,17 +39,43 @@ public class SessionServiceTest extends TransactionalTest {
 
     @Test // Request with an invalid session state
     public void requestInvalidSessionState() {
-
+        String state = "dummystate";
+        String login = "testClient1";
+        List<Session> result = sessionService.getState(state, login);
+        assertEquals(null, result);
     }
 
-    @Test // Request with an valid session state
-    public void requestValidSessionState() {
+    @Test // Request session with an valid programmed state
+    public void requestProgrammedSession() {
+        String state = "programmed";
+        String login = "testClient1";
+        List<Session> result = sessionService.getState(state, login);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        for (Session session : result) {
+            assertEquals(state, session.getState().toString().toLowerCase());
+        }
+    }
 
+    @Test // Request session with an valid underway state (Count 0)
+    public void requestUnderwaySession() {
+        String state = "underway";
+        String login = "testClient1";
+        List<Session> result = sessionService.getState(state, login);
+        assertNotNull(result);
+        assertEquals(0, result.size());
     }
 
     @Test // Request session with closed (closed and finished) state
     public void requestClosedSession() {
-
+        String state = "closed";
+        String login = "testClient1";
+        List<Session> result = sessionService.getState(state, login);
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        for (Session session : result) {
+            assertTrue(state.equals(session.getState().toString().toLowerCase()) || "finished".equals(session.getState().toString().toLowerCase()));
+        }
     }
 
 }
