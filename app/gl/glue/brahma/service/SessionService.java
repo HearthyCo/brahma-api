@@ -1,8 +1,11 @@
 package gl.glue.brahma.service;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.model.session.SessionDao;
+import gl.glue.brahma.model.sessionuser.SessionUser;
 import play.db.jpa.Transactional;
+import play.libs.Json;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,10 +14,20 @@ public class SessionService {
     private SessionDao sessionDao = new SessionDao();
 
     @Transactional
-    public Session getSession(int id, String login) {
+    public ObjectNode getSession(int id, String login) {
+
+        ObjectNode result = Json.newObject();
+
         Session session = sessionDao.findById(id, login);
         if (session != null) {
-            return session;
+            result.put("session", Json.toJson(session));
+
+            List<SessionUser> users = sessionDao.findUsers(id);
+            if (users != null) {
+                result.put("users", Json.toJson(users));
+            }
+
+            return result;
         } else {
             return null;
         }
@@ -31,8 +44,7 @@ public class SessionService {
                 break;
             case "closed": states = new ArrayList<Session.State>(){{ add(Session.State.CLOSED); add(Session.State.FINISHED); }};
                 break;
-            default: states = new ArrayList<Session.State>(){};
-                break;
+            default: return null;
         }
 
         List<Session> session = sessionDao.findByState(states, login);
@@ -41,5 +53,16 @@ public class SessionService {
         } else {
             return null;
         }
+    }
+
+    public List<SessionUser> getUserSession(int id) {
+
+        List<SessionUser> users = sessionDao.findUsers(id);
+        if (users != null) {
+            return users;
+        } else {
+            return null;
+        }
+
     }
 }

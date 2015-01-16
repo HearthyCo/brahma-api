@@ -24,4 +24,14 @@ public class UserService {
         return user;
     }
 
+    @Transactional
+    public User get(int id) {
+        User user = userDao.findById(id);
+        if (user != null) {
+            return user;
+        } else {
+            return null;
+        }
+    }
+
 }

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.service.SessionService;
 import gl.glue.brahma.util.JsonUtils;
-import play.Logger;
 import play.db.jpa.Transactional;
 import play.libs.Json;
 import play.mvc.BodyParser;
@@ -20,19 +19,19 @@ public class SessionController extends Controller {
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
     public static Result getSession(int id) {
+        // Check if login
         String login = session("login");
         if(login == null) {
             return unauthorized("You are not logged in");
         }
 
-        Session session = sessionService.getSession(id, login);
+        // Get session with id param
+        ObjectNode session = sessionService.getSession(id, login);
         if (session == null) {
             return status(404, JsonUtils.simpleError("404", "Invalid identifier"));
         }
 
-        ObjectNode result = Json.newObject();
-        result.put("session", Json.toJson(session));
-        return ok(result);
+        return ok(session);
     }
 
     @Transactional
@@ -40,7 +39,6 @@ public class SessionController extends Controller {
     public static Result getState(String state) {
 
         String login = session("login");
-        Logger.info("STATE " + state + " FOR " + login + " -");
         if(login == null) {
             return unauthorized("You are not logged in");
         }
@@ -52,7 +50,6 @@ public class SessionController extends Controller {
 
         ObjectNode result = Json.newObject();
         result.put("state", state);
-        result.put("count", sessions.size());
         result.put("sessions", Json.toJson(sessions));
         return ok(result);
     }

@@ -21,4 +21,14 @@ public class UserDao {
         }
     }
 
+    public User findById(int id) {
+        try {
+            return JPA.em().createQuery("select x from User x where x.id = :id", User.class)
+                    .setParameter("id", id)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
 }
