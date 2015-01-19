@@ -3,7 +3,6 @@ package gl.glue.brahma.service;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.model.session.SessionDao;
-import gl.glue.brahma.model.sessionuser.SessionUser;
 import play.db.jpa.Transactional;
 import play.libs.Json;
 
@@ -13,6 +12,23 @@ import java.util.List;
 public class SessionService {
     private SessionDao sessionDao = new SessionDao();
 
+    private String getUserClass(String type) {
+        return type.split(" ")[1].split("\\.")[5];
+    }
+
+    private ObjectNode createUserObject(Object[] userObject) {
+        ObjectNode user = Json.newObject();
+
+        user.put("login", userObject[0].toString());
+        user.put("name", userObject[1].toString());
+        if(userObject[2] != null) user.put("surname1", userObject[2].toString());
+        if(userObject[3] != null) user.put("surname2", userObject[3].toString());
+        if(userObject[4] != null) user.put("avatar", userObject[4].toString());
+        if(userObject[5] != null) user.put("service", userObject[5].toString());
+
+        return user;
+    }
+
     @Transactional
     public ObjectNode getSession(int id, String login) {
 
@@ -20,11 +36,48 @@ public class SessionService {
 
         Session session = sessionDao.findById(id, login);
         if (session != null) {
+            // Add session object to result
             result.put("session", Json.toJson(session));
 
-            List<SessionUser> users = sessionDao.findUsers(id);
-            if (users != null) {
-                result.put("users", Json.toJson(users));
+            // Find users for session
+            List<Object[]> usersDao = sessionDao.findUsersSession(id);
+
+            String userType = "";
+            ArrayList<Object> clients = new ArrayList<Object>() {};
+            ArrayList<Object> profesionals = new ArrayList<Object>() {};
+
+            if (usersDao != null) {
+                for(Object[] userDao : usersDao) {
+
+                    // Get type user
+                    String type = getUserClass(userDao[6].toString());
+                    ObjectNode user = createUserObject(userDao);
+
+                    // Id user is equal to login save type login user in userType and add object me to result
+                    if (userDao[0].toString().equals(login)) {
+                        userType = type;
+                        result.put("me", user);
+                    } else {
+                        switch (type) {
+                            case "Client":
+                                clients.add(user);
+                                break;
+                            case "Professional":
+                                profesionals.add(user);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+
+                // Add objects to result depends on userType
+                if(userType.equals("Client")) {
+                    result.put("professionals", Json.toJson(profesionals));
+                } else if(userType.equals("Professional")) {
+                    result.put("clients", Json.toJson(profesionals));
+                    result.put("professionals", Json.toJson(profesionals));
+                }
             }
 
             return result;
@@ -53,16 +106,5 @@ public class SessionService {
         } else {
             return null;
         }
-    }
-
-    public List<SessionUser> getUserSession(int id) {
-
-        List<SessionUser> users = sessionDao.findUsers(id);
-        if (users != null) {
-            return users;
-        } else {
-            return null;
-        }
-
     }
 }

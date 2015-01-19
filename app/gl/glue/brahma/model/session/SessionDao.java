@@ -1,7 +1,5 @@
 package gl.glue.brahma.model.session;
 
-import gl.glue.brahma.model.sessionuser.SessionUser;
-import gl.glue.brahma.model.user.User;
 import play.db.jpa.JPA;
 
 import javax.persistence.NoResultException;
@@ -40,18 +38,20 @@ public class SessionDao {
         }
     }
 
-    public List<User> findUsers(int id) {
+    public List<Object[]> findUsersSession(int id) {
         try {
-            String query = "select user from User user " +
-                "right join SessionUser sessionUser on (user.id = sessionUser.user) " +
-                "left join Service service on (sessionUser.service = service.id) " +
-                "left join ServiceType serviceType on (service.serviceType = serviceType.id) " +
-                "left join Field field on (serviceType.field = field.id) " +
-                "where sessionUser.id = :id";
+            String query = "select user.login, user.name, user.surname1, user.surname2, user.avatar, field.name, type(user) " +
+                    "from SessionUser sessionUser " +
+                    "left join sessionUser.user user " +
+                    "left join sessionUser.service service " +
+                    "left join service.serviceType serviceType " +
+                    "left join serviceType.field field " +
+                    "where sessionUser.session.id = :id";
 
-            return JPA.em().createQuery(query, User.class)
+            return JPA.em().createQuery(query)
                     .setParameter("id", id)
                     .getResultList();
+
         } catch (NoResultException e) {
             return null;
         }
