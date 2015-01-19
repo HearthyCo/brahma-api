@@ -3,6 +3,7 @@ package gl.glue.brahma.model.session;
 import play.db.jpa.JPA;
 
 import javax.persistence.NoResultException;
+import java.util.Date;
 import java.util.List;
 
 public class SessionDao {
@@ -40,7 +41,7 @@ public class SessionDao {
 
     public List<Object[]> findUsersSession(int id) {
         try {
-            String query = "select user.login, user.name, user.surname1, user.surname2, user.avatar, field.name, type(user) " +
+            String query = "select user.login, user.name, user.surname1, user.surname2, user.avatar, field.name, type(user), sessionUser.report " +
                     "from SessionUser sessionUser " +
                     "left join sessionUser.user user " +
                     "left join sessionUser.service service " +
@@ -55,5 +56,15 @@ public class SessionDao {
         } catch (NoResultException e) {
             return null;
         }
+    }
+
+    public int setSessionUserViewedDate(int id) {
+        Date now = new Date();
+        String queryUpdateViewDate = "update SessionUser sessionUser set sessionUser.viewedDate = :now where sessionUser.id = :id";
+
+        return JPA.em().createQuery(queryUpdateViewDate)
+                .setParameter("id", id)
+                .setParameter("now", now)
+                .executeUpdate();
     }
 }

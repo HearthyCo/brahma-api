@@ -25,6 +25,7 @@ public class SessionService {
         if(userObject[3] != null) user.put("surname2", userObject[3].toString());
         if(userObject[4] != null) user.put("avatar", userObject[4].toString());
         if(userObject[5] != null) user.put("service", userObject[5].toString());
+        if(userObject[7] != null) user.put("report", userObject[7].toString());
 
         return user;
     }
@@ -34,30 +35,36 @@ public class SessionService {
 
         ObjectNode result = Json.newObject();
 
+        // Find session
         Session session = sessionDao.findById(id, login);
         if (session != null) {
             // Add session object to result
             result.put("session", Json.toJson(session));
 
-            // Find users for session
-            List<Object[]> usersDao = sessionDao.findUsersSession(id);
-
             String userType = "";
+            Boolean readed = false;
             ArrayList<Object> clients = new ArrayList<Object>() {};
             ArrayList<Object> profesionals = new ArrayList<Object>() {};
 
+            // Find users for session
+            List<Object[]> usersDao = sessionDao.findUsersSession(id);
             if (usersDao != null) {
                 for(Object[] userDao : usersDao) {
+                    String loginDao = userDao[0].toString();
+                    String userClass = userDao[6].toString();
 
                     // Get type user
-                    String type = getUserClass(userDao[6].toString());
+                    String type = getUserClass(userClass);
                     ObjectNode user = createUserObject(userDao);
 
-                    // Id user is equal to login save type login user in userType and add object me to result
-                    if (userDao[0].toString().equals(login)) {
+                    // Id user is equal to login save type login user in userType and add object "me" to result
+                    if (loginDao.equals(login)) {
+                        // Readed SessionUser
+                        readed = true;
                         userType = type;
                         result.put("me", user);
-                    } else {
+                    }
+                    else {
                         switch (type) {
                             case "Client":
                                 clients.add(user);
@@ -74,12 +81,17 @@ public class SessionService {
                 // Add objects to result depends on userType
                 if(userType.equals("Client")) {
                     result.put("professionals", Json.toJson(profesionals));
-                } else if(userType.equals("Professional")) {
+                }
+                else if(userType.equals("Professional")) {
                     result.put("clients", Json.toJson(profesionals));
                     result.put("professionals", Json.toJson(profesionals));
                 }
-            }
 
+                if(readed) {
+                    int resultSetViewedDate = sessionDao.setSessionUserViewedDate(id);
+                    result.put("updated", (resultSetViewedDate == 1) ? true : false);
+                }
+            }
             return result;
         } else {
             return null;
@@ -103,7 +115,8 @@ public class SessionService {
         List<Session> session = sessionDao.findByState(states, login);
         if (session != null) {
             return session;
-        } else {
+        }
+        else {
             return null;
         }
     }
