@@ -24,4 +24,24 @@ public class UserService {
         return user;
     }
 
+    @Transactional
+    public User getById(int id) {
+        User user = userDao.findById(id);
+        if (user != null) {
+            return user;
+        } else {
+            return null;
+        }
+    }
+
+    @Transactional
+    public User getByLogin(String login) {
+        User user = userDao.findByLogin(login);
+        if (user != null) {
+            return user;
+        } else {
+            return null;
+        }
+    }
+
 }

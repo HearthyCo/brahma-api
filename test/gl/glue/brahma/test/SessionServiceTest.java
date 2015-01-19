@@ -1,5 +1,6 @@
 package gl.glue.brahma.test;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.service.SessionService;
 import org.junit.Test;
@@ -16,7 +17,7 @@ public class SessionServiceTest extends TransactionalTest {
     public void returnSessionWithInvalidAuthentication() {
         int session = 90700;
         String login = "testClient2";
-        Session result = sessionService.getSession(session, login);
+        ObjectNode result = sessionService.getSession(session, login);
         assertEquals(null, result);
     }
 
@@ -24,7 +25,7 @@ public class SessionServiceTest extends TransactionalTest {
     public void returnSessionInvalidId() {
         int session = 0;
         String login = "testClient1";
-        Session result = sessionService.getSession(session, login);
+        ObjectNode result = sessionService.getSession(session, login);
         assertEquals(null, result);
     }
 
@@ -32,9 +33,9 @@ public class SessionServiceTest extends TransactionalTest {
     public void returnSessionOk() {
         int session = 90700;
         String login = "testClient1";
-        Session result = sessionService.getSession(session, login);
+        ObjectNode result = sessionService.getSession(session, login);
         assertNotNull(result);
-        assertEquals(session, result.getId());
+        assertEquals(session, result.get("session").get("id").asInt());
     }
 
     @Test // Request with an invalid session state
@@ -74,7 +75,8 @@ public class SessionServiceTest extends TransactionalTest {
         assertNotNull(result);
         assertEquals(2, result.size());
         for (Session session : result) {
-            assertTrue(state.equals(session.getState().toString().toLowerCase()) || "finished".equals(session.getState().toString().toLowerCase()));
+            assertTrue(state.equals(session.getState().toString().toLowerCase()) ||
+                    "finished".equals(session.getState().toString().toLowerCase()));
         }
     }
 
