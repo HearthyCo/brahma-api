@@ -3,6 +3,7 @@ package gl.glue.brahma.model.session;
 import play.db.jpa.JPA;
 
 import javax.persistence.NoResultException;
+import javax.persistence.Query;
 import java.util.Date;
 import java.util.List;
 
@@ -23,20 +24,32 @@ public class SessionDao {
         }
     }
 
-    public List<Session> findByState(List<Session.State> states, String login) {
+    public List<Object[]> findByState(List<Session.State> states, String login, int limit) {
         try {
             String query =
-                "select session from Session session, SessionUser sessionUser " +
-                "where session.state in :states " +
-                "and sessionUser.session.id = session.id and sessionUser.user.login = :login";
+                    "select session.id, session.title, session.startDate, (session.timestamp > sessionUser.viewedDate) " +
+                    "from Session session, SessionUser sessionUser " +
+                    "where session.state in :states " +
+                    "and sessionUser.session.id = session.id and sessionUser.user.login = :login";
 
-            return JPA.em().createQuery(query, Session.class)
+            Query queryListSessions = JPA.em().createQuery(query)
                     .setParameter("states", states)
-                    .setParameter("login", login)
-                    .getResultList();
+                    .setParameter("login", login);
+
+            if (limit > 0) {
+                queryListSessions.setMaxResults(limit);
+            }
+
+            return queryListSessions.getResultList();
+
         } catch (NoResultException e) {
             return null;
         }
+    }
+
+    // Method overloading
+    public List<Object[]> findByState(List<Session.State> states, String login) {
+        return findByState(states, login, 0);
     }
 
     public List<Object[]> findUsersSession(int id) {
@@ -60,7 +73,7 @@ public class SessionDao {
 
     public int setSessionUserViewedDate(int id) {
         Date now = new Date();
-        String queryUpdateViewDate = "update SessionUser sessionUser set sessionUser.viewedDate = :now where sessionUser.id = :id";
+        String queryUpdateViewDate = "update SessionUser sessionUser set sessionUser.viewedDate = :now where sessionUser.session.id = :id";
 
         return JPA.em().createQuery(queryUpdateViewDate)
                 .setParameter("id", id)

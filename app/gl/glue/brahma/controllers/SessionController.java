@@ -1,7 +1,6 @@
 package gl.glue.brahma.controllers;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.service.SessionService;
 import gl.glue.brahma.util.JsonUtils;
 import play.db.jpa.Transactional;
@@ -43,7 +42,7 @@ public class SessionController extends Controller {
             return unauthorized("You are not logged in");
         }
 
-        List<Session> sessions = sessionService.getState(state, login);
+        List<Object[]> sessions = sessionService.getState(state, login);
         if (sessions == null) {
             return status(404, JsonUtils.simpleError("404", "Invalid identifier"));
         }

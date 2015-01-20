@@ -99,7 +99,7 @@ public class SessionService {
     }
 
     @Transactional
-    public List<Session> getState(String state, String login) {
+    public List<Object[]> getState(String state, String login) {
         List<Session.State> states;
 
         switch (state) {
@@ -112,7 +112,7 @@ public class SessionService {
             default: return null;
         }
 
-        List<Session> session = sessionDao.findByState(states, login);
+        List<Object[]> session = sessionDao.findByState(states, login);
         if (session != null) {
             return session;
         }
