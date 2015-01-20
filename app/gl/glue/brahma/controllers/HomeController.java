@@ -15,20 +15,17 @@ public class HomeController extends Controller {
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
     public static Result get() {
-        ObjectNode home = Json.newObject();
-
         // Check if login
         String login = session("login");
-        if(login == null) {
-            return unauthorized("You are not logged in");
-        }
+        if(login == null) return unauthorized("You are not logged in");
 
         // Get session with login
         ObjectNode sessions = homeService.getSessions(login);
 
-        home.put("sessions", sessions);
+        ObjectNode result = Json.newObject();
+        result.put("sessions", sessions);
 
-        return ok(home);
+        return ok(result);
     }
 
 }

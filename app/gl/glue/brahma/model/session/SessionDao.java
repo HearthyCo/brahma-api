@@ -24,30 +24,44 @@ public class SessionDao {
         }
     }
 
+    /**
+     * Search in database all sessions with state passed
+     * @param states States allowed to search
+     * @param login User login to filter query
+     * @param limit Number for limit query
+     * @return List Object[] (id, title, startDate, isNew) with all sessions grouped by state.
+     */
     public List<Object[]> findByState(List<Session.State> states, String login, int limit) {
         try {
-            String query =
-                    "select session.id, session.title, session.startDate, (session.timestamp > sessionUser.viewedDate) " +
+            // Select id, title, startDate, isNew
+            String queryString =
+                    "select session.id, session.title, session.startDate, (session.timestamp > sessionUser.viewedDate), session.state " +
                     "from Session session, SessionUser sessionUser " +
                     "where session.state in :states " +
                     "and sessionUser.session.id = session.id and sessionUser.user.login = :login";
 
-            Query queryListSessions = JPA.em().createQuery(query)
+            Query queryListSessionsState = JPA.em().createQuery(queryString)
                     .setParameter("states", states)
                     .setParameter("login", login);
 
+            // If limit is greater than 0, means that limit is not a default value, set max results
             if (limit > 0) {
-                queryListSessions.setMaxResults(limit);
+                queryListSessionsState.setMaxResults(limit);
             }
 
-            return queryListSessions.getResultList();
+            return queryListSessionsState.getResultList();
 
         } catch (NoResultException e) {
             return null;
         }
     }
 
-    // Method overloading
+    /**
+     * Method overloading findByState(List<Session.State> states, String login, int limit)
+     * @param states States allowed to search
+     * @param login User login to filter query
+     * @return findByState function with default limit
+     */
     public List<Object[]> findByState(List<Session.State> states, String login) {
         return findByState(states, login, 0);
     }
@@ -71,6 +85,11 @@ public class SessionDao {
         }
     }
 
+    /**
+     * Update session user viewed date
+     * @param id Identifier session
+     * @return Result of execute update (1, 0)
+     */
     public int setSessionUserViewedDate(int id) {
         Date now = new Date();
         String queryUpdateViewDate = "update SessionUser sessionUser set sessionUser.viewedDate = :now where sessionUser.session.id = :id";
