@@ -34,7 +34,7 @@ public class SessionService {
         ArrayList<Object> result = new ArrayList<Object>() {};
 
         for (Object[] userDao : users) {
-            String userClass = userDao[6].toString();
+            String userClass = userDao[7].toString();
 
             // Get type user
             String typeUSer = getUserClass(userClass);
@@ -71,8 +71,8 @@ public class SessionService {
 
             if(usersDao != null) {
                 for (Object[] user : usersDao) {
-                    if (login.equals(user[0].toString())) {
-                        userType = getUserClass(user[6].toString());
+                    if (login.equals(user[1].toString())) {
+                        userType = getUserClass(user[7].toString());
                         users.put("me", UserUtils.createUserObject(user));
                         usersDao.remove(user);
 

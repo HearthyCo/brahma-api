@@ -14,14 +14,14 @@ public class UserUtils {
         JsonNode user = Json.toJson(userObject);
         ObjectNode result = Json.newObject();
 
-        result.put("login", user.get(0).asText());
-        result.put("name", user.get(1).asText());
-        if(!user.get(2).isNull()) result.put("surname1", user.get(2).asText());
-        if(!user.get(3).isNull()) result.put("surname2", user.get(3).asText());
-
-        if(!user.get(4).isNull()) result.put("avatar", user.get(4).asText());
-        if(!user.get(5).isNull()) result.put("service", user.get(5).asText());
-        if(!user.get(7).isNull()) result.put("report", user.get(7).asText());
+        result.put("id", user.get(0).asInt());
+        result.put("login", user.get(1).asText());
+        if(!user.get(2).isNull()) result.put("name", user.get(2).asText());
+        if(!user.get(3).isNull()) result.put("surname1", user.get(3).asText());
+        if(!user.get(4).isNull()) result.put("surname2", user.get(4).asText());
+        if(!user.get(5).isNull()) result.put("avatar", user.get(5).asText());
+        if(!user.get(6).isNull()) result.put("service", user.get(6).asText());
+        if(!user.get(8).isNull()) result.put("report", user.get(8).asText());
 
         return result;
     }

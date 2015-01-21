@@ -38,12 +38,17 @@ public class HomeService {
             ArrayList<ObjectNode> sessions = new ArrayList<ObjectNode>(){};
             for(Object[] session : sessionsDao) sessions.add(SessionUtils.createSessionObject(session));
 
-            if (sessions != null) {
+            if ((sessions != null) && !sessions.isEmpty()) {
                 String stateName = state.get(0).toString().toLowerCase();
                 result.put(stateName, Json.toJson(sessions));
             }
         }
 
-        return result;
+        if (result.size() > 0) {
+            return result;
+        }
+        else {
+            return null;
+        }
     }
 }

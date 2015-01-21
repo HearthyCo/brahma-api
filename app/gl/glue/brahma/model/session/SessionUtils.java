@@ -21,6 +21,7 @@ public class SessionUtils {
         boolean isNew = false;
         if (!session.get(3).isNull()) isNew = session.get(3).asBoolean();
         result.put("isNew", isNew);
+        if(!session.get(4).isNull()) result.put("state", session.get(4).asText().toLowerCase());
 
         return result;
     }
