@@ -28,6 +28,9 @@ public class SessionUser {
     @NotNull
     private Session session;
 
+    @JoinColumn(name = "viewed_date")
+    private Date viewedDate;
+
     @OneToOne
     @JoinColumn(name = "notification_id")
     private Notification notification;
@@ -63,6 +66,14 @@ public class SessionUser {
 
     public void setSession(Session session) {
         this.session = session;
+    }
+
+    public Date getViewedDate() {
+        return viewedDate;
+    }
+
+    public void setViewedDate(Date viewedDate) {
+        this.viewedDate = viewedDate;
     }
 
     public Notification getNotification() {
