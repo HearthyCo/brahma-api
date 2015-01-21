@@ -43,6 +43,7 @@ public class SessionUser {
     @JoinColumn(name = "availability_id")
     private Availability availability;
 
+    @NotNull
     private String meta;
 
     private String report;

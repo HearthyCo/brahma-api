@@ -12,15 +12,15 @@ public class HomeServiceTest extends TransactionalTest {
 
     @Test // Request with invalid user Authentication. User "testClientDummy" not exists
     public void returnSessionsWithInvalidAuthentication() {
-        String login = "testClientDummy";
-        ObjectNode result = homeService.getSessions(login);
+        int uid = 90000;
+        ObjectNode result = homeService.getSessions(uid);
         assertEquals(null, result);
     }
 
     @Test // Request sessions with valid user Authentication
     public void returnSessionsOk() {
-        String login = "testClient1";
-        ObjectNode result = homeService.getSessions(login);
+        int uid = 90000;
+        ObjectNode result = homeService.getSessions(uid);
         assertEquals(result.get("programmed").size(), 1);
         assertEquals(result.get("programmed").get(0).get("id").asInt(), 90700);
 

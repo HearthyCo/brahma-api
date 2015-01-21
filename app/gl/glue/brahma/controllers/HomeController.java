@@ -16,11 +16,11 @@ public class HomeController extends Controller {
     @BodyParser.Of(BodyParser.Json.class)
     public static Result get() {
         // Check if login
-        String login = session("login");
-        if(login == null) return unauthorized("You are not logged in");
+        if(session("id") == null) return unauthorized("You are not logged in");
+        int uid = Integer.parseInt(session("id"));
 
         // Get session with login
-        ObjectNode sessions = homeService.getSessions(login);
+        ObjectNode sessions = homeService.getSessions(uid);
 
         ObjectNode result = Json.newObject();
         result.put("sessions", sessions);
