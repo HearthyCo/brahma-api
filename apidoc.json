@@ -1,0 +1,16 @@
+{
+  "name": "brahma-api",
+  "version": "0.1.0",
+  "description": "Brahma API",
+  "title": "Brahma API",
+  "url" : "https://api.brahma.byglue.me/v1",
+  "sampleUrl": "http://brahma-api-dev.dev01.byglue.me/v1",
+  "header": {
+    "title": "Brahma API",
+    "filename": "doc/header.md"
+  },
+  "footer": {
+    "title": "By glue.gl",
+    "filename": "doc/footer.md"
+  }
+}

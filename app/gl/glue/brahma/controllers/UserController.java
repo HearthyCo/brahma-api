@@ -19,6 +19,22 @@ public class UserController extends Controller {
 
     private static UserService userService = new UserService();
 
+    /**
+     * @api {post} /user/login Login
+     * @apiName Login
+     * @apiGroup User
+     *
+     * @apiParam {String} login     Username.
+     * @apiParam {String} password  Password.
+     *
+     * @apiParamExample {json} Login:
+     *      {
+     *          "login": "foo",
+     *          "password": "bar"
+     *      }
+     *
+     * @apiVersion 0.1.0
+     */
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
     public static Result login() {
@@ -43,6 +59,25 @@ public class UserController extends Controller {
         return ok(result);
     }
 
+    /**
+     * @api {post} /user/register Register
+     * @apiName Register
+     * @apiGroup User
+     *
+     * @apiSuccess (200) {String} firstname First name.
+     * @apiSuccess (200) {String} lastname  Last name.
+     *
+     * @apiError (400) {Object} error Error.
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "firstname": "John",
+     *       "lastname": "Doe"
+     *     }
+     *
+     * @apiVersion 0.1.0
+     */
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
     public static Result register() {
