@@ -150,6 +150,28 @@ public class JsonUtils {
     }
 
     /**
+     * Cleans a JSON object removing all null fields.
+     * @param json The JSON object to clean. It will be modified in place.
+     * @return The same JSON object after cleaning it nulls.
+     */
+    public static ObjectNode cleanNullFields(ObjectNode json) {
+        List<String> remove = new ArrayList<>();
+        json.fields().forEachRemaining(i -> {
+            String key = i.getKey();
+            if (i.getValue() == null) {
+                remove.add(key);
+            }
+            else {
+                if (i.getValue().isObject()) {
+                    json.replace(key, cleanFields((ObjectNode)i.getValue()));
+                }
+            }
+        });
+        remove.forEach(i -> json.remove(i));
+        return json;
+    }
+
+    /**
      * Extracts the JSON body of a Result object.
      * @param result The Result returned by the appllication.
      * @return The JSON it contained in the body, or null if not available.
