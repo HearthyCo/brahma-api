@@ -5,7 +5,6 @@ import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.model.session.SessionDao;
 import gl.glue.brahma.model.session.SessionUtils;
 import gl.glue.brahma.model.user.UserUtils;
-import play.Logger;
 import play.db.jpa.Transactional;
 import play.libs.Json;
 
@@ -34,7 +33,7 @@ public class SessionService {
         ArrayList<Object> result = new ArrayList<Object>() {};
 
         for (Object[] userDao : users) {
-            String userClass = userDao[6].toString();
+            String userClass = userDao[7].toString();
 
             // Get type user
             String typeUSer = getUserClass(userClass);
@@ -71,13 +70,13 @@ public class SessionService {
 
             if(usersDao != null) {
                 for (Object[] user : usersDao) {
-                    if (login.equals(user[0].toString())) {
-                        userType = getUserClass(user[6].toString());
+                    if (login.equals(user[1].toString())) {
+                        userType = getUserClass(user[7].toString());
+
                         users.put("me", UserUtils.createUserObject(user));
                         usersDao.remove(user);
 
                         int resultSetViewedDate = sessionDao.setSessionUserViewedDate(id);
-                        Logger.info("RESULT " + resultSetViewedDate);
                         result.put("updated", (resultSetViewedDate >= 1) ? true : false);
                     }
                 }

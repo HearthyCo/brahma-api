@@ -68,7 +68,7 @@ public class SessionDao {
 
     public List<Object[]> findUsersSession(int id) {
         try {
-            String query = "select user.login, user.name, user.surname1, user.surname2, user.avatar, field.name, type(user), sessionUser.report " +
+            String query = "select user.id, user.login, user.name, user.surname1, user.surname2, user.avatar, field.name, type(user), sessionUser.report " +
                     "from SessionUser sessionUser " +
                     "left join sessionUser.user user " +
                     "left join sessionUser.service service " +
