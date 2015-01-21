@@ -56,7 +56,7 @@ public class SessionServiceTest extends TransactionalTest {
         assertNotNull(result);
         assertEquals(1, result.size());
         for (JsonNode session : result) {
-            //assertEquals(state, session.get(4).asText().toLowerCase());
+            assertEquals("programmed", session.get("state").asText());
         }
     }
 
@@ -77,7 +77,8 @@ public class SessionServiceTest extends TransactionalTest {
         assertNotNull(result);
         assertEquals(2, result.size());
         for (JsonNode session : result) {
-            //assertTrue(state.equals(session.get(4).toString().toLowerCase()) || "finished".equals(session.get(4).toString().toLowerCase()));
+            String stateName = session.get("state").asText();
+            assertTrue(stateName.equals("closed") || stateName.equals("finished"));
         }
     }
 

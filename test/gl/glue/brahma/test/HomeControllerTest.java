@@ -1,10 +1,11 @@
 package gl.glue.brahma.test;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.FluentIterable;
 import gl.glue.brahma.service.SessionService;
+import gl.glue.brahma.util.JsonUtils;
 import org.junit.Test;
-import play.Logger;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -19,6 +20,12 @@ public class HomeControllerTest extends TransactionalTest {
     private final int REQUEST_TIMEOUT = 1000;
 
     private SessionService sessionService = new SessionService();
+
+    private ObjectNode toJson(Result result) {
+        ObjectNode ret = JsonUtils.result2json(result);
+        assertNotNull(ret);
+        return ret;
+    }
 
     private Result makeLoginRequest(String login, String pass) {
         ObjectNode user = Json.newObject();
@@ -46,7 +53,7 @@ public class HomeControllerTest extends TransactionalTest {
         assertEquals(401, result.toScala().header().status());
     }
 
-    @Test // Request with invalid user Authentication. User "testClient2" is not an user for session 90700
+    @Test // Request home
     public void requestHomeOk() {
         String login = "testClient1";
         Result responseLogin = makeLoginRequest(login, login);
@@ -55,6 +62,14 @@ public class HomeControllerTest extends TransactionalTest {
         assertNotNull(result);
         assertEquals(200, result.toScala().header().status());
 
-        Logger.info("RESULT" + Json.toJson(result));
+        ObjectNode ret = toJson(result);
+        JsonNode programmed = ret.get("sessions").get("programmed");
+        JsonNode closed = ret.get("sessions").get("closed");
+
+        assertEquals(programmed.size(), 1);
+        assertEquals(programmed.get(0).get("id").asInt(), 90700);
+
+        assertEquals(closed.size(), 2);
+        assertEquals(closed.get(0).get("id").asInt(), 90702);
     }
 }

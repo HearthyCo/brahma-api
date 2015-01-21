@@ -1,9 +1,11 @@
 package gl.glue.brahma.test;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.FluentIterable;
 import gl.glue.brahma.util.JsonUtils;
 import org.junit.Test;
+import play.Logger;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -124,8 +126,13 @@ public class SessionControllerTest extends TransactionalTest {
 
         assertNotNull(result);
         assertEquals(200, result.toScala().header().status());
+        Logger.info("requestProgrammedSession " + ret);
         assertEquals(1, ret.get("sessions").size());
-        //assertEquals(state, ret.get("state").asText().toLowerCase());
+
+        for(JsonNode session : ret.get("sessions")) {
+            String stateSession = session.get("state").asText();
+            assertTrue(stateSession.equals("programmed"));
+        }
     }
 
     @Test // Request session with an valid underway state (Count 0)
@@ -154,6 +161,10 @@ public class SessionControllerTest extends TransactionalTest {
         assertNotNull(result);
         assertEquals(200, result.toScala().header().status());
         assertEquals(2, ret.get("sessions").size());
-        //assertEquals(state, ret.get("state").asText().toLowerCase());
+
+        for(JsonNode session : ret.get("sessions")) {
+            String stateSession = session.get("state").asText();
+            assertTrue(stateSession.equals("closed") || stateSession.equals("finished"));
+        }
     }
 }
