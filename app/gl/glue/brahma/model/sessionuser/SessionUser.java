@@ -1,10 +1,13 @@
 package gl.glue.brahma.model.sessionuser;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.JsonNode;
 import gl.glue.brahma.model.availability.Availability;
 import gl.glue.brahma.model.notification.Notification;
 import gl.glue.brahma.model.service.Service;
 import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.model.user.User;
+import play.libs.Json;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -21,11 +24,13 @@ public class SessionUser {
     @ManyToOne
     @JoinColumn(name = "user_id")
     @NotNull
+    @JsonIgnore
     private User user;
 
     @ManyToOne
     @JoinColumn(name = "session_id")
     @NotNull
+    @JsonIgnore
     private Session session;
 
     @JoinColumn(name = "viewed_date")
@@ -33,18 +38,24 @@ public class SessionUser {
 
     @OneToOne
     @JoinColumn(name = "notification_id")
+    @JsonIgnore
     private Notification notification;
 
     @ManyToOne
     @JoinColumn(name = "service_id")
+    @JsonIgnore
     private Service service;
 
     @ManyToOne
     @JoinColumn(name = "availability_id")
+    @JsonIgnore
     private Availability availability;
 
     @NotNull
     private String meta;
+
+    @Transient
+    private JsonNode metaParsed; // Cache for meta parsing
 
     private String report;
 
@@ -101,12 +112,16 @@ public class SessionUser {
         this.availability = availability;
     }
 
-    public String getMeta() {
-        return meta;
+    public JsonNode getMeta(){
+        if (metaParsed == null) {
+            metaParsed = meta == null ? Json.newObject() : Json.parse(meta);
+        }
+        return metaParsed;
     }
 
-    public void setMeta(String meta) {
-        this.meta = meta;
+    public void setMeta(JsonNode meta) {
+        this.metaParsed = meta;
+        this.meta = meta == null ? "{}" : meta.toString();
     }
 
     public String getReport() {

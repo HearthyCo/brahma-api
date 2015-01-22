@@ -1,5 +1,6 @@
 package gl.glue.brahma.controllers;
 
+import actions.BasicAuth;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import gl.glue.brahma.service.HomeService;
 import play.db.jpa.Transactional;
@@ -12,11 +13,10 @@ public class HomeController extends Controller {
 
     private static HomeService homeService = new HomeService();
 
+    @BasicAuth
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
     public static Result get() {
-        // Check if login
-        if(session("id") == null) return unauthorized("You are not logged in");
         int uid = Integer.parseInt(session("id"));
 
         // Get session with login
@@ -25,7 +25,8 @@ public class HomeController extends Controller {
         ObjectNode result = Json.newObject();
         result.put("sessions", sessions);
 
+
+
         return ok(result);
     }
-
 }

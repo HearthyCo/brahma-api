@@ -1,13 +1,11 @@
 package gl.glue.brahma.test;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import gl.glue.brahma.service.SessionService;
 import org.junit.Test;
 
-import java.util.List;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class SessionServiceTest extends TransactionalTest {
 
@@ -38,7 +36,7 @@ public class SessionServiceTest extends TransactionalTest {
         assertEquals(session, result.get("session").get("id").asInt());
     }
 
-    @Test // Request with an invalid session state
+    /*@Test // Request with an invalid session state
     public void requestInvalidSessionState() {
         String state = "dummystate";
         int uid = 90000;
@@ -80,6 +78,6 @@ public class SessionServiceTest extends TransactionalTest {
             String stateName = session.get("state").asText();
             assertTrue(stateName.equals("closed") || stateName.equals("finished"));
         }
-    }
+    }*/
 
 }

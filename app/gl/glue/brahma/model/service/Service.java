@@ -1,5 +1,6 @@
 package gl.glue.brahma.model.service;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import gl.glue.brahma.model.servicetype.ServiceType;
 import gl.glue.brahma.model.user.Professional;
 import gl.glue.brahma.model.user.User;
@@ -18,11 +19,13 @@ public class Service {
     @ManyToOne
     @JoinColumn(name = "user_id")
     @NotNull
+    @JsonIgnore
     private Professional provider;
 
     @ManyToOne
     @JoinColumn(name = "service_type_id")
     @NotNull
+    @JsonIgnore
     private ServiceType serviceType;
 
     @NotNull

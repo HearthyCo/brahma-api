@@ -43,7 +43,19 @@ public class HomeService {
             List<SessionUser> sessionUsers = sessionDao.findByState(state, uid, DEFAUL_LIMIT);
 
             ArrayNode sessions = new ArrayNode(JsonNodeFactory.instance);
-            for(SessionUser sessionUser : sessionUsers) sessions.add(Json.toJson(sessionUser/*, alowed fields */));
+            for(SessionUser sessionUser : sessionUsers) {
+                Session session = sessionUser.getSession();
+
+                boolean isNew = true;
+                if(sessionUser.getViewedDate() != null) {
+                    isNew = session.getTimestamp().after(sessionUser.getViewedDate());
+                }
+
+                ObjectNode sessionObject = (ObjectNode) Json.toJson(session);
+                sessionObject.put("isNew", isNew);
+
+                sessions.add(sessionObject);
+            }
 
             result.put(listStates[states.indexOf(state)], sessions);
         }

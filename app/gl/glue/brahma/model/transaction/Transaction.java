@@ -1,5 +1,6 @@
 package gl.glue.brahma.model.transaction;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.model.user.User;
 
@@ -18,10 +19,12 @@ public class Transaction {
     @ManyToOne
     @JoinColumn(name = "user_id")
     @NotNull
+    @JsonIgnore
     private User user;
 
     @ManyToOne
     @JoinColumn(name = "session_id")
+    @JsonIgnore
     private Session session;
 
     @NotNull

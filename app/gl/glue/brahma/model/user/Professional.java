@@ -1,5 +1,7 @@
 package gl.glue.brahma.model.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -12,6 +14,7 @@ public class Professional extends User {
 
     @ManyToOne
     @JoinColumn(name = "manager_user_id")
+    @JsonIgnore
     private Coordinator manager;
 
 

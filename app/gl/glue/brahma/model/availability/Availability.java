@@ -1,5 +1,6 @@
 package gl.glue.brahma.model.availability;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import gl.glue.brahma.model.user.Professional;
 
 import javax.persistence.*;
@@ -17,6 +18,7 @@ public class Availability {
     @ManyToOne
     @JoinColumn(name = "user_id")
     @NotNull
+    @JsonIgnore
     private Professional user;
 
     @NotNull

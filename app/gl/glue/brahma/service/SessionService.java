@@ -38,34 +38,45 @@ public class SessionService {
         User me = null;
         List<SessionUser> sessionUsers = sessionDao.findUsersSession(id);
 
-        List<SessionUser> clients = new ArrayList<>();
-        List<SessionUser> profesionals = new ArrayList<>();
+        ArrayNode clients = new ArrayNode(JsonNodeFactory.instance);
+        ArrayNode profesionals = new ArrayNode(JsonNodeFactory.instance);
 
         for (SessionUser sessionUser : sessionUsers) {
+            ObjectNode user = (ObjectNode) Json.toJson(sessionUser.getUser());
+
+            user.put("sessionMeta", sessionUser.getMeta());
+
+            if(sessionUser.getUser() instanceof Client) {
+                user.put("report", sessionUser.getReport());
+            }
+
+            if (sessionUser.getUser() instanceof Professional) {
+                if(sessionUser.getService() != null) {
+                    user.put("service", sessionUser.getService().getServiceType().getField().getName());
+                }
+            }
+
             if (uid == sessionUser.getUser().getId()) {
-                me = sessionUser.getUser();
-                users.put("me", Json.toJson(sessionUser/*, alowed fields */));
+                users.put("me", user);
 
                 sessionUser.setViewedDate(new Date());
                 sessionUserDao.save(sessionUser);
             }
-            else {
-                if(sessionUser.getUser() instanceof Client) {
-                    clients.add(sessionUser);
-                }
-                else if (sessionUser.getUser() instanceof Professional) {
-                    profesionals.add(sessionUser);
-                }
+            else if (sessionUser.getUser() instanceof Client) {
+                clients.add(user);
             }
+            else if (sessionUser.getUser() instanceof Professional) {
+                profesionals.add(user);
+            }
+
+
         }
 
         // Add objects to result depends on userType
-        if (me instanceof Client) {
-            users.put("professionals", Json.toJson(profesionals/*, alowed fields */));
-        }
-        else if (me instanceof Professional) {
-            users.put("clients", Json.toJson(clients));
-            users.put("professionals", Json.toJson(profesionals/*, alowed fields */));
+        users.put("professionals", profesionals);
+
+        if (me instanceof Professional) {
+            users.put("clients", clients);
         }
 
         ObjectNode sessionNode = (ObjectNode) Json.toJson(session);
@@ -84,7 +95,7 @@ public class SessionService {
      * @return Object array list with sessions with state passed
      */
     @Transactional
-    public ObjectNode getState(String state, int uid) {
+    public List<SessionUser> getState(String state, int uid) {
         Set<Session.State> states;
 
         switch (state) {
@@ -94,17 +105,6 @@ public class SessionService {
             default: return null;
         }
 
-        List<SessionUser> sessionUsers = sessionDao.findByState(states, uid);
-
-        ArrayNode sessions = new ArrayNode(JsonNodeFactory.instance);
-
-        for (SessionUser sessionUser : sessionUsers) {
-            sessions.add(Json.toJson(sessionUser/*, alowed fields */));
-        }
-
-        ObjectNode result = Json.newObject();
-        result.put("sessions", sessions);
-
-        return result;
+        return sessionDao.findByState(states, uid);
     }
 }
