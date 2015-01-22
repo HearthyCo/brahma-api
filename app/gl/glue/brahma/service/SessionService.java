@@ -1,5 +1,7 @@
 package gl.glue.brahma.service;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.model.session.SessionDao;
@@ -27,10 +29,8 @@ public class SessionService {
     @Transactional
     public ObjectNode getSession(int id, int uid) {
         // Find session
-        Session sessionFromDao = sessionDao.findById(id, uid);
-        if (sessionFromDao == null) return null;
-
-        ObjectNode session = (ObjectNode) Json.toJson(sessionFromDao);
+        Session session = sessionDao.findById(id, uid);
+        if (session == null) return null;
 
         ObjectNode users = Json.newObject();
 
@@ -48,8 +48,6 @@ public class SessionService {
 
                 sessionUser.setViewedDate(new Date());
                 sessionUserDao.save(sessionUser);
-
-                sessionUsers.remove(sessionUser);
             }
             else {
                 if(sessionUser.getUser() instanceof Client) {
@@ -63,17 +61,18 @@ public class SessionService {
 
         // Add objects to result depends on userType
         if (me instanceof Client) {
-            users.put("professionals", Json.toJson(profesionals));
+            users.put("professionals", Json.toJson(profesionals/*, alowed fields */));
         }
         else if (me instanceof Professional) {
             users.put("clients", Json.toJson(clients));
-            users.put("professionals", Json.toJson(profesionals));
+            users.put("professionals", Json.toJson(profesionals/*, alowed fields */));
         }
 
-        session.put("users", Json.toJson(users));
+        ObjectNode sessionNode = (ObjectNode) Json.toJson(session);
+        sessionNode.put("users", users);
 
         ObjectNode result = Json.newObject();
-        result.put("session", session);
+        result.put("session", sessionNode);
 
         return result;
     }
@@ -85,7 +84,7 @@ public class SessionService {
      * @return Object array list with sessions with state passed
      */
     @Transactional
-    public List<ObjectNode> getState(String state, int uid) {
+    public ObjectNode getState(String state, int uid) {
         Set<Session.State> states;
 
         switch (state) {
@@ -96,11 +95,15 @@ public class SessionService {
         }
 
         List<SessionUser> sessionUsers = sessionDao.findByState(states, uid);
-        List<ObjectNode> result = new ArrayList<>();
+
+        ArrayNode sessions = new ArrayNode(JsonNodeFactory.instance);
 
         for (SessionUser sessionUser : sessionUsers) {
-            result.add((ObjectNode) Json.toJson(sessionUser));
+            sessions.add(Json.toJson(sessionUser/*, alowed fields */));
         }
+
+        ObjectNode result = Json.newObject();
+        result.put("sessions", sessions);
 
         return result;
     }

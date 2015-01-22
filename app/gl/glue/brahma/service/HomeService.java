@@ -1,5 +1,7 @@
 package gl.glue.brahma.service;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.model.session.SessionDao;
@@ -40,10 +42,10 @@ public class HomeService {
         for (Set<Session.State> state : states) {
             List<SessionUser> sessionUsers = sessionDao.findByState(state, uid, DEFAUL_LIMIT);
 
-            List<ObjectNode> sessions = new ArrayList<ObjectNode>(){};
-            for(SessionUser sessionUser : sessionUsers) sessions.add((ObjectNode) Json.toJson(sessionUser));
+            ArrayNode sessions = new ArrayNode(JsonNodeFactory.instance);
+            for(SessionUser sessionUser : sessionUsers) sessions.add(Json.toJson(sessionUser/*, alowed fields */));
 
-            result.put(listStates[states.indexOf(state)], Json.toJson(sessions));
+            result.put(listStates[states.indexOf(state)], sessions);
         }
 
         return result;

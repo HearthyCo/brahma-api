@@ -43,7 +43,7 @@ public class SessionDao {
             String queryString =
                     "select sessionUser " +
                     "from SessionUser sessionUser " +
-                    "left join fetch Session session " +
+                    "left join fetch sessionUser.session session " +
                     "where session.state in :states " +
                     "and sessionUser.session.id = session.id and sessionUser.user.id = :uid";
 
