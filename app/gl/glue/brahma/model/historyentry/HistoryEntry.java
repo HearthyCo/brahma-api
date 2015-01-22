@@ -1,5 +1,6 @@
 package gl.glue.brahma.model.historyentry;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import gl.glue.brahma.model.historycurrent.HistoryCurrent;
 import gl.glue.brahma.model.historyentrytype.HistoryEntryType;
 
@@ -18,11 +19,13 @@ public class HistoryEntry {
     @ManyToOne
     @JoinColumn(name = "history_current_id")
     @NotNull
+    @JsonIgnore
     private HistoryCurrent history;
 
     @ManyToOne
     @JoinColumn(name = "history_entry_type_id")
     @NotNull
+    @JsonIgnore
     private HistoryEntryType type;
 
     @NotNull

@@ -1,139 +1,110 @@
 package gl.glue.brahma.service;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.model.session.SessionDao;
-import gl.glue.brahma.model.session.SessionUtils;
-import gl.glue.brahma.model.user.UserUtils;
+import gl.glue.brahma.model.sessionuser.SessionUser;
+import gl.glue.brahma.model.sessionuser.SessionUserDao;
+import gl.glue.brahma.model.user.Client;
+import gl.glue.brahma.model.user.Professional;
+import gl.glue.brahma.model.user.User;
 import play.db.jpa.Transactional;
 import play.libs.Json;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class SessionService {
+
     private SessionDao sessionDao = new SessionDao();
+    private SessionUserDao sessionUserDao = new SessionUserDao();
 
     /**
-     * Clear user class string for return user type
-     * @param type Class string
-     * @return User type (client, professional, ...)
+     * Create Session JSON object from object array from Session DAO
+     * @param id Object array to read session values
+     * @param uid Object array to read session values
+     * @return ObjectNode with a session with values passed in sessionObject.
      */
-    private String getUserClass(String type) {
-        return type.split(" ")[1].split("\\.")[5].toLowerCase();
-    }
+    @Transactional
+    public ObjectNode getSession(int id, int uid) {
+        // Find session
+        Session session = sessionDao.findById(id, uid);
+        if (session == null) return null;
 
-    /**
-     * Create ArrayList with users by type (client, professionals)
-     * @param users Object array with mixed user types
-     * @param type Type of user to group
-     * @return Object array with user grouped by type.
-     */
-    private ArrayList<Object> getUsersByType(List<Object[]> users, String type) {
-        ArrayList<Object> result = new ArrayList<Object>() {};
+        ObjectNode users = Json.newObject();
 
-        for (Object[] userDao : users) {
-            String userClass = userDao[7].toString();
+        // Find users for session
+        User me = null;
+        List<SessionUser> sessionUsers = sessionDao.findUsersSession(id);
 
-            // Get type user
-            String typeUSer = getUserClass(userClass);
-            ObjectNode user = UserUtils.createUserObject(userDao);
+        ArrayNode clients = new ArrayNode(JsonNodeFactory.instance);
+        ArrayNode profesionals = new ArrayNode(JsonNodeFactory.instance);
 
-            if (type.equals(typeUSer)) {
-                result.add(user);
+        for (SessionUser sessionUser : sessionUsers) {
+            ObjectNode user = (ObjectNode) Json.toJson(sessionUser.getUser());
+
+            user.put("sessionMeta", sessionUser.getMeta());
+
+            if(sessionUser.getUser() instanceof Client) {
+                user.put("report", sessionUser.getReport());
             }
+
+            if (sessionUser.getUser() instanceof Professional) {
+                if(sessionUser.getService() != null) {
+                    user.put("service", sessionUser.getService().getServiceType().getField().getName());
+                }
+            }
+
+            if (uid == sessionUser.getUser().getId()) {
+                users.put("me", user);
+
+                sessionUser.setViewedDate(new Date());
+                sessionUserDao.save(sessionUser);
+            }
+            else if (sessionUser.getUser() instanceof Client) {
+                clients.add(user);
+            }
+            else if (sessionUser.getUser() instanceof Professional) {
+                profesionals.add(user);
+            }
+
+
         }
+
+        // Add objects to result depends on userType
+        users.put("professionals", profesionals);
+
+        if (me instanceof Professional) {
+            users.put("clients", clients);
+        }
+
+        ObjectNode sessionNode = (ObjectNode) Json.toJson(session);
+        sessionNode.put("users", users);
+
+        ObjectNode result = Json.newObject();
+        result.put("session", sessionNode);
 
         return result;
     }
 
     /**
-     * Create Session JSON object from object array from Session DAO
-     * @param id Object array to read session values
-     * @param login Object array to read session values
-     * @return ObjectNode with a session with values passed in sessionObject.
-     */
-    @Transactional
-    public ObjectNode getSession(int id, String login) {
-        ObjectNode result = Json.newObject();
-
-        // Find session
-        Session sessionFromDao = sessionDao.findById(id, login);
-        result.put("session", Json.toJson(sessionFromDao));
-
-        ObjectNode users = Json.newObject();
-        if (sessionFromDao != null) {
-            String userType = "";
-
-            // Find users for session
-            List<Object[]> usersDao = sessionDao.findUsersSession(id);
-
-            if(usersDao != null) {
-                for (Object[] user : usersDao) {
-                    if (login.equals(user[1].toString())) {
-                        userType = getUserClass(user[7].toString());
-
-                        users.put("me", UserUtils.createUserObject(user));
-                        usersDao.remove(user);
-
-                        int resultSetViewedDate = sessionDao.setSessionUserViewedDate(id);
-                        result.put("updated", (resultSetViewedDate >= 1) ? true : false);
-                    }
-                }
-
-                ArrayList<Object> clients = getUsersByType(usersDao, "client");
-                ArrayList<Object> profesionals = getUsersByType(usersDao, "professional");
-
-                // Add objects to result depends on userType
-                if (userType.equals("client")) {
-                    users.put("professionals", Json.toJson(profesionals));
-                }
-                else if (userType.equals("professional")) {
-                    users.put("clients", Json.toJson(clients));
-                    users.put("professionals", Json.toJson(profesionals));
-                }
-
-                // Add users in session object to result
-                result.put("users", Json.toJson(users));
-            }
-            return result;
-        } else {
-            return null;
-        }
-    }
-
-    /**
      * Search sessions with state passed
      * @param state Session State to search
-     * @param login User Login to search
+     * @param uid User Login to search
      * @return Object array list with sessions with state passed
      */
     @Transactional
-    public ArrayList<ObjectNode> getState(String state, String login) {
-        List<Session.State> states;
+    public List<SessionUser> getState(String state, int uid) {
+        Set<Session.State> states;
 
         switch (state) {
-            case "programmed": states = new ArrayList<Session.State>(){{ add(Session.State.PROGRAMMED); }};
-                break;
-            case "underway": states = new ArrayList<Session.State>(){{ add(Session.State.UNDERWAY); }};
-                break;
-            case "closed": states = new ArrayList<Session.State>(){{ add(Session.State.CLOSED); add(Session.State.FINISHED); }};
-                break;
+            case "programmed": states = EnumSet.of(Session.State.PROGRAMMED); break;
+            case "underway": states = EnumSet.of(Session.State.UNDERWAY); break;
+            case "closed": states = EnumSet.of(Session.State.CLOSED, Session.State.FINISHED); break;
             default: return null;
         }
 
-        List<Object[]> sessionsDao = sessionDao.findByState(states, login);
-        ArrayList<ObjectNode> result = new ArrayList<ObjectNode>() {};
-
-        if (sessionsDao != null) {
-            for (Object[] sessionDao : sessionsDao) {
-                result.add(SessionUtils.createSessionObject(sessionDao));
-            }
-
-            return result;
-        }
-        else {
-            return null;
-        }
+        return sessionDao.findByState(states, uid);
     }
 }

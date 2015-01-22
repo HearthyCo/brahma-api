@@ -3,7 +3,6 @@ package gl.glue.brahma.test;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.FluentIterable;
-import gl.glue.brahma.service.SessionService;
 import gl.glue.brahma.util.JsonUtils;
 import org.junit.Test;
 import play.libs.Json;
@@ -18,8 +17,6 @@ import static play.test.Helpers.*;
 public class HomeControllerTest extends TransactionalTest {
 
     private final int REQUEST_TIMEOUT = 1000;
-
-    private SessionService sessionService = new SessionService();
 
     private ObjectNode toJson(Result result) {
         ObjectNode ret = JsonUtils.result2json(result);

@@ -1,6 +1,11 @@
 package gl.glue.brahma.controllers;
 
+import actions.BasicAuth;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import gl.glue.brahma.model.session.Session;
+import gl.glue.brahma.model.sessionuser.SessionUser;
 import gl.glue.brahma.service.SessionService;
 import gl.glue.brahma.util.JsonUtils;
 import play.db.jpa.Transactional;
@@ -9,40 +14,51 @@ import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class SessionController extends Controller {
 
     private static SessionService sessionService = new SessionService();
 
+    @BasicAuth
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
     public static Result getSession(int id) {
-
-        // Check if login
-        String login = session("login");
-        if(login == null) return unauthorized("You are not logged in");
+        int uid = Integer.parseInt(session("id"));
 
         // Get session with id param
-        ObjectNode result = sessionService.getSession(id, login);
+        ObjectNode result = sessionService.getSession(id, uid);
         if (result == null) return status(404, JsonUtils.simpleError("404", "Invalid identifier"));
 
         return ok(result);
     }
 
+    @BasicAuth
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
     public static Result getState(String state) {
+        int uid = Integer.parseInt(session("id"));
 
-        String login = session("login");
-        if(login == null) return unauthorized("You are not logged in");
+        List<SessionUser> sessionUsers = sessionService.getState(state, uid);
+        if (sessionUsers == null) return status(404, JsonUtils.simpleError("404", "Invalid identifier"));
 
-        ArrayList<ObjectNode> sessions = sessionService.getState(state, login);
-        if (sessions == null) return status(404, JsonUtils.simpleError("404", "Invalid identifier"));
+        ArrayNode sessions = new ArrayNode(JsonNodeFactory.instance);
+        for(SessionUser sessionUser : sessionUsers) {
+            Session session = sessionUser.getSession();
+
+            boolean isNew = true;
+            if(sessionUser.getViewedDate() != null) {
+                isNew = session.getTimestamp().after(sessionUser.getViewedDate());
+            }
+
+            ObjectNode sessionObject = (ObjectNode) Json.toJson(session);
+            sessionObject.put("isNew", isNew);
+
+            sessions.add(sessionObject);
+        }
 
         ObjectNode result = Json.newObject();
-        result.put("sessions", Json.toJson(sessions));
-
+        result.put("sessions", sessions);
         return ok(result);
     }
 }

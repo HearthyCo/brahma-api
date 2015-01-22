@@ -1,5 +1,6 @@
 package gl.glue.brahma.model.sessionlog;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.model.user.User;
 
@@ -21,11 +22,13 @@ public class SessionLog {
     @ManyToOne
     @JoinColumn(name = "session_id")
     @NotNull
+    @JsonIgnore
     private Session session;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     @NotNull
+    @JsonIgnore
     private User user;
 
     @NotNull

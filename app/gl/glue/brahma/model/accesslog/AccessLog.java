@@ -1,5 +1,6 @@
 package gl.glue.brahma.model.accesslog;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import gl.glue.brahma.model.historycurrent.HistoryCurrent;
 import gl.glue.brahma.model.user.Professional;
 
@@ -18,11 +19,13 @@ public class AccessLog {
     @ManyToOne
     @JoinColumn(name = "user_id")
     @NotNull
+    @JsonIgnore
     private Professional user;
 
     @ManyToOne
     @JoinColumn(name = "history_current_id")
     @NotNull
+    @JsonIgnore
     private HistoryCurrent historyCurrent;
 
     @NotNull

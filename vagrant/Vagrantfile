@@ -18,7 +18,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       d.ports = ["5432:5432"]
       d.env = {
         POSTGRES_USER: "brahma",
-        POSTGRES_PASSWORD: "Better to conquer yourself than others.",
+        POSTGRES_PASSWORD: "Better_to_conquer_yourself_than_others_",
         POSTGRES_DB: "brahma"
       }
       d.vagrant_vagrantfile = "./proxy.Vagrantfile"

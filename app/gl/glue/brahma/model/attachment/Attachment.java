@@ -1,5 +1,6 @@
 package gl.glue.brahma.model.attachment;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import gl.glue.brahma.model.historyentry.HistoryEntry;
 import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.model.user.User;
@@ -16,14 +17,17 @@ public class Attachment {
 
     @ManyToOne
     @JoinColumn(name = "history_entry_id")
+    @JsonIgnore
     private HistoryEntry historyEntry;
 
     @ManyToOne
     @JoinColumn(name = "session_id")
+    @JsonIgnore
     private Session session;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonIgnore
     private User user;
 
     private String path;

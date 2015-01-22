@@ -1,11 +1,11 @@
 package gl.glue.brahma.test;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import gl.glue.brahma.model.sessionuser.SessionUser;
 import gl.glue.brahma.service.SessionService;
 import org.junit.Test;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -16,24 +16,24 @@ public class SessionServiceTest extends TransactionalTest {
     @Test // Request with invalid user Authentication. User "testClient2" is not an user for session 90700
     public void returnSessionWithInvalidAuthentication() {
         int session = 90700;
-        String login = "testClient2";
-        ObjectNode result = sessionService.getSession(session, login);
+        int uid = 90001;
+        ObjectNode result = sessionService.getSession(session, uid);
         assertEquals(null, result);
     }
 
     @Test // Request with an non-existent session id
     public void returnSessionInvalidId() {
         int session = 0;
-        String login = "testClient1";
-        ObjectNode result = sessionService.getSession(session, login);
+        int uid = 90000;
+        ObjectNode result = sessionService.getSession(session, uid);
         assertEquals(null, result);
     }
 
     @Test // Valid request
     public void returnSessionOk() {
         int session = 90700;
-        String login = "testClient1";
-        ObjectNode result = sessionService.getSession(session, login);
+        int uid = 90000;
+        ObjectNode result = sessionService.getSession(session, uid);
         assertNotNull(result);
         assertEquals(session, result.get("session").get("id").asInt());
     }
@@ -41,30 +41,30 @@ public class SessionServiceTest extends TransactionalTest {
     @Test // Request with an invalid session state
     public void requestInvalidSessionState() {
         String state = "dummystate";
-        String login = "testClient1";
-        ArrayList<ObjectNode> result = sessionService.getState(state, login);
+        int uid = 90000;
+        List<SessionUser> result = sessionService.getState(state, uid);
         assertEquals(null, result);
     }
 
     @Test // Request session with an valid programmed state
     public void requestProgrammedSession() {
         String state = "programmed";
-        String login = "testClient1";
+        int uid = 90000;
 
-        ArrayList<ObjectNode> result = sessionService.getState(state, login);
+        List<SessionUser> result = sessionService.getState(state, uid);
 
         assertNotNull(result);
         assertEquals(1, result.size());
-        for (JsonNode session : result) {
-            assertEquals("programmed", session.get("state").asText());
+        for (SessionUser session : result) {
+            assertEquals(session.getSession().getState().name(), "PROGRAMMED");
         }
     }
 
     @Test // Request session with an valid underway state (Count 0)
     public void requestUnderwaySession() {
         String state = "underway";
-        String login = "testClient1";
-        ArrayList<ObjectNode> result = sessionService.getState(state, login);
+        int uid = 90000;
+        List<SessionUser> result = sessionService.getState(state, uid);
         assertNotNull(result);
         assertEquals(0, result.size());
     }
@@ -72,14 +72,13 @@ public class SessionServiceTest extends TransactionalTest {
     @Test // Request session with closed (closed and finished) state
     public void requestClosedSession() {
         String state = "closed";
-        String login = "testClient1";
-        ArrayList<ObjectNode> result = sessionService.getState(state, login);
+        int uid = 90000;
+        List<SessionUser> result = sessionService.getState(state, uid);
         assertNotNull(result);
         assertEquals(2, result.size());
-        for (JsonNode session : result) {
-            String stateName = session.get("state").asText();
-            assertTrue(stateName.equals("closed") || stateName.equals("finished"));
+        for (SessionUser session : result) {
+            String stateName = session.getSession().getState().name();
+            assertTrue(stateName.equals("CLOSED") || stateName.equals("FINISHED"));
         }
     }
-
 }

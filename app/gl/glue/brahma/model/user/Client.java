@@ -1,5 +1,7 @@
 package gl.glue.brahma.model.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -11,6 +13,7 @@ public class Client extends User {
 
     @ManyToOne
     @JoinColumn(name = "tutor_user_id")
+    @JsonIgnore
     private Tutor tutor;
 
 

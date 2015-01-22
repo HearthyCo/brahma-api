@@ -35,7 +35,7 @@ public class UserController extends Controller {
         if (user == null) return status(401, JsonUtils.simpleError("401", "Invalid username or password."));
 
         session().clear();
-        session("login", user.getLogin());
+        session("id", Integer.toString(user.getId()));
 
         result = Json.newObject();
         result.put("users", Json.toJson(user));
@@ -70,7 +70,7 @@ public class UserController extends Controller {
 
         // Also log him in
         session().clear();
-        session("login", user.getLogin());
+        session("id", Integer.toString(user.getId()));
 
         result = Json.newObject();
         result.put("users", Json.toJson(user));

@@ -1,5 +1,6 @@
 package gl.glue.brahma.model.historycurrent;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import gl.glue.brahma.model.user.Client;
 import gl.glue.brahma.model.user.Professional;
 
@@ -18,10 +19,12 @@ public class HistoryCurrent {
     @ManyToOne
     @JoinColumn(name = "client_user_id")
     @NotNull
+    @JsonIgnore
     private Client client;
 
     @ManyToOne
     @JoinColumn(name = "professional_user_id")
+    @JsonIgnore
     private Professional professional;
 
     @NotNull

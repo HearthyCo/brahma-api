@@ -1,5 +1,6 @@
 package gl.glue.brahma.model.servicetype;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import gl.glue.brahma.model.field.Field;
 
 import javax.persistence.*;
@@ -18,6 +19,7 @@ public class ServiceType {
     @ManyToOne
     @JoinColumn(name = "field_id")
     @NotNull
+    @JsonIgnore
     private Field field;
 
     @NotNull

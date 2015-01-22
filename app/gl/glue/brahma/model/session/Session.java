@@ -1,5 +1,8 @@
 package gl.glue.brahma.model.session;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import play.libs.Json;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
@@ -27,7 +30,11 @@ public class Session {
     @NotNull
     private State state;
 
-    private String meta;
+    @NotNull // Fake to prevent typing bug
+    private String meta = "{}";
+
+    @Transient
+    private JsonNode metaParsed; // Cache for meta parsing
 
     private Date timestamp;
 
@@ -64,13 +71,18 @@ public class Session {
         this.state = state;
     }
 
-    public String getMeta() {
-        return meta;
+    public JsonNode getMeta() {
+        if (metaParsed == null) {
+            metaParsed = meta == null ? Json.newObject() : Json.parse(meta);
+        }
+        return metaParsed;
     }
 
-    public void setMeta(String meta) {
-        this.meta = meta;
+    public void setMeta(JsonNode meta) {
+        this.metaParsed = meta;
+        this.meta = meta == null ? "{}" : meta.toString();
     }
+
     public Date getTimestamp() {
         return timestamp;
     }

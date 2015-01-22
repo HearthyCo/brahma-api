@@ -129,9 +129,11 @@ public class SessionControllerTest extends TransactionalTest {
         Logger.info("requestProgrammedSession " + ret);
         assertEquals(1, ret.get("sessions").size());
 
+        Logger.info("SESSIONS " + ret.get("sessions"));
+
         for(JsonNode session : ret.get("sessions")) {
             String stateSession = session.get("state").asText();
-            assertTrue(stateSession.equals("programmed"));
+            assertTrue(stateSession.equals("PROGRAMMED"));
         }
     }
 
@@ -164,7 +166,7 @@ public class SessionControllerTest extends TransactionalTest {
 
         for(JsonNode session : ret.get("sessions")) {
             String stateSession = session.get("state").asText();
-            assertTrue(stateSession.equals("closed") || stateSession.equals("finished"));
+            assertTrue(stateSession.equals("CLOSED") || stateSession.equals("FINISHED"));
         }
     }
 }

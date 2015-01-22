@@ -1,5 +1,6 @@
 package gl.glue.brahma.model.notification;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import gl.glue.brahma.model.user.User;
 
 import javax.persistence.*;
@@ -17,6 +18,7 @@ public class Notification {
     @ManyToOne
     @JoinColumn(name = "user_id")
     @NotNull
+    @JsonIgnore
     private User user;
 
     @NotNull
