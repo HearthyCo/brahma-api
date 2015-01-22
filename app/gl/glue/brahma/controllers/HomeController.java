@@ -13,6 +13,14 @@ public class HomeController extends Controller {
 
     private static HomeService homeService = new HomeService();
 
+
+    /**
+     * @api {get} /user/home Homepage
+     * @apiName Home
+     * @apiGroup User
+     *
+     * @apiVersion 0.1.0
+     */
     @BasicAuth
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
