@@ -1,11 +1,13 @@
 package gl.glue.brahma.test;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import gl.glue.brahma.model.sessionuser.SessionUser;
 import gl.glue.brahma.service.SessionService;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 public class SessionServiceTest extends TransactionalTest {
 
@@ -36,11 +38,11 @@ public class SessionServiceTest extends TransactionalTest {
         assertEquals(session, result.get("session").get("id").asInt());
     }
 
-    /*@Test // Request with an invalid session state
+    @Test // Request with an invalid session state
     public void requestInvalidSessionState() {
         String state = "dummystate";
         int uid = 90000;
-        List<ObjectNode> result = sessionService.getState(state, uid);
+        List<SessionUser> result = sessionService.getState(state, uid);
         assertEquals(null, result);
     }
 
@@ -49,12 +51,12 @@ public class SessionServiceTest extends TransactionalTest {
         String state = "programmed";
         int uid = 90000;
 
-        List<ObjectNode> result = sessionService.getState(state, uid);
+        List<SessionUser> result = sessionService.getState(state, uid);
 
         assertNotNull(result);
         assertEquals(1, result.size());
-        for (JsonNode session : result) {
-            assertEquals("programmed", session.get("state").asText());
+        for (SessionUser session : result) {
+            assertEquals(session.getSession().getState().name(), "PROGRAMMED");
         }
     }
 
@@ -62,7 +64,7 @@ public class SessionServiceTest extends TransactionalTest {
     public void requestUnderwaySession() {
         String state = "underway";
         int uid = 90000;
-        List<ObjectNode> result = sessionService.getState(state, uid);
+        List<SessionUser> result = sessionService.getState(state, uid);
         assertNotNull(result);
         assertEquals(0, result.size());
     }
@@ -71,13 +73,12 @@ public class SessionServiceTest extends TransactionalTest {
     public void requestClosedSession() {
         String state = "closed";
         int uid = 90000;
-        List<ObjectNode> result = sessionService.getState(state, uid);
+        List<SessionUser> result = sessionService.getState(state, uid);
         assertNotNull(result);
         assertEquals(2, result.size());
-        for (JsonNode session : result) {
-            String stateName = session.get("state").asText();
-            assertTrue(stateName.equals("closed") || stateName.equals("finished"));
+        for (SessionUser session : result) {
+            String stateName = session.getSession().getState().name();
+            assertTrue(stateName.equals("CLOSED") || stateName.equals("FINISHED"));
         }
-    }*/
-
+    }
 }
