@@ -21,16 +21,51 @@ public class UserController extends Controller {
 
     /**
      * @api {post} /user/login Login
-     * @apiName Login
+     *
      * @apiGroup User
+     * @apiName Login
+     * @apiDescription Allow user (registered before) can be identified to access his private information.
      *
-     * @apiParam {String} login     Username.
-     * @apiParam {String} password  Password.
-     *
-     * @apiParamExample {json} Login:
+     * @apiParam {String} login     Unique identifier for user in service.
+     * @apiParam {String} password  Password
+     * @apiParamExample {json} Request-Example
      *      {
-     *          "login": "foo",
-     *          "password": "bar"
+     *          "login": "client1",
+     *          "password": "client1PasswordDummy"
+     *      }
+     *
+     * @apiSuccess {object} user    Contains all user fields after login
+     * @apiSuccessExample {json} Success-Response
+     *      HTTP/1.1 200 OK
+     *      {
+     *          "user": {
+     *              "id": 1,
+     *              "login": "client1",
+     *              "name": "Client1",
+     *              "surname1": "For",
+     *              "surname2": "Service",
+     *              "birthdate": "1987-08-06",
+     *              "avatar": "http://...",
+     *              "nationalId": "12345678A",
+     *              "gender": "MALE",
+     *              "meta": {}
+     *          }
+     *      }
+     *
+     * @apiError {Object} MissingRequiredField Params has not a required field.
+     * @apiError {Object} InvalidParams Username (login field) or password is wrong.
+     * @apiErrorExample {json} MissingRequiredField
+     *      HTTP/1.1 400 BadRequest
+     *      {
+     *          "status": "400",
+     *          "title": "Missing required field `field`"
+     *      }
+     *
+     * @apiErrorExample {json} InvalidParams
+     *      HTTP/1.1 401 Unauthorized
+     *      {
+     *          "status": "401",
+     *          "title": "Invalid username or password."
      *      }
      *
      * @apiVersion 0.1.0
@@ -54,27 +89,75 @@ public class UserController extends Controller {
         session("id", Integer.toString(user.getId()));
 
         result = Json.newObject();
-        result.put("users", Json.toJson(user));
+        result.put("user", Json.toJson(user));
 
         return ok(result);
     }
 
     /**
      * @api {post} /user/register Register
-     * @apiName Register
+     *
      * @apiGroup User
+     * @apiName Register
+     * @apiDescription Allow new user can to register in service.
      *
-     * @apiSuccess (200) {String} firstname First name.
-     * @apiSuccess (200) {String} lastname  Last name.
+     * @apiParam {String}               login       Unique identifier for user in service.
+     * @apiParam {String}               password    Password
+     * @apiParam {Enum="MALE","FEMALE"} gender      User gender.
+     * @apiParam {String}               name        Real user name.
+     * @apiParam {Date}                 birthdate   Date of user birthdate.
+     * @apiParam {String}               surname1    Optional. Real user first surname.
+     * @apiParam {String}               surname2    Optional. Real user second surname.
+     * @apiParam {String}               avatar      Optional. Url for user avatar.
+     * @apiParam {String}               nationalId  Optional. Number iof id card.
+     * @apiParam {Object}               meta    Optional. Other data still to be determined.
+     * @apiParamExample {json} Request-Example
+     *      {
+     *          "login": "client1",
+     *          "password": "client1PasswordDummy",
+     *          "gender": "MALE",
+     *          "name": "Client1",
+     *          "birthdate": "1987-08-06",
+     *          "surname1": "For",
+     *          "surname2": "Service",
+     *          "avatar": "http://...",
+     *          "nationalId": "12345678A",
+     *          "meta": {}
+     *      }
      *
-     * @apiError (400) {Object} error Error.
+     * @apiSuccess {object} user    Contains all user fields after register.
+     * @apiSuccessExample {json} Success-Response
+     *      HTTP/1.1 200 OK
+     *      {
+     *          "user": {
+     *              "id": 1,
+     *              "login": "client1",
+     *              "name": "Client1",
+     *              "surname1": "For",
+     *              "surname2": "Service",
+     *              "birthdate": "1987-08-06",
+     *              "avatar": "http://...",
+     *              "nationalId": "12345678A",
+     *              "gender": "MALE",
+     *              "meta": {}
+     *          }
+     *      }
      *
-     * @apiSuccessExample {json} Success-Response:
-     *     HTTP/1.1 200 OK
-     *     {
-     *       "firstname": "John",
-     *       "lastname": "Doe"
-     *     }
+     * @apiError {Object} MissingRequiredField Params has not a required field.
+     * @apiError {Object} UserNameInUse Username (login field) is already in use.
+     * @apiErrorExample {json} MissingRequiredField
+     *      HTTP/1.1 400 BadRequest
+     *      {
+     *          "status": "400",
+     *          "title": "Missing required field `field`"
+     *      }
+     *
+     * @apiErrorExample {json} UserNameInUse
+     *      HTTP/1.1 409 Conflict
+     *      {
+     *          "status": "409",
+     *          "title": "Username already in use."
+     *      }
      *
      * @apiVersion 0.1.0
      */
@@ -108,7 +191,7 @@ public class UserController extends Controller {
         session("id", Integer.toString(user.getId()));
 
         result = Json.newObject();
-        result.put("users", Json.toJson(user));
+        result.put("user", Json.toJson(user));
 
         return ok(result);
     }
