@@ -2,6 +2,7 @@ package gl.glue.brahma.controllers;
 
 import actions.BasicAuth;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import gl.glue.brahma.service.BalanceService;
 import gl.glue.brahma.service.HomeService;
 import play.db.jpa.Transactional;
 import play.libs.Json;
@@ -12,6 +13,7 @@ import play.mvc.Result;
 public class HomeController extends Controller {
 
     private static HomeService homeService = new HomeService();
+    private static BalanceService balanceService = new BalanceService();
 
     /**
      * @api {get} /user/home Homepage
@@ -20,10 +22,10 @@ public class HomeController extends Controller {
      * @apiName GetHome
      * @apiDescription Collect all entities required to show in home view.
      *
-     * @apiSuccess {Object}     sessions Contains all user sessions grouped by state.
+     * @apiSuccess {Object}     sessions            Contains all user sessions grouped by state.
      * @apiSuccess {Object[]}   sessions.programmed Contents all user sessions in programmed state.
-     * @apiSuccess {Object[]}   sessions.underway Contents all user sessions in underway state.
-     * @apiSuccess {Object[]}   sessions.closed Contents all user sessions in closed state.
+     * @apiSuccess {Object[]}   sessions.underway   Contents all user sessions in underway state.
+     * @apiSuccess {Object[]}   sessions.closed     Contents all user sessions in closed state.
      * @apiSuccessExample {json} Success-Response
      *      HTTP/1.1 200 OK
      *      {
@@ -53,6 +55,9 @@ public class HomeController extends Controller {
      *                      "isNew": true
      *                  }
      *              ]
+     *          },
+     *          "balance": {
+     *              amount: 20000000
      *          }
      *      }
      *
@@ -72,11 +77,16 @@ public class HomeController extends Controller {
     public static Result get() {
         int uid = Integer.parseInt(session("id"));
 
-        // Get session with login
+        // Get sessions of user with login
         ObjectNode sessions = homeService.getSessions(uid);
+
+        // Get balance of user
+        ObjectNode balance = Json.newObject();
+        balance.put("amount", balanceService.getAmount(uid));
 
         ObjectNode result = Json.newObject();
         result.put("sessions", sessions);
+        result.put("balance", balance);
 
         return ok(result);
     }
