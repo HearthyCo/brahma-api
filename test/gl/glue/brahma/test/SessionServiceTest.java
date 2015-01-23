@@ -14,7 +14,7 @@ public class SessionServiceTest extends TransactionalTest {
     private SessionService sessionService = new SessionService();
 
     @Test // Request with invalid user Authentication. User "testClient2" is not an user for session 90700
-    public void returnSessionWithInvalidAuthentication() {
+    public void requestSessionWithInvalidAuthentication() {
         int session = 90700;
         int uid = 90001;
         ObjectNode result = sessionService.getSession(session, uid);
@@ -22,7 +22,7 @@ public class SessionServiceTest extends TransactionalTest {
     }
 
     @Test // Request with an non-existent session id
-    public void returnSessionInvalidId() {
+    public void requestSessionInvalidId() {
         int session = 0;
         int uid = 90000;
         ObjectNode result = sessionService.getSession(session, uid);
@@ -30,7 +30,7 @@ public class SessionServiceTest extends TransactionalTest {
     }
 
     @Test // Valid request
-    public void returnSessionOk() {
+    public void requestSessionOk() {
         int session = 90700;
         int uid = 90000;
         ObjectNode result = sessionService.getSession(session, uid);
@@ -54,7 +54,7 @@ public class SessionServiceTest extends TransactionalTest {
         List<SessionUser> result = sessionService.getState(state, uid);
 
         assertNotNull(result);
-        assertEquals(1, result.size());
+        assertEquals(result.size(), 1);
         for (SessionUser session : result) {
             assertEquals(session.getSession().getState().name(), "PROGRAMMED");
         }
@@ -66,7 +66,7 @@ public class SessionServiceTest extends TransactionalTest {
         int uid = 90000;
         List<SessionUser> result = sessionService.getState(state, uid);
         assertNotNull(result);
-        assertEquals(0, result.size());
+        assertEquals(result.size(), 0);
     }
 
     @Test // Request session with closed (closed and finished) state
@@ -75,7 +75,7 @@ public class SessionServiceTest extends TransactionalTest {
         int uid = 90000;
         List<SessionUser> result = sessionService.getState(state, uid);
         assertNotNull(result);
-        assertEquals(2, result.size());
+        assertEquals(result.size(), 2);
         for (SessionUser session : result) {
             String stateName = session.getSession().getState().name();
             assertTrue(stateName.equals("CLOSED") || stateName.equals("FINISHED"));

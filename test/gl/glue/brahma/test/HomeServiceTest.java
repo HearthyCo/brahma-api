@@ -12,7 +12,7 @@ public class HomeServiceTest extends TransactionalTest {
     private HomeService homeService = new HomeService();
 
     @Test // Request with invalid user Authentication. User "testClientDummy" not exists
-    public void returnSessionsWithInvalidAuthentication() {
+    public void requestSessionsWithInvalidAuthentication() {
         int uid = 99999;
         ObjectNode result = homeService.getSessions(uid);
 
@@ -26,7 +26,7 @@ public class HomeServiceTest extends TransactionalTest {
     }
 
     @Test // Request sessions with valid user Authentication
-    public void returnSessionsOk() {
+    public void requestSessionsOk() {
         int uid = 90000;
         ObjectNode result = homeService.getSessions(uid);
 
