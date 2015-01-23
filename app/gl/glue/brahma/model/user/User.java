@@ -8,6 +8,7 @@ import play.libs.Json;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Entity
@@ -50,6 +51,9 @@ public abstract class User {
     @Enumerated(EnumType.STRING)
     @NotNull
     private Gender gender;
+
+    @NotNull
+    private int balance = 0;
 
     @JsonIgnore
     private Date onlineLimit;
@@ -136,6 +140,10 @@ public abstract class User {
     public void setGender(Gender gender) {
         this.gender = gender;
     }
+
+    public int getBalance() { return this.balance; }
+
+    public void setBalance(int balance) { this.balance = balance; }
 
     public Date getOnlineLimit() {
         return onlineLimit;
