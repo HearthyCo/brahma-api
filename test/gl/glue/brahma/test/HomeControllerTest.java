@@ -31,6 +31,8 @@ public class HomeControllerTest extends TransactionalTest {
         assertEquals(result.toScala().header().status(), 200);
 
         ObjectNode ret = TestUtils.toJson(result);
+
+        // Sessions
         JsonNode programmed = ret.get("sessions").get("programmed");
         JsonNode closed = ret.get("sessions").get("closed");
 
@@ -39,5 +41,8 @@ public class HomeControllerTest extends TransactionalTest {
 
         assertEquals(closed.size(), 2);
         assertEquals(closed.get(0).get("id").asInt(), 90702);
+
+        // Balance
+        assertEquals(ret.get("balance").get("amount").asInt(), 20000000);
     }
 }
