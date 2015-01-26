@@ -2,16 +2,16 @@ package gl.glue.brahma.controllers;
 
 import actions.BasicAuth;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import gl.glue.brahma.service.BalanceService;
+import gl.glue.brahma.service.TransactionService;
 import play.db.jpa.Transactional;
 import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
 
-public class BalanceController extends Controller {
+public class TransactionController extends Controller {
 
-    private static BalanceService balanceService = new BalanceService();
+    private static TransactionService transactionService = new TransactionService();
 
     /**
      * @api {get} /user/balance Balance
@@ -57,10 +57,22 @@ public class BalanceController extends Controller {
         int uid = Integer.parseInt(session("id"));
 
         // Get session with login
-        ObjectNode balance = balanceService.getBalance(uid);
+        ObjectNode balance = transactionService.getBalance(uid);
 
         ObjectNode result = Json.newObject();
         result.put("balance", balance);
+
+        return ok(result);
+    }
+
+    public static Result newTransaction() {
+        int uid = Integer.parseInt(session("id"));
+
+        // Get session with login
+        ObjectNode transaction = transactionService.newTransaction(uid);
+
+        ObjectNode result = Json.newObject();
+        result.put("transaction", transaction);
 
         return ok(result);
     }

@@ -11,7 +11,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static play.test.Helpers.*;
 
-public class BalanceControllerTest extends TransactionalTest {
+public class TransactionControllerTest extends TransactionalTest {
 
     @Test // Request balance without user authentication
     public void requestBalanceWithoutAuthentication() {
@@ -26,7 +26,7 @@ public class BalanceControllerTest extends TransactionalTest {
         String login = "testClient1@glue.gl";
         Result responseLogin = TestUtils.makeLoginRequest(login, login);
 
-        Result result = TestUtils.getBalanceRequest(responseLogin);
+        Result result = TestUtils.getTransactionRequest(responseLogin);
 
         assertNotNull(result);
         assertEquals(result.toScala().header().status(), 200);
