@@ -11,13 +11,18 @@ GET         /v1/user/home                                                   gl.g
 POST        /v1/user/login                                                  gl.glue.brahma.controllers.UserController.login()
 POST        /v1/user/register                                               gl.glue.brahma.controllers.UserController.register()
 GET         /v1/user/sessions/$state<(programmed|underway|closed)\b>        gl.glue.brahma.controllers.SessionController.getState(state: String)
-GET         /v1/user/balance                                                gl.glue.brahma.controllers.BalanceController.getBalance()
+GET         /v1/user/balance                                                gl.glue.brahma.controllers.TransactionController.getBalance()
 
 # Sessions
 GET         /v1/session/:session                                            gl.glue.brahma.controllers.SessionController.getSession(session: Integer)
 
-#Services
+# Services
 GET         /v1/services                                                    gl.glue.brahma.controllers.ServiceController.getServices()
+
+# Transactions
+POST        /v1/transaction                                                 gl.glue.brahma.controllers.TransactionController.newTransaction()
+GET         /v1/transaction/url/cancel
+GET         /v1/transaction/url/success
 
 # Map static resources from the /public folder to the /assets URL path
 GET         /assets/*file                                                   controllers.Assets.at(path="/public", file)

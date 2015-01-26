@@ -46,7 +46,7 @@ public class TestUtils {
         assertEquals(Integer.toString(status), ret.get("errors").get(0).get("status").asText());
     }
 
-    public static Result getBalanceRequest(Result responseLogin) {
+    public static Result getTransactionRequest(Result responseLogin) {
         Http.Cookie[] cookies = FluentIterable.from(cookies(responseLogin)).toArray(Http.Cookie.class);
 
         FakeRequest fr = fakeRequest(GET, "/v1/user/balance").withCookies(cookies);
