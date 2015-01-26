@@ -16,5 +16,8 @@ GET         /v1/user/balance                                                gl.g
 # Sessions
 GET         /v1/session/:session                                            gl.glue.brahma.controllers.SessionController.getSession(session: Integer)
 
+#Services
+GET         /v1/services                                                    gl.glue.brahma.controllers.ServiceController.getServices()
+
 # Map static resources from the /public folder to the /assets URL path
 GET         /assets/*file                                                   controllers.Assets.at(path="/public", file)

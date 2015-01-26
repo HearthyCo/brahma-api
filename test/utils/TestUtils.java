@@ -53,6 +53,14 @@ public class TestUtils {
         return routeAndCall(fr, REQUEST_TIMEOUT);
     }
 
+    public static Result getServicesRequest(Result responseLogin) {
+        Http.Cookie[] cookies = FluentIterable.from(cookies(responseLogin)).toArray(Http.Cookie.class);
+
+        FakeRequest fr = fakeRequest(GET, "/v1/services").withCookies(cookies);
+        return routeAndCall(fr, REQUEST_TIMEOUT);
+    }
+
+
     public static Result getHomeRequest(Result responseLogin) {
         Http.Cookie[] cookies = FluentIterable.from(cookies(responseLogin)).toArray(Http.Cookie.class);
 
