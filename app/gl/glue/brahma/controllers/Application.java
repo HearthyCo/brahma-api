@@ -1,5 +1,7 @@
 package gl.glue.brahma.controllers;
 
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import gl.glue.brahma.model.accesslog.AccessLog;
 import gl.glue.brahma.model.attachment.Attachment;
 import gl.glue.brahma.model.availability.Availability;
@@ -90,4 +92,14 @@ public class Application extends Controller {
         return ok(index.render("It works."));
     }
 
+    public static Result preflight(String all) {
+        Config conf = ConfigFactory.load();
+        response().setHeader("Access-Control-Allow-Origin", conf.getString("cors.origin"));
+        response().setHeader("Allow", "*");
+        response().setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS");
+        response().setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Referer, User-Agent");
+        response().setHeader("Access-Control-Allow-Credentials", "true");
+        response().setHeader("Access-Control-Max-Age", "86400");
+        return ok();
+    }
 }

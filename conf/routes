@@ -5,6 +5,9 @@
 # Home page
 GET         /                                                               gl.glue.brahma.controllers.Application.index()
 
+# CORS OPTIONS preflight request
+OPTIONS     /*all                                                           gl.glue.brahma.controllers.Application.preflight(all)
+
 # User
 POST        /v1/user                                                        gl.glue.brahma.controllers.UserController.register()
 GET         /v1/user/home                                                   gl.glue.brahma.controllers.HomeController.get()
