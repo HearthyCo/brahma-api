@@ -72,7 +72,7 @@ public class Paypal extends Transaction {
         this.update_time = updateTime;
     }
 
-    public State getState() {
+    public Transaction.State getState() {
         return state;
     }
 

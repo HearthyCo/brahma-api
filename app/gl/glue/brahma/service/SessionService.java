@@ -89,6 +89,16 @@ public class SessionService {
     }
 
     /**
+     * Search session by id
+     * @param uid User login to search
+     * @param id Session id to search
+     * @return Session with id passed
+     */
+    public Session getById(int uid, int id) {
+        return sessionDao.findById(id, uid);
+    }
+
+    /**
      * Search sessions with state passed
      * @param state Session State to search
      * @param uid User Login to search

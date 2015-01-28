@@ -67,12 +67,6 @@ public abstract class User {
     @Transient
     private JsonNode metaParsed; // Cache for meta parsing
 
-    @NotNull // Fake to prevent typing bug
-    private String token = "{}";
-
-    @Transient
-    private JsonNode tokenParsed; // Cache for meta parsing
-
 
     public int getId() {
         return id;
@@ -180,18 +174,6 @@ public abstract class User {
     public void setMeta(JsonNode meta) {
         this.metaParsed = meta;
         this.meta = meta == null ? "{}" : meta.toString();
-    }
-
-    public JsonNode getToken() {
-        if (tokenParsed == null) {
-            tokenParsed = token == null ? Json.newObject() : Json.parse(token);
-        }
-        return tokenParsed;
-    }
-
-    public void setToken(JsonNode token) {
-        this.tokenParsed = token;
-        this.token = token == null ? "{}" : token.toString();
     }
 
     @Override
