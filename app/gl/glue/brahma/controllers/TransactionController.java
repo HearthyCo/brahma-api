@@ -1,8 +1,13 @@
 package gl.glue.brahma.controllers;
 
 import actions.BasicAuth;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import gl.glue.brahma.model.session.Session;
+import gl.glue.brahma.model.transaction.Transaction;
+import gl.glue.brahma.service.SessionService;
 import gl.glue.brahma.service.TransactionService;
+import gl.glue.brahma.util.JsonUtils;
 import play.db.jpa.Transactional;
 import play.libs.Json;
 import play.mvc.BodyParser;
@@ -12,6 +17,7 @@ import play.mvc.Result;
 public class TransactionController extends Controller {
 
     private static TransactionService transactionService = new TransactionService();
+    private static SessionService sessionService = new SessionService();
 
     /**
      * @api {get} /user/balance Balance
@@ -65,14 +71,32 @@ public class TransactionController extends Controller {
         return ok(result);
     }
 
-    public static Result newTransaction() {
+    // Huerfana de test y sin probar.
+    @BasicAuth
+    @Transactional
+    @BodyParser.Of(BodyParser.Json.class)
+    public static Result createTransaction() {
         int uid = Integer.parseInt(session("id"));
 
-        // Get session with login
-        ObjectNode transaction = transactionService.newTransaction(uid);
+        JsonNode json = request().body().asJson();
 
+        ObjectNode params = JsonUtils.checkRequiredFields(json, "amount");
+        if (params != null) return badRequest(params);
+
+        int amount = json.findPath("amount").asInt();
+
+        Transaction transaction = null;
+        if(json.has("session")) {
+            Session session = sessionService.getById(uid, json.findPath("session").asInt());
+            transaction = transactionService.createTransaction(uid, amount, session);
+        }
+        else {
+            transaction = transactionService.createTransaction(uid, amount);
+        }
+
+        // Get session with login
         ObjectNode result = Json.newObject();
-        result.put("transaction", transaction);
+        result.put("transaction", Json.toJson(transaction));
 
         return ok(result);
     }

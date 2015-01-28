@@ -20,7 +20,7 @@ GET         /v1/session/:session                                            gl.g
 GET         /v1/services                                                    gl.glue.brahma.controllers.ServiceController.getServices()
 
 # Transactions
-POST        /v1/transaction                                                 gl.glue.brahma.controllers.TransactionController.newTransaction()
+POST        /v1/transaction                                                 gl.glue.brahma.controllers.TransactionController.createTransaction()
 GET         /v1/transaction/url/cancel
 GET         /v1/transaction/url/success
 

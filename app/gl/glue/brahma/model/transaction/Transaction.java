@@ -1,8 +1,10 @@
 package gl.glue.brahma.model.transaction;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.JsonNode;
 import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.model.user.User;
+import play.libs.Json;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -10,6 +12,8 @@ import java.util.Date;
 
 @Entity
 public class Transaction {
+
+    public enum State { CREATED, APPROVED, FAILED, CANCELED, EXPIRED, PENDING }
 
     @Id
     @SequenceGenerator(name = "transaction_id_seq", sequenceName = "transaction_id_seq", allocationSize = 1)
@@ -30,10 +34,20 @@ public class Transaction {
     @NotNull
     private int amount;
 
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    private State state;
+
     @NotNull
     private Date timestamp;
 
     private String reason;
+
+    @NotNull // Fake to prevent typing bug
+    private String meta = "{}";
+
+    @Transient
+    private JsonNode metaParsed; // Cache for meta parsing
 
 
     public int getId() {
@@ -56,13 +70,15 @@ public class Transaction {
         this.session = session;
     }
 
-    public int getAmount() {
-        return amount;
+    public int getAmount() { return amount; }
+
+    public void setAmount(int amount) { this.amount = amount; }
+
+    public State getState() {
+        return state;
     }
 
-    public void setAmount(int amount) {
-        this.amount = amount;
-    }
+    public void setState(State state) { this.state = state; }
 
     public Date getTimestamp() {
         return timestamp;
@@ -78,6 +94,18 @@ public class Transaction {
 
     public void setReason(String reason) {
         this.reason = reason;
+    }
+
+    public JsonNode getMeta() {
+        if (metaParsed == null) {
+            metaParsed = meta == null ? Json.newObject() : Json.parse(meta);
+        }
+        return metaParsed;
+    }
+
+    public void setMeta(JsonNode meta) {
+        this.metaParsed = meta;
+        this.meta = meta == null ? "{}" : meta.toString();
     }
 
 
