@@ -2,7 +2,7 @@ import play.PlayJava
 
 name := """brahma"""
 
-version := "1.0-SNAPSHOT"
+version := "0.3.0"
 
 lazy val brahma = (project in file(".")).enablePlugins(PlayJava)
 
