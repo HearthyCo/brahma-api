@@ -1,8 +1,7 @@
 package gl.glue.brahma.model.accesslog;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import gl.glue.brahma.model.historycurrent.HistoryCurrent;
-import gl.glue.brahma.model.user.Professional;
+import gl.glue.brahma.model.user.User;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -17,16 +16,16 @@ public class AccessLog {
     private int id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "owner_user_id")
     @NotNull
     @JsonIgnore
-    private Professional user;
+    private User owner;
 
     @ManyToOne
-    @JoinColumn(name = "history_current_id")
+    @JoinColumn(name = "viewer_user_id")
     @NotNull
     @JsonIgnore
-    private HistoryCurrent historyCurrent;
+    private User viewer;
 
     @NotNull
     private Date timestamp;
@@ -36,20 +35,20 @@ public class AccessLog {
         return id;
     }
 
-    public Professional getUser() {
-        return user;
+    public User getOwner() {
+        return owner;
     }
 
-    public void setUser(Professional user) {
-        this.user = user;
+    public void setOwner(User owner) {
+        this.owner = owner;
     }
 
-    public HistoryCurrent getHistoryCurrent() {
-        return historyCurrent;
+    public User getViewer() {
+        return viewer;
     }
 
-    public void setHistoryCurrent(HistoryCurrent historyCurrent) {
-        this.historyCurrent = historyCurrent;
+    public void setViewer(User viewer) {
+        this.viewer = viewer;
     }
 
     public Date getTimestamp() {

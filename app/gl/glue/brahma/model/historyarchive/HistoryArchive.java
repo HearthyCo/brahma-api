@@ -1,8 +1,7 @@
 package gl.glue.brahma.model.historyarchive;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import gl.glue.brahma.model.user.Client;
-import gl.glue.brahma.model.user.Professional;
+import gl.glue.brahma.model.historyentry.HistoryEntry;
 import gl.glue.brahma.model.user.User;
 
 import javax.persistence.*;
@@ -18,21 +17,18 @@ public class HistoryArchive {
     private int id;
 
     @ManyToOne
-    @JoinColumn(name = "client_user_id")
+    @JoinColumn(name = "history_entry_id")
     @NotNull
     @JsonIgnore
-    private Client client;
+    private HistoryEntry historyEntry;
 
     @ManyToOne
-    @JoinColumn(name = "professional_user_id")
+    @JoinColumn(name = "editor_user_id")
     @JsonIgnore
-    private Professional professional;
+    private User editor;
 
     @NotNull
-    private Date creationDate;
-
-    @NotNull
-    private Date archiveDate;
+    private Date timestamp;
 
     @NotNull
     private String meta;
@@ -42,36 +38,28 @@ public class HistoryArchive {
         return id;
     }
 
-    public Client getClient() {
-        return client;
+    public HistoryEntry getHistoryEntry() {
+        return historyEntry;
     }
 
-    public void setClient(Client client) {
-        this.client = client;
+    public void setHistoryEntry(HistoryEntry historyEntry) {
+        this.historyEntry = historyEntry;
     }
 
-    public Professional getProfessional() {
-        return professional;
+    public User getEditor() {
+        return editor;
     }
 
-    public void setProfessional(Professional professional) {
-        this.professional = professional;
+    public void setEditor(User professional) {
+        this.editor = professional;
     }
 
-    public Date getCreationDate() {
-        return creationDate;
+    public Date getTimestamp() {
+        return timestamp;
     }
 
-    public void setCreationDate(Date creationDate) {
-        this.creationDate = creationDate;
-    }
-
-    public Date getArchiveDate() {
-        return archiveDate;
-    }
-
-    public void setArchiveDate(Date archiveDate) {
-        this.archiveDate = archiveDate;
+    public void setTimestamp(Date archiveDate) {
+        this.timestamp = archiveDate;
     }
 
     public String getMeta() {

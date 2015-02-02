@@ -1,8 +1,8 @@
 package gl.glue.brahma.model.historyentry;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import gl.glue.brahma.model.historycurrent.HistoryCurrent;
 import gl.glue.brahma.model.historyentrytype.HistoryEntryType;
+import gl.glue.brahma.model.user.User;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -17,22 +17,31 @@ public class HistoryEntry {
     private int id;
 
     @ManyToOne
-    @JoinColumn(name = "history_current_id")
-    @NotNull
-    @JsonIgnore
-    private HistoryCurrent history;
-
-    @ManyToOne
     @JoinColumn(name = "history_entry_type_id")
     @NotNull
     @JsonIgnore
     private HistoryEntryType type;
+
+    @ManyToOne
+    @JoinColumn(name = "owner_user_id")
+    @NotNull
+    @JsonIgnore
+    private User owner;
+
+    @ManyToOne
+    @JoinColumn(name = "editor_user_id")
+    @NotNull
+    @JsonIgnore
+    private User editor;
 
     @NotNull
     private String title;
 
     @NotNull
     private Date timestamp;
+
+    @NotNull
+    private boolean removed;
 
     private String description;
 
@@ -44,14 +53,6 @@ public class HistoryEntry {
         return id;
     }
 
-    public HistoryCurrent getHistory() {
-        return history;
-    }
-
-    public void setHistory(HistoryCurrent history) {
-        this.history = history;
-    }
-
     public HistoryEntryType getType() {
         return type;
     }
@@ -60,12 +61,36 @@ public class HistoryEntry {
         this.type = type;
     }
 
+    public User getOwner() {
+        return owner;
+    }
+
+    public void setOwner(User owner) {
+        this.owner = owner;
+    }
+
     public String getTitle() {
         return title;
     }
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public User getEditor() {
+        return editor;
+    }
+
+    public void setEditor(User editor) {
+        this.editor = editor;
+    }
+
+    public boolean isRemoved() {
+        return removed;
+    }
+
+    public void setRemoved(boolean removed) {
+        this.removed = removed;
     }
 
     public Date getTimestamp() {
