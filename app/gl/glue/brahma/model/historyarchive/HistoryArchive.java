@@ -75,4 +75,14 @@ public class HistoryArchive {
     public String toString() {
         return "HistoryArchive #" + id;
     }
+
+    public static HistoryArchive fromHistoryEntry(HistoryEntry he) {
+        HistoryArchive ha = new HistoryArchive();
+        ha.setHistoryEntry(he);
+        ha.setEditor(he.getEditor());
+        ha.setTimestamp(he.getTimestamp());
+        ha.setMeta(he.getMeta());
+        // TODO: Save title and description on meta
+        return ha;
+    }
 }

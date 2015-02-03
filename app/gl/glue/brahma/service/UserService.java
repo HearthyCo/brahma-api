@@ -20,7 +20,7 @@ public class UserService {
 
     @Transactional
     public User register(User user) {
-        userDao.save(user);
+        userDao.create(user);
         return user;
     }
 

@@ -4,6 +4,7 @@ import gl.glue.brahma.model.user.Client;
 import gl.glue.brahma.model.user.User;
 import gl.glue.brahma.service.UserService;
 import org.junit.Test;
+import play.db.jpa.JPA;
 
 import javax.persistence.PersistenceException;
 import java.util.Date;
@@ -43,11 +44,13 @@ public class UserServiceTest extends TransactionalTest {
         User user = getRegisteringUser(login, pass);
         User ret = userService.register(user);
         assertNotNull(ret);
+        JPA.em().flush(); // Make sure no exceptions would have been thrown at end of transaction
 
         User user2 = getRegisteringUser(login, pass);
         boolean gotException = false;
         try {
             User ret2 = userService.register(user2);
+            JPA.em().flush(); // Make sure we get the exception now if it would have been thrown later
         } catch (PersistenceException e) {
             gotException = true;
         }
