@@ -96,13 +96,13 @@ INSERT INTO access_log (id, owner_user_id, viewer_user_id, timestamp) VALUES
   (91001, 90001, 90005, '2014-12-17 09:00:00');
 
 INSERT INTO history_entry_type (id) VALUES
-  ('Allergies'),
-  ('Treatments');
+  ('allergies'),
+  ('treatments');
 
-INSERT INTO history_entry (id, owner_user_id, editor_user_id, history_entry_type_id, title, timestamp, removed) VALUES
-  (91100, 90000, 90005, 'Allergies', 'Lactosa', '2014-12-15 08:30:00', false),
-  (91101, 90000, 90005, 'Allergies', 'Gluten', '2014-12-15 08:30:00', false),
-  (91102, 90000, 90005, 'Treatments', 'Caminar', '2014-12-15 08:30:00', false);
+INSERT INTO history_entry (id, owner_user_id, editor_user_id, history_entry_type_id, title, timestamp, removed, description, meta) VALUES
+  (91100, 90000, 90005, 'allergies', 'Lactosa', '2014-12-15 08:30:00', false, 'Insuficiencia cardiorespiratoria.', '{"rating": 5}'),
+  (91101, 90000, 90005, 'allergies', 'Gluten', '2014-12-15 08:30:00', false, 'Indigestión aguda.', '{"rating": 3}'),
+  (91102, 90000, 90005, 'treatments', 'Caminar', '2014-12-15 08:30:00', false, 'Camina una hora al día', '{}');
 
 INSERT INTO attachment (id, history_entry_id, session_id, user_id, path) VALUES
   (91200, 91102, null, 90005, 'infographic.pdf'),

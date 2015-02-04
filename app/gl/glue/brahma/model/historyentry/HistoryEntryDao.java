@@ -33,7 +33,8 @@ public class HistoryEntryDao {
             String queryString =
                     "select he " +
                     "from HistoryEntry he " +
-                    "where he.owner.id = :uid";
+                    "where he.owner.id = :uid " +
+                    "and he.removed = false";
 
             return JPA.em().createQuery(queryString, HistoryEntry.class)
                     .setParameter("uid", uid)
@@ -57,7 +58,8 @@ public class HistoryEntryDao {
                     "select he " +
                     "from HistoryEntry he " +
                     "where he.owner.id = :uid " +
-                    "and he.type = :kind";
+                    "and he.type.id = :kind " +
+                    "and he.removed = false";
 
             return JPA.em().createQuery(queryString, HistoryEntry.class)
                     .setParameter("uid", uid)
