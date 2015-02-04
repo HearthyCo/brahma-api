@@ -32,8 +32,8 @@ public class HistoryEntryDao {
         try {
             String queryString =
                     "select he " +
-                            "from HistoryEntry he " +
-                            "where he.owner.id = :uid";
+                    "from HistoryEntry he " +
+                    "where he.owner.id = :uid";
 
             return JPA.em().createQuery(queryString, HistoryEntry.class)
                     .setParameter("uid", uid)

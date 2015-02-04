@@ -2,6 +2,8 @@ package gl.glue.brahma.model.historyentry;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import gl.glue.brahma.model.historyentrytype.HistoryEntryType;
 import gl.glue.brahma.model.user.User;
 import play.libs.Json;
@@ -18,18 +20,19 @@ public class HistoryEntry {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "history_entry_id_seq")
     private int id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "history_entry_type_id")
     @NotNull
+    @JsonSerialize(using = ToStringSerializer.class)
     private HistoryEntryType type;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_user_id")
     @NotNull
     @JsonIgnore
     private User owner;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "editor_user_id")
     @NotNull
     @JsonIgnore

@@ -4,6 +4,7 @@ import gl.glue.brahma.model.historyarchive.HistoryArchive;
 import gl.glue.brahma.model.historyarchive.HistoryArchiveDao;
 import gl.glue.brahma.model.historyentry.HistoryEntry;
 import gl.glue.brahma.model.historyentry.HistoryEntryDao;
+import gl.glue.brahma.model.historyentrytype.HistoryEntryType;
 import play.db.jpa.JPA;
 import play.db.jpa.Transactional;
 
@@ -60,6 +61,10 @@ public class HistoryService {
             throw new IllegalStateException("Non-managed object expected");
         }
         entry.setTimestamp(new Date());
+
+        // Trick to prevent select to HistoryEntryType just to check if it exists. We can assume it does.
+        entry.setType(JPA.em().getReference(HistoryEntryType.class, entry.getType().getId()));
+
         if (entry.getId() != 0) {
             // If object has ID, we're handling an update, and should archive the original values first
             HistoryEntry original = historyEntryDao.findById(entry.getId());

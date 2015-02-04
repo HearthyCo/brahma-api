@@ -2,16 +2,13 @@ package gl.glue.brahma.model.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 
 @Entity
 @DiscriminatorValue("CLIENT")
 public class Client extends User {
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tutor_user_id")
     @JsonIgnore
     private Tutor tutor;
