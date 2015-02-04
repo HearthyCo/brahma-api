@@ -28,7 +28,7 @@ public class HistoryServiceTest extends TransactionalTest {
         he.setTitle("Test Title");
         he.setEditor(user);
         he.setMeta(Json.newObject());
-        he.setType(new HistoryEntryType("Allergies"));
+        he.setType(new HistoryEntryType("allergies"));
         he = historyService.saveVersioned(he);
 
         List<HistoryEntry> lhe = historyService.getHistory(user.getId());
@@ -49,7 +49,7 @@ public class HistoryServiceTest extends TransactionalTest {
         he.setTitle(title1);
         he.setEditor(user);
         he.setMeta(Json.newObject());
-        he.setType(new HistoryEntryType("Allergies"));
+        he.setType(new HistoryEntryType("allergies"));
         he = historyService.saveVersioned(he);
 
         HistoryEntry he2 = Json.fromJson(Json.toJson(he), HistoryEntry.class);
