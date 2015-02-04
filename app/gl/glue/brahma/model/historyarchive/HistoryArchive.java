@@ -1,8 +1,11 @@
 package gl.glue.brahma.model.historyarchive;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import gl.glue.brahma.model.historyentry.HistoryEntry;
 import gl.glue.brahma.model.user.User;
+import play.libs.Json;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -33,6 +36,9 @@ public class HistoryArchive {
     @NotNull
     private String meta;
 
+    @Transient
+    private JsonNode metaParsed; // Cache for meta parsing
+
 
     public int getId() {
         return id;
@@ -62,12 +68,16 @@ public class HistoryArchive {
         this.timestamp = archiveDate;
     }
 
-    public String getMeta() {
-        return meta;
+    public JsonNode getMeta() {
+        if (metaParsed == null) {
+            metaParsed = meta == null ? Json.newObject() : Json.parse(meta);
+        }
+        return metaParsed;
     }
 
-    public void setMeta(String meta) {
-        this.meta = meta;
+    public void setMeta(JsonNode meta) {
+        this.metaParsed = meta;
+        this.meta = meta == null ? "{}" : meta.toString();
     }
 
 
@@ -81,8 +91,13 @@ public class HistoryArchive {
         ha.setHistoryEntry(he);
         ha.setEditor(he.getEditor());
         ha.setTimestamp(he.getTimestamp());
-        ha.setMeta(he.getMeta());
-        // TODO: Save title and description on meta
+
+        ObjectNode meta = Json.newObject();
+        meta.put("title", he.getTitle());
+        meta.put("description", he.getDescription());
+        meta.put("meta", he.getMeta());
+        ha.setMeta(meta);
+
         return ha;
     }
 }

@@ -1,8 +1,10 @@
 package gl.glue.brahma.model.historyentry;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.JsonNode;
 import gl.glue.brahma.model.historyentrytype.HistoryEntryType;
 import gl.glue.brahma.model.user.User;
+import play.libs.Json;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -19,7 +21,6 @@ public class HistoryEntry {
     @ManyToOne
     @JoinColumn(name = "history_entry_type_id")
     @NotNull
-    @JsonIgnore
     private HistoryEntryType type;
 
     @ManyToOne
@@ -47,6 +48,9 @@ public class HistoryEntry {
 
     @NotNull  // Fake to prevent typing bug
     private String meta;
+
+    @Transient
+    private JsonNode metaParsed; // Cache for meta parsing
 
 
     public int getId() {
@@ -109,13 +113,18 @@ public class HistoryEntry {
         this.description = description;
     }
 
-    public String getMeta() {
-        return meta;
+    public JsonNode getMeta() {
+        if (metaParsed == null) {
+            metaParsed = meta == null ? Json.newObject() : Json.parse(meta);
+        }
+        return metaParsed;
     }
 
-    public void setMeta(String meta) {
-        this.meta = meta;
+    public void setMeta(JsonNode meta) {
+        this.metaParsed = meta;
+        this.meta = meta == null ? "{}" : meta.toString();
     }
+
 
 
     @Override

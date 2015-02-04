@@ -27,7 +27,7 @@ public class HistoryServiceTest extends TransactionalTest {
         he.setOwner(user);
         he.setTitle("Test Title");
         he.setEditor(user);
-        he.setMeta("{}");
+        he.setMeta(Json.newObject());
         he.setType(new HistoryEntryType("Allergies"));
         he = historyService.saveVersioned(he);
 
@@ -41,17 +41,22 @@ public class HistoryServiceTest extends TransactionalTest {
     @Test
     public void updateEntry() {
         User user = userService.getById(90000);
+        String title1 = "Test Title";
+        String title2 = "Test Title 2";
 
         HistoryEntry he = new HistoryEntry();
         he.setOwner(user);
-        he.setTitle("Test Title");
+        he.setTitle(title1);
         he.setEditor(user);
-        he.setMeta("{}");
+        he.setMeta(Json.newObject());
         he.setType(new HistoryEntryType("Allergies"));
         he = historyService.saveVersioned(he);
 
         HistoryEntry he2 = Json.fromJson(Json.toJson(he), HistoryEntry.class);
-        he2.setTitle("Test Title 2");
+        he2.setTitle(title2);
+        // Re-set these fields because they cannot be [de]serialized properly
+        he2.setOwner(user);
+        he2.setEditor(user);
         he2 = historyService.saveVersioned(he2);
 
         List<HistoryEntry> lhe = historyService.getHistory(user.getId());
@@ -59,6 +64,7 @@ public class HistoryServiceTest extends TransactionalTest {
 
         List<HistoryArchive> lha = historyService.getEntryHistory(he.getId());
         assertEquals(1, lha.size());
+        assertEquals(title1, lha.get(0).getMeta().get("title").asText());
     }
 
 
