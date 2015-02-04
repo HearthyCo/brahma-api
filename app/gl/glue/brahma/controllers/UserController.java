@@ -1,6 +1,9 @@
 package gl.glue.brahma.controllers;
 
+import actions.BasicAuth;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import gl.glue.brahma.model.user.Client;
 import gl.glue.brahma.model.user.User;
@@ -92,6 +95,26 @@ public class UserController extends Controller {
         result.put("user", Json.toJson(user));
 
         return ok(result);
+    }
+
+    /**
+     * @api {post} /user/logout Logout
+     *
+     * @apiGroup User
+     * @apiName Logout
+     * @apiDescription Destroy user session.
+     *
+     * @apiSuccessExample {json} Success-Response
+     *      HTTP/1.1 200 OK
+     *      {
+     *      }
+     *
+     * @apiVersion 0.1.0
+     */
+    @Transactional
+    public static Result logout() {
+        session().clear();
+        return ok(Json.newObject());
     }
 
     /**
@@ -192,6 +215,48 @@ public class UserController extends Controller {
 
         result = Json.newObject();
         result.put("user", Json.toJson(user));
+
+        return ok(result);
+    }
+
+    /**
+     * @api {get} /user Get Me
+     *
+     * @apiGroup User
+     * @apiName Get Me
+     * @apiDescription Get the current logged in user.
+     *
+     * @apiSuccess {object} user    Contains all user fields
+     * @apiSuccessExample {json} Success-Response
+     *      HTTP/1.1 200 OK
+     *      {
+     *          "user": {
+     *              "id": 1,
+     *              "login": "client1",
+     *              "name": "Client1",
+     *              "surname1": "For",
+     *              "surname2": "Service",
+     *              "birthdate": "1987-08-06",
+     *              "avatar": "http://...",
+     *              "nationalId": "12345678A",
+     *              "gender": "MALE",
+     *              "meta": {}
+     *          }
+     *      }
+     *
+     * @apiVersion 0.1.0
+     */
+    @BasicAuth
+    @Transactional
+    @BodyParser.Of(BodyParser.Json.class)
+    public static Result getMe() {
+
+        User user = userService.getById(Integer.parseInt(session("id")));
+
+        ObjectNode result = Json.newObject();
+        ArrayNode users = new ArrayNode(JsonNodeFactory.instance);
+        users.add(Json.toJson(user));
+        result.put("user", users);
 
         return ok(result);
     }
