@@ -1,8 +1,12 @@
 package gl.glue.brahma.model.historyentry;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import gl.glue.brahma.model.historycurrent.HistoryCurrent;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import gl.glue.brahma.model.historyentrytype.HistoryEntryType;
+import gl.glue.brahma.model.user.User;
+import play.libs.Json;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -16,17 +20,23 @@ public class HistoryEntry {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "history_entry_id_seq")
     private int id;
 
-    @ManyToOne
-    @JoinColumn(name = "history_current_id")
-    @NotNull
-    @JsonIgnore
-    private HistoryCurrent history;
-
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "history_entry_type_id")
     @NotNull
-    @JsonIgnore
+    @JsonSerialize(using = ToStringSerializer.class)
     private HistoryEntryType type;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_user_id")
+    @NotNull
+    @JsonIgnore
+    private User owner;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "editor_user_id")
+    @NotNull
+    @JsonIgnore
+    private User editor;
 
     @NotNull
     private String title;
@@ -34,22 +44,20 @@ public class HistoryEntry {
     @NotNull
     private Date timestamp;
 
+    @NotNull
+    private boolean removed;
+
     private String description;
 
     @NotNull  // Fake to prevent typing bug
     private String meta;
 
+    @Transient
+    private JsonNode metaParsed; // Cache for meta parsing
+
 
     public int getId() {
         return id;
-    }
-
-    public HistoryCurrent getHistory() {
-        return history;
-    }
-
-    public void setHistory(HistoryCurrent history) {
-        this.history = history;
     }
 
     public HistoryEntryType getType() {
@@ -60,12 +68,36 @@ public class HistoryEntry {
         this.type = type;
     }
 
+    public User getOwner() {
+        return owner;
+    }
+
+    public void setOwner(User owner) {
+        this.owner = owner;
+    }
+
     public String getTitle() {
         return title;
     }
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public User getEditor() {
+        return editor;
+    }
+
+    public void setEditor(User editor) {
+        this.editor = editor;
+    }
+
+    public boolean isRemoved() {
+        return removed;
+    }
+
+    public void setRemoved(boolean removed) {
+        this.removed = removed;
     }
 
     public Date getTimestamp() {
@@ -84,13 +116,18 @@ public class HistoryEntry {
         this.description = description;
     }
 
-    public String getMeta() {
-        return meta;
+    public JsonNode getMeta() {
+        if (metaParsed == null) {
+            metaParsed = meta == null ? Json.newObject() : Json.parse(meta);
+        }
+        return metaParsed;
     }
 
-    public void setMeta(String meta) {
-        this.meta = meta;
+    public void setMeta(JsonNode meta) {
+        this.metaParsed = meta;
+        this.meta = meta == null ? "{}" : meta.toString();
     }
+
 
 
     @Override

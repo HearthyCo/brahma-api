@@ -10,7 +10,7 @@ public class ServiceDao {
 
     /**
      * Find services in database fetch serviceTypes
-     * @return Lsit of services
+     * @return List of services
      */
     @Transactional
     public List<Service> findServices() {

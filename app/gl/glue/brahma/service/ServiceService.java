@@ -13,7 +13,7 @@ import java.util.List;
 
 public class ServiceService {
 
-    ServiceDao serviceDao = new ServiceDao();
+    private ServiceDao serviceDao = new ServiceDao();
 
     /**
      * Find all services in database

@@ -91,22 +91,18 @@ INSERT INTO session_log (id, session_id, user_id, timestamp, action) VALUES
   (90801, 90701, 90008, '2014-12-15 09:00:00', 'ACCEPT'),
   (90802, 90701, 90008, '2014-12-15 12:00:00', 'REJECT');
 
-INSERT INTO history_current (id, client_user_id, professional_user_id, modification_date) VALUES
-  (90900, 90000, 90005, '2014-12-16 10:00:00'),
-  (90901, 90001, 90008, '2014-12-16 11:00:00');
-
-INSERT INTO access_log (id, user_id, history_current_id, timestamp) VALUES
-  (91000, 90005, 90900, '2014-12-16 10:00:00'),
-  (91001, 90005, 90900, '2014-12-17 09:00:00');
+INSERT INTO access_log (id, owner_user_id, viewer_user_id, timestamp) VALUES
+  (91000, 90000, 90005, '2014-12-16 10:00:00'),
+  (91001, 90001, 90005, '2014-12-17 09:00:00');
 
 INSERT INTO history_entry_type (id) VALUES
-  ('Allergies'),
-  ('Treatments');
+  ('allergies'),
+  ('treatments');
 
-INSERT INTO history_entry (id, history_current_id, history_entry_type_id, title, timestamp) VALUES
-  (91100, 90900, 'Allergies', 'Lactosa', '2014-12-15 08:30:00'),
-  (91101, 90900, 'Allergies', 'Gluten', '2014-12-15 08:30:00'),
-  (91102, 90900, 'Treatments', 'Caminar', '2014-12-15 08:30:00');
+INSERT INTO history_entry (id, owner_user_id, editor_user_id, history_entry_type_id, title, timestamp, removed, description, meta) VALUES
+  (91100, 90000, 90005, 'allergies', 'Lactosa', '2014-12-15 08:30:00', false, 'Insuficiencia cardiorespiratoria.', '{"rating": 5}'),
+  (91101, 90000, 90005, 'allergies', 'Gluten', '2014-12-15 08:30:00', false, 'Indigestión aguda.', '{"rating": 3}'),
+  (91102, 90000, 90005, 'treatments', 'Caminar', '2014-12-15 08:30:00', false, 'Camina una hora al día', '{}');
 
 INSERT INTO attachment (id, history_entry_id, session_id, user_id, path) VALUES
   (91200, 91102, null, 90005, 'infographic.pdf'),
@@ -118,12 +114,12 @@ INSERT INTO transaction (id, user_id, session_id, amount, timestamp, reason) VAL
   (91302, 90000, 90701, -1000, '2014-12-15 09:00:00', 'Reserva de sesión'),
   (91303, 90000, 90701, 1000, '2014-12-15 12:00:00', 'Devolución sesión cancelada');
 
-INSERT INTO history_archive (id, client_user_id, professional_user_id, creation_date, archive_date, meta) VALUES
-  (91400, 90000, 90005, '2014-12-16 10:00:00', '2014-12-16 10:00:00', '{}');
+INSERT INTO history_archive (id, history_entry_id, editor_user_id, timestamp, meta) VALUES
+  (91400, 91100, 90005, '2014-12-16 10:00:00', '{}');
 
 
 # --- !Downs
 
 
 SET search_path TO brahma, PUBLIC;
-TRUNCATE history_archive, transaction, attachment, history_entry, history_entry_type, access_log, history_current, session_log, session, notification, availability, service, service_type, field, "user", institution, collective CASCADE;
+TRUNCATE history_archive, transaction, attachment, history_entry, history_entry_type, access_log, session_log, session, notification, availability, service, service_type, field, "user", institution, collective CASCADE;

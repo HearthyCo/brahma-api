@@ -20,4 +20,8 @@ public class HistoryEntryType {
         return id;
     }
 
+    public HistoryEntryType() {}
+    public HistoryEntryType(String id) {
+        this.id = id;
+    }
 }

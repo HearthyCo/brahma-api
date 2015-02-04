@@ -6,9 +6,8 @@ import javax.persistence.NoResultException;
 
 public class UserDao {
 
-    public void save(User user) {
+    public void create(User user) {
         JPA.em().persist(user);
-        JPA.em().flush();
     }
 
     public User findByLogin(String login) {

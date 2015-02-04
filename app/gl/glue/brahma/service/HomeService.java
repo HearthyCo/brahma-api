@@ -16,7 +16,7 @@ import java.util.Set;
 
 public class HomeService {
 
-    public static int DEFAUL_LIMIT = 2;
+    private static final int DEFAULT_LIMIT = 2;
     private SessionDao sessionDao = new SessionDao();
 
     /**
@@ -26,10 +26,10 @@ public class HomeService {
      */
     @Transactional
     public ObjectNode getSessions(int uid) {
-        // Create object for retun
+        // Create object for return
         ObjectNode result = Json.newObject();
 
-        // Create State Sesion List Array for iterate and pass DAO function a Session.State ArrayList
+        // Create State Session List Array for iterate and pass DAO function a Session.State ArrayList
         List<Set<Session.State>> states = new ArrayList<>();
 
         String[] listStates = { "programmed", "underway", "closed" };
@@ -38,9 +38,9 @@ public class HomeService {
         states.add(EnumSet.of(Session.State.UNDERWAY));
         states.add(EnumSet.of(Session.State.CLOSED, Session.State.FINISHED));
 
-        // Iterate State Sesion List Array
+        // Iterate State Session List Array
         for (Set<Session.State> state : states) {
-            List<SessionUser> sessionUsers = sessionDao.findByState(state, uid, DEFAUL_LIMIT);
+            List<SessionUser> sessionUsers = sessionDao.findByState(state, uid, DEFAULT_LIMIT);
 
             ArrayNode sessions = new ArrayNode(JsonNodeFactory.instance);
             for(SessionUser sessionUser : sessionUsers) {

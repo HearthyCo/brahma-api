@@ -23,7 +23,6 @@ CREATE TYPE session_state AS ENUM ('REQUESTED', 'PROGRAMMED', 'UNDERWAY', 'CLOSE
 
 -- Tables --
 
-
 CREATE TABLE IF NOT EXISTS collective (
   id   SERIAL NOT NULL,
   name TEXT   NOT NULL,
@@ -221,72 +220,60 @@ CREATE TABLE IF NOT EXISTS history_entry_type (
   PRIMARY KEY (id)
 );
 
-CREATE TABLE IF NOT EXISTS history_current (
-  id                   SERIAL    NOT NULL,
-  client_user_id       INT       NOT NULL,
-  professional_user_id INT       NULL,
-  modification_date    TIMESTAMP NOT NULL,
-  PRIMARY KEY (id),
-  CONSTRAINT fk_history_current_user1
-  FOREIGN KEY (client_user_id)
-  REFERENCES "user" (id),
-  CONSTRAINT fk_history_current_user2
-  FOREIGN KEY (professional_user_id)
-  REFERENCES "user" (id)
-);
-CREATE INDEX history_current_client_user_id ON history_current (client_user_id ASC);
-
 CREATE TABLE IF NOT EXISTS history_entry (
   id                    SERIAL    NOT NULL,
-  history_current_id    INT       NOT NULL,
   history_entry_type_id TEXT      NOT NULL,
+  owner_user_id         INT       NOT NULL,
+  editor_user_id        INT       NOT NULL,
   title                 TEXT      NOT NULL,
   timestamp             TIMESTAMP NOT NULL,
+  removed               BOOLEAN   NOT NULL,
   description           TEXT      NULL,
   meta                  JSON      NULL,
   PRIMARY KEY (id),
-  CONSTRAINT fk_history_entry_history_current1
-  FOREIGN KEY (history_current_id)
-  REFERENCES history_current (id),
+  CONSTRAINT fk_history_entry_user1
+  FOREIGN KEY (owner_user_id)
+  REFERENCES "user" (id),
+  CONSTRAINT fk_history_entry_user2
+  FOREIGN KEY (editor_user_id)
+  REFERENCES "user" (id),
   CONSTRAINT fk_history_entry_history_entry_type1
   FOREIGN KEY (history_entry_type_id)
   REFERENCES history_entry_type (id)
 );
-CREATE INDEX history_entry_history_current_id ON history_entry (history_current_id ASC);
+CREATE INDEX history_entry_owner_user_id ON history_entry (owner_user_id ASC, timestamp DESC);
 
 
 CREATE TABLE IF NOT EXISTS history_archive (
   id                   SERIAL    NOT NULL,
-  client_user_id       INT       NOT NULL,
-  professional_user_id INT       NULL,
-  creation_date        TIMESTAMP NOT NULL,
-  archive_date         TIMESTAMP NOT NULL,
+  history_entry_id     INT       NOT NULL,
+  editor_user_id       INT       NOT NULL,
+  timestamp            TIMESTAMP NOT NULL,
   meta                 JSON      NOT NULL,
   PRIMARY KEY (id),
+  CONSTRAINT fk_history_archive_history_entry1
+  FOREIGN KEY (history_entry_id)
+  REFERENCES history_entry (id),
   CONSTRAINT fk_history_archive_user1
-  FOREIGN KEY (client_user_id)
-  REFERENCES "user" (id),
-  CONSTRAINT fk_history_archive_user2
-  FOREIGN KEY (professional_user_id)
+  FOREIGN KEY (editor_user_id)
   REFERENCES "user" (id)
 );
-CREATE INDEX history_archive_client_user_id ON history_archive (client_user_id ASC);
+CREATE INDEX history_archive_history_entry_id ON history_archive (history_entry_id ASC, timestamp DESC);
 
 CREATE TABLE IF NOT EXISTS access_log (
-  id                 SERIAL    NOT NULL,
-  user_id            INT       NOT NULL,
-  history_current_id INT       NOT NULL,
-  timestamp          TIMESTAMP NOT NULL,
+  id               SERIAL    NOT NULL,
+  owner_user_id    INT       NOT NULL,
+  viewer_user_id   INT       NOT NULL,
+  timestamp        TIMESTAMP NOT NULL,
   PRIMARY KEY (id),
   CONSTRAINT fk_access_log_user1
-  FOREIGN KEY (user_id)
+  FOREIGN KEY (owner_user_id)
   REFERENCES "user" (id),
-  CONSTRAINT fk_access_log_history_current1
-  FOREIGN KEY (history_current_id)
-  REFERENCES history_current (id)
+  CONSTRAINT fk_access_log_user2
+  FOREIGN KEY (viewer_user_id)
+  REFERENCES "user" (id)
 );
-CREATE INDEX access_log_user_id ON access_log (user_id ASC);
-CREATE INDEX access_log_history_current_id ON access_log (history_current_id ASC);
+CREATE INDEX access_log_owner_user_id ON access_log (owner_user_id ASC, timestamp DESC);
 
 CREATE TABLE IF NOT EXISTS prescription (
   id               SERIAL    NOT NULL,
