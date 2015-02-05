@@ -19,6 +19,8 @@ CREATE TYPE gender AS ENUM ('MALE', 'FEMALE', 'OTHER');
 CREATE TYPE service_mode AS ENUM ('ASYNC', 'VIDEO');
 CREATE TYPE session_action AS ENUM ('ACCEPT', 'JOIN', 'CLOSE', 'FINISH', 'REJECT', 'AWAY', 'ABORT');
 CREATE TYPE session_state AS ENUM ('REQUESTED', 'PROGRAMMED', 'UNDERWAY', 'CLOSED', 'FINISHED', 'CANCELED');
+CREATE TYPE transaction_state AS ENUM ('INPROGRESS', 'PENDING', 'APPROVED', 'FAILED');
+
 
 
 -- Tables --
@@ -201,12 +203,15 @@ CREATE TABLE IF NOT EXISTS session_log (
 CREATE INDEX session_log_session_id ON session_log (user_id ASC);
 
 CREATE TABLE IF NOT EXISTS transaction (
-  id         SERIAL    NOT NULL,
-  user_id    INT       NOT NULL,
-  session_id INT       NULL,
-  amount     INT       NOT NULL,
-  timestamp  TIMESTAMP NOT NULL,
-  reason     TEXT      NULL,
+  id         SERIAL               NOT NULL,
+  user_id    INT                  NOT NULL,
+  session_id INT                  NULL,
+  amount     INT                  NOT NULL,
+  state      transaction_state    NOT NULL,
+  sku        TEXT                 NOT NULL,
+  timestamp  TIMESTAMP            NOT NULL,
+  reason     TEXT                 NULL,
+  meta       JSON                 NULL,
   PRIMARY KEY (id),
   CONSTRAINT fk_transaction_user1
   FOREIGN KEY (user_id)
