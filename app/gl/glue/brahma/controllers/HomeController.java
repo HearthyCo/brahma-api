@@ -22,10 +22,13 @@ public class HomeController extends Controller {
      * @apiName GetHome
      * @apiDescription Collect all entities required to show in home view.
      *
-     * @apiSuccess {Object}     sessions            Contains all user sessions grouped by state.
-     * @apiSuccess {Object[]}   sessions.programmed Contents all user sessions in programmed state.
-     * @apiSuccess {Object[]}   sessions.underway   Contents all user sessions in underway state.
-     * @apiSuccess {Object[]}   sessions.closed     Contents all user sessions in closed state.
+     * @apiSuccess {Object}     sessions             Contains all user sessions grouped by state.
+     * @apiSuccess {Object[]}   sessions.programmed  Contents all user sessions in programmed state.
+     * @apiSuccess {Object[]}   sessions.underway    Contents all user sessions in underway state.
+     * @apiSuccess {Object[]}   sessions.closed      Contents all user sessions in closed state.
+     * @apiSuccess {Object}     balance              Balance.
+     * @apiSuccess {Float}      balance.amount       Current balance.
+     * @apiSuccess {Object[]}   balance.transactions Most recent transactions.
      * @apiSuccessExample {json} Success-Response
      *      HTTP/1.1 200 OK
      *      {
@@ -57,7 +60,23 @@ public class HomeController extends Controller {
      *              ]
      *          },
      *          "balance": {
-     *              amount: 20000000
+     *              amount: 1000,
+     *              transactions: [
+     *                  {
+     *                      "id": 10001,
+     *                      "amount": -1000,
+     *                      "timestamp": 1418626800000,
+     *                      "reason": "Reserva de sesión",
+     *                      "title": "testSession1"
+     *                  },
+     *                  {
+     *                      "id": 10005,
+     *                      "amount": 2000,
+     *                      "timestamp": 1418619600000,
+     *                      "reason": "Incremento de saldo",
+     *                      "title": "testSession1"
+     *                  }
+     *              ]
      *          }
      *      }
      *
@@ -80,13 +99,10 @@ public class HomeController extends Controller {
         // Get sessions of user with login
         ObjectNode sessions = homeService.getSessions(uid);
 
-        // Get balance of user
-        ObjectNode balance = Json.newObject();
-        balance.put("amount", balanceService.getAmount(uid));
 
         ObjectNode result = Json.newObject();
         result.put("sessions", sessions);
-        result.put("balance", balance);
+        result.put("balance", balanceService.getBalance(uid));
 
         return ok(result);
     }
