@@ -16,5 +16,5 @@ libraryDependencies ++= Seq(
   "org.postgresql" % "postgresql" % "9.3-1102-jdbc41",
   "org.hibernate" % "hibernate-entitymanager" % "4.3.7.Final",
   "org.mindrot" % "jbcrypt" % "0.3m",
-  "com.paypal.sdk" % "rest-api-sdk" % "0.5.2"
+  "com.paypal.sdk" % "rest-api-sdk" % "1.1.0"
 )
