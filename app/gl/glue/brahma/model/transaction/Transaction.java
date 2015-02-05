@@ -13,7 +13,7 @@ import java.util.Date;
 @Entity
 public class Transaction {
 
-    public enum State { CREATED, APPROVED, FAILED, CANCELED, EXPIRED, PENDING }
+    public enum State { INPROGRESS, PENDING, APPROVED, FAILED }
 
     @Id
     @SequenceGenerator(name = "transaction_id_seq", sequenceName = "transaction_id_seq", allocationSize = 1)
@@ -37,6 +37,9 @@ public class Transaction {
     @Enumerated(EnumType.STRING)
     @NotNull
     private State state;
+
+    @NotNull
+    private String sku;
 
     @NotNull
     private Date timestamp;
@@ -79,6 +82,14 @@ public class Transaction {
     }
 
     public void setState(State state) { this.state = state; }
+
+    public String getSku() {
+        return sku;
+    }
+
+    public void setSku(String sku) {
+        this.sku = sku;
+    }
 
     public Date getTimestamp() {
         return timestamp;
