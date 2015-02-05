@@ -7,6 +7,18 @@ import java.util.List;
 
 public class TransactionDao {
 
+    public Transaction get(int id) {
+        try {
+            String query = "select transaction from Transaction transaction where transaction.id = :id";
+
+            return JPA.em().createQuery(query, Transaction.class)
+                    .setParameter("id", id)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
     public List<Transaction> getTransactionHistory(int id) {
 
         try {
