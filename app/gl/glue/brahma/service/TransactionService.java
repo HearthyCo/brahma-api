@@ -18,18 +18,37 @@ import java.util.*;
 public class TransactionService {
 
     private static enum TYPES { TOPUP }
-    private final static String PAYPAL = "PPL";
+    private static enum TPV { PPL }
     private final static String CURRENCY = "EUR";
     private final static String CLIENT_ID = "AR-PoBBvPqAFyx1uFFkXa9Xd07XSOacB8wRbRFE25GtC7iRyRwaNq-Mqp0JU";
     private final static String SECRET = "EIYC6xAfIANsvMN59HxgmSpK2O9A9b9-Liv99YVC1sM0ATflklILlUtwJvbg";
+    private static final Map<String, String> sdkConfig;
+    private static final Map<String, Transaction.State> paypalStates = new HashMap<>();
+    private static String contextToken = null;
+
+    static
+    {
+        // Initialize paypal sdk configuration
+        sdkConfig = new HashMap<>();
+        sdkConfig.put("mode", "sandbox");
+
+        // Initialize brahma dictionary states
+        paypalStates.put("created", Transaction.State.INPROGRESS);
+        paypalStates.put("approved", Transaction.State.APPROVED);
+        paypalStates.put("failed", Transaction.State.FAILED);
+        paypalStates.put("cancelled", Transaction.State.FAILED);
+        paypalStates.put("expired", Transaction.State.FAILED);
+        paypalStates.put("pending", Transaction.State.PENDING);
+
+        contextToken = getToken();
+    }
 
     private UserDao userDao = new UserDao();
     private TransactionDao transactionDao = new TransactionDao();
 
 
-    public Transaction getTransaction(int uid, int id) {
-
-        Transaction transaction = transactionDao.get(id);
+    public Transaction getTransaction(int id) {
+        Transaction transaction = transactionDao.getById(id);
 
         if(transaction.getState() == Transaction.State.INPROGRESS ||
                 transaction.getState() == Transaction.State.PENDING) {
@@ -37,13 +56,18 @@ public class TransactionService {
             if (transaction.getMeta().has("paypal")) {
                 ObjectNode paypal = (ObjectNode) transaction.getMeta().get("paypal");
 
-                String contextToken = getToken();
                 String paypalId = paypal.get("id").asText();
+
+                APIContext apiContext = new APIContext(contextToken);
+                apiContext.setConfigurationMap(sdkConfig);
 
                 Payment payment = new Payment();
                 try {
-                    payment.get(contextToken, paypalId);
-                    transaction = updatePaypalTransaction(transaction, payment);
+                    payment.get(apiContext, paypalId);
+
+                    if(payment.getId() != null) {
+                        transaction = updatePaypalTransaction(transaction, payment);
+                    }
                 } catch (PayPalRESTException e) {
                     e.printStackTrace();
                 }
@@ -55,15 +79,6 @@ public class TransactionService {
     }
 
     private  Transaction updatePaypalTransaction(Transaction transaction, Payment payment) {
-        Map<String, Transaction.State> paypalStates = new HashMap<>();
-
-        paypalStates.put("created", Transaction.State.INPROGRESS);
-        paypalStates.put("approved", Transaction.State.APPROVED);
-        paypalStates.put("failed", Transaction.State.FAILED);
-        paypalStates.put("cancelled", Transaction.State.FAILED);
-        paypalStates.put("expired", Transaction.State.FAILED);
-        paypalStates.put("pending", Transaction.State.PENDING);
-
         transaction.setState(paypalStates.get(payment.getState()));
 
         ObjectNode meta = (ObjectNode) transaction.getMeta();
@@ -74,10 +89,7 @@ public class TransactionService {
         return transaction;
     }
 
-    private String getToken() {
-        Map<String, String> sdkConfig = new HashMap<>();
-        sdkConfig.put("mode", "sandbox");
-
+    private static String getToken() {
         try {
             String token = new OAuthTokenCredential(CLIENT_ID, SECRET, sdkConfig).getAccessToken();
             Logger.info("TOKEN " + token);
@@ -89,31 +101,24 @@ public class TransactionService {
         return null;
     }
 
-    private String generatePaypalSKU(int uid) {
+    private String generatePaypalSKU(TYPES type, TPV tpv, int uid) {
 
         Date now = new Date();
         String userId = String.format("%012d", uid);
-        Logger.info("USER ID " + userId);
         String timestamp = String.format("%016d", now.getTime());
-        Logger.info("TIMESTAMP " + timestamp);
 
-        return StringUtils.join(new String[]{ TYPES.TOPUP + PAYPAL, userId, timestamp }, "_");
+        return StringUtils.join(new String[]{ type.name() + tpv.name(), userId, timestamp }, "_");
     }
 
     public Transaction createPaypalTransaction(int uid, int amount) {
-
-        Map<String, String> sdkConfig = new HashMap<>();
-        sdkConfig.put("mode", "sandbox");
-
         User user = userDao.findById(uid);
-        String contextToken = getToken();
 
         if(contextToken == null) return null;
 
         APIContext apiContext = new APIContext(contextToken);
         apiContext.setConfigurationMap(sdkConfig);
 
-        String paypalSKU = generatePaypalSKU(uid);
+        String paypalSKU = generatePaypalSKU(TYPES.TOPUP, TPV.PPL, uid);
         Logger.info("SKU " + paypalSKU);
         String realAmount = String.valueOf(amount / 100);
         String reason = "Topup your account";
@@ -175,6 +180,8 @@ public class TransactionService {
             paypalTransaction.setSku(paypalSKU);
 
             paypalTransaction = updatePaypalTransaction(paypalTransaction, createdPayment);
+
+            transactionDao.create(paypalTransaction);
         } catch (PayPalRESTException e) {
             e.printStackTrace();
             return null;
@@ -183,9 +190,40 @@ public class TransactionService {
         return paypalTransaction;
     }
 
-    /*
-    public Transaction executeTransaction(Transaction paypalTransaction) {
-        Confirm transaction change transaction state and update user amount
+
+    public Transaction executePay(String token, String paypalId, String payerId) {
+        // Confirm transaction change transaction state and update user amount
+        APIContext apiContext = new APIContext(contextToken);
+        apiContext.setConfigurationMap(sdkConfig);
+
+        Logger.info("- TOKEN " + contextToken);
+        Logger.info("- TOKEN PAY " + token);
+
+        Payment payment = new Payment();
+        payment.setId(paypalId);
+        try {
+            //payment.get(apiContext, paypalId);
+            Logger.info("PAYMENT " + payment.getId());
+
+            if(payment.getId() != null) {
+                PaymentExecution paymentExecute = new PaymentExecution();
+                paymentExecute.setPayerId(payerId);
+
+                payment.execute(apiContext, paymentExecute);
+
+                // Gitanada
+                // String paypalSku = payment.getTransactions().get(0).getInvoiceNumber();
+
+                //Logger.info("PAYPALSKU " + paypalSku);
+
+                //Transaction transaction = transactionDao.getBySku(paypalSku);
+
+                return null;
+            }
+        } catch (PayPalRESTException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
-    */
 }

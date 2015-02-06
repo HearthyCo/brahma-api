@@ -7,12 +7,28 @@ import java.util.List;
 
 public class TransactionDao {
 
-    public Transaction get(int id) {
+    public void create(Transaction transaction) {
+        JPA.em().persist(transaction);
+    }
+
+    public Transaction getById(int id) {
         try {
             String query = "select transaction from Transaction transaction where transaction.id = :id";
 
             return JPA.em().createQuery(query, Transaction.class)
                     .setParameter("id", id)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    public Transaction getBySku(String sku) {
+        try {
+            String query = "select transaction from Transaction transaction where transaction.sku = :sku";
+
+            return JPA.em().createQuery(query, Transaction.class)
+                    .setParameter("sku", sku)
                     .getSingleResult();
         } catch (NoResultException e) {
             return null;
