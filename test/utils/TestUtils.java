@@ -41,7 +41,7 @@ public class TestUtils {
         return !cookie.isEmpty() && !cookie.get().equals("");
     }
 
-    public static void assertError(ObjectNode ret, int status) {
+    public static void assertError(int status, ObjectNode ret) {
         assertTrue(ret.has("errors"));
         assertEquals(Integer.toString(status), ret.get("errors").get(0).get("status").asText());
     }

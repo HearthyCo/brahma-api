@@ -20,9 +20,9 @@ public class HomeServiceTest extends TransactionalTest {
         JsonNode underway = result.get("underway");
         JsonNode closed = result.get("closed");
 
-        assertEquals(programmed.size(), 0);
-        assertEquals(underway.size(), 0);
-        assertEquals(closed.size(), 0);
+        assertEquals(0, programmed.size());
+        assertEquals(0, underway.size());
+        assertEquals(0, closed.size());
     }
 
     @Test // Request sessions with valid user Authentication
@@ -31,14 +31,14 @@ public class HomeServiceTest extends TransactionalTest {
         ObjectNode result = homeService.getSessions(uid);
 
         JsonNode programmed = result.get("programmed");
-        assertEquals(programmed.size(), 1);
-        assertEquals(programmed.get(0).get("id").asInt(), 90700);
+        assertEquals(1, programmed.size());
+        assertEquals(90700, programmed.get(0).get("id").asInt());
 
         JsonNode underway = result.get("underway");
-        assertEquals(underway.size(), 0);
+        assertEquals(0, underway.size());
 
         JsonNode closed = result.get("closed");
-        assertEquals(closed.size(), 2);
-        assertEquals(closed.get(0).get("id").asInt(), 90702);
+        assertEquals(2, closed.size());
+        assertEquals(90702, closed.get(0).get("id").asInt());
     }
 }

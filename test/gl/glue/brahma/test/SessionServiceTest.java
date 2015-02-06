@@ -18,7 +18,7 @@ public class SessionServiceTest extends TransactionalTest {
         int session = 90700;
         int uid = 90001;
         ObjectNode result = sessionService.getSession(session, uid);
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     @Test // Request with an non-existent session id
@@ -26,7 +26,7 @@ public class SessionServiceTest extends TransactionalTest {
         int session = 0;
         int uid = 90000;
         ObjectNode result = sessionService.getSession(session, uid);
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     @Test // Valid request
@@ -43,7 +43,7 @@ public class SessionServiceTest extends TransactionalTest {
         String state = "dummystate";
         int uid = 90000;
         List<SessionUser> result = sessionService.getState(state, uid);
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     @Test // Request session with an valid programmed state
@@ -54,9 +54,9 @@ public class SessionServiceTest extends TransactionalTest {
         List<SessionUser> result = sessionService.getState(state, uid);
 
         assertNotNull(result);
-        assertEquals(result.size(), 1);
+        assertEquals(1, result.size());
         for (SessionUser session : result) {
-            assertEquals(session.getSession().getState().name(), "PROGRAMMED");
+            assertEquals("PROGRAMMED", session.getSession().getState().name());
         }
     }
 
@@ -66,7 +66,7 @@ public class SessionServiceTest extends TransactionalTest {
         int uid = 90000;
         List<SessionUser> result = sessionService.getState(state, uid);
         assertNotNull(result);
-        assertEquals(result.size(), 0);
+        assertEquals(0, result.size());
     }
 
     @Test // Request session with closed (closed and finished) state
@@ -75,7 +75,7 @@ public class SessionServiceTest extends TransactionalTest {
         int uid = 90000;
         List<SessionUser> result = sessionService.getState(state, uid);
         assertNotNull(result);
-        assertEquals(result.size(), 2);
+        assertEquals(2, result.size());
         for (SessionUser session : result) {
             String stateName = session.getSession().getState().name();
             assertTrue(stateName.equals("CLOSED") || stateName.equals("FINISHED"));

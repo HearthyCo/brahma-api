@@ -35,7 +35,7 @@ public class SessionControllerTest extends TransactionalTest {
         FakeRequest fr = fakeRequest(GET, "/v1/session/" + id);
         Result result = routeAndCall(fr, REQUEST_TIMEOUT);
         assertNotNull(result);
-        assertEquals(result.toScala().header().status(), 401);
+        assertEquals(401, result.toScala().header().status());
     }
 
     @Test // Request with invalid user Authentication. User "testClient2" is not an user for session 90700
@@ -45,7 +45,7 @@ public class SessionControllerTest extends TransactionalTest {
 
         Result result = TestUtils.getSessionRequest(90700, responseLogin);
         assertNotNull(result);
-        assertEquals(result.toScala().header().status(), 404);
+        assertEquals(404, result.toScala().header().status());
     }
 
     @Test // Request with an non-existent session id
@@ -55,7 +55,7 @@ public class SessionControllerTest extends TransactionalTest {
 
         Result result = TestUtils.getSessionRequest(0, responseLogin);
         assertNotNull(result);
-        assertEquals(result.toScala().header().status(), 404);
+        assertEquals(404, result.toScala().header().status());
     }
 
     @Test // Valid request
@@ -68,7 +68,7 @@ public class SessionControllerTest extends TransactionalTest {
         ObjectNode ret = TestUtils.toJson(result);
 
         assertNotNull(result);
-        assertEquals(result.toScala().header().status(), 200);
+        assertEquals(200, result.toScala().header().status());
         assertEquals(id, ret.get("session").get("id").asInt());
     }
 
@@ -93,8 +93,8 @@ public class SessionControllerTest extends TransactionalTest {
         ObjectNode ret = TestUtils.toJson(result);
 
         assertNotNull(result);
-        assertEquals(result.toScala().header().status(), 200);
-        assertEquals(ret.get("sessions").size(), 1);
+        assertEquals(200, result.toScala().header().status());
+        assertEquals(1, ret.get("sessions").size());
 
         for(JsonNode session : ret.get("sessions")) {
             String stateSession = session.get("state").asText();
@@ -112,8 +112,8 @@ public class SessionControllerTest extends TransactionalTest {
         ObjectNode ret = TestUtils.toJson(result);
 
         assertNotNull(result);
-        assertEquals(result.toScala().header().status(), 200);
-        assertEquals(ret.get("sessions").size(), 0);
+        assertEquals(200, result.toScala().header().status());
+        assertEquals(0, ret.get("sessions").size());
     }
 
     @Test // Request session with closed (closed and finished) state
@@ -126,8 +126,8 @@ public class SessionControllerTest extends TransactionalTest {
         ObjectNode ret = TestUtils.toJson(result);
 
         assertNotNull(result);
-        assertEquals(result.toScala().header().status(), 200);
-        assertEquals(ret.get("sessions").size(), 2);
+        assertEquals(200, result.toScala().header().status());
+        assertEquals(2, ret.get("sessions").size());
 
         for(JsonNode session : ret.get("sessions")) {
             String stateSession = session.get("state").asText();
