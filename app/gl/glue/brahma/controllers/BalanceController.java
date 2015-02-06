@@ -2,6 +2,7 @@ package gl.glue.brahma.controllers;
 
 import actions.BasicAuth;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import gl.glue.brahma.service.BalanceService;
 import play.db.jpa.Transactional;
 import play.libs.Json;
 import play.mvc.BodyParser;
