@@ -18,6 +18,7 @@ public class UserServiceTest extends TransactionalTest {
     private User getRegisteringUser(String login, String pass) {
         User user = new Client();
         user.setLogin(login);
+        user.setEmail(login);
         user.setPassword(pass);
         user.setBirthdate(new Date());
         user.setGender(User.Gender.OTHER);
@@ -27,7 +28,7 @@ public class UserServiceTest extends TransactionalTest {
 
     @Test
     public void testRegisterClientOk() {
-        String login = "testNonexistentUser";
+        String login = "testNonexistentUser@glue.gl";
         String pass = "anyPassword";
         User user = getRegisteringUser(login, pass);
         User ret = userService.register(user);
@@ -39,7 +40,7 @@ public class UserServiceTest extends TransactionalTest {
 
     @Test
     public void testRegisterClientDupe() {
-        String login = "testNonexistentUser";
+        String login = "testNonexistentUser@glue.gl";
         String pass = "anyPassword";
         User user = getRegisteringUser(login, pass);
         User ret = userService.register(user);
@@ -59,7 +60,7 @@ public class UserServiceTest extends TransactionalTest {
 
     @Test
     public void testLoginOk() {
-        String login = "testClient1";
+        String login = "testClient1@glue.gl";
         User ret = userService.login(login, login);
         assertNotNull(ret);
         assertEquals(ret.getLogin(), login);
@@ -67,19 +68,19 @@ public class UserServiceTest extends TransactionalTest {
 
     @Test
     public void testLoginBadPass() {
-        User ret = userService.login("testClient1", "bad-password");
+        User ret = userService.login("testClient1@glue.gl", "bad-password");
         assertNull(ret);
     }
 
     @Test
     public void testLoginBadUser() {
-        User ret = userService.login("testNonexistentUser", "anyPassword");
+        User ret = userService.login("testNonexistentUser@glue.gl", "anyPassword");
         assertNull(ret);
     }
 
     @Test
     public void testLoginBlockedUser() {
-        User ret = userService.login("testPet1", "testPet1");
+        User ret = userService.login("testPet1@glue.gl", "testPet1");
         assertNull(ret);
     }
 

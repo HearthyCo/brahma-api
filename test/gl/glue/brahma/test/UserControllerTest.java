@@ -16,7 +16,7 @@ public class UserControllerTest extends TransactionalTest {
 
     @Test
     public void testLoginOk() {
-        String login = "testClient1";
+        String login = "testClient1@glue.gl";
         Result result = TestUtils.makeLoginRequest(login, login);
         assertEquals(result.toScala().header().status(), 200);
         assertTrue(TestUtils.hasCookies(result));
@@ -28,7 +28,7 @@ public class UserControllerTest extends TransactionalTest {
 
     @Test
     public void testLoginIgnoresExtraFields() {
-        String login = "testClient1";
+        String login = "testClient1@glue.gl";
         ObjectNode user = Json.newObject();
         user.put("login", login);
         user.put("password", login);
@@ -72,6 +72,7 @@ public class UserControllerTest extends TransactionalTest {
         String login = "testNonexistentUser";
         ObjectNode user = Json.newObject();
         user.put("login", login);
+        user.put("email", login);
         user.put("password", "anyPassword");
         user.put("name", "testName");
         user.put("gender", "OTHER");

@@ -19,7 +19,7 @@ public class SessionControllerTest extends TransactionalTest {
 
     @Test // Request without id param
     public void requestSessionWithoutParams() {
-        String login = "testClient1";
+        String login = "testClient1@glue.gl";
         Result responseLogin = TestUtils.makeLoginRequest(login, login);
 
         Http.Cookie[] cookies = FluentIterable.from(cookies(responseLogin)).toArray(Http.Cookie.class);
@@ -40,7 +40,7 @@ public class SessionControllerTest extends TransactionalTest {
 
     @Test // Request with invalid user Authentication. User "testClient2" is not an user for session 90700
     public void requestSessionWithInvalidAuthentication() {
-        String login = "testClient2";
+        String login = "testClient2@glue.gl";
         Result responseLogin = TestUtils.makeLoginRequest(login, login);
 
         Result result = TestUtils.getSessionRequest(90700, responseLogin);
@@ -50,7 +50,7 @@ public class SessionControllerTest extends TransactionalTest {
 
     @Test // Request with an non-existent session id
     public void requestSessionInvalidId() {
-        String login = "testClient1";
+        String login = "testClient1@glue.gl";
         Result responseLogin = TestUtils.makeLoginRequest(login, login);
 
         Result result = TestUtils.getSessionRequest(0, responseLogin);
@@ -60,7 +60,7 @@ public class SessionControllerTest extends TransactionalTest {
 
     @Test // Valid request
     public void requestSessionOk() {
-        String login = "testClient1";
+        String login = "testClient1@glue.gl";
         Result responseLogin = TestUtils.makeLoginRequest(login, login);
 
         int id = 90700;
@@ -74,7 +74,7 @@ public class SessionControllerTest extends TransactionalTest {
 
     @Test // Request with an invalid session state
     public void requestInvalidSessionState() {
-        String login = "testClient1";
+        String login = "testClient1@glue.gl";
         Result responseLogin = TestUtils.makeLoginRequest(login, login);
 
         String state = "dummystate";
@@ -85,7 +85,7 @@ public class SessionControllerTest extends TransactionalTest {
 
     @Test // Request session with an valid programmed state
     public void requestProgrammedSession() {
-        String login = "testClient1";
+        String login = "testClient1@glue.gl";
         Result responseLogin = TestUtils.makeLoginRequest(login, login);
 
         String state = "programmed";
@@ -104,7 +104,7 @@ public class SessionControllerTest extends TransactionalTest {
 
     @Test // Request session with an valid underway state (Count 0)
     public void requestUnderwaySession() {
-        String login = "testClient1";
+        String login = "testClient1@glue.gl";
         Result responseLogin = TestUtils.makeLoginRequest(login, login);
 
         String state = "underway";
@@ -118,7 +118,7 @@ public class SessionControllerTest extends TransactionalTest {
 
     @Test // Request session with closed (closed and finished) state
     public void requestClosedSession() {
-        String login = "testClient1";
+        String login = "testClient1@glue.gl";
         Result responseLogin = TestUtils.makeLoginRequest(login, login);
 
         String state = "closed";

@@ -30,6 +30,9 @@ public abstract class User {
     private String password;
 
     @NotNull
+    private String email;
+
+    @NotNull
     @JsonIgnore
     private boolean canLogin = true;
 
@@ -75,6 +78,14 @@ public abstract class User {
 
     public void setLogin(String login) {
         this.login = login;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public boolean canLogin() {

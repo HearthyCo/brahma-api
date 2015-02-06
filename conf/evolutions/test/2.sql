@@ -14,17 +14,17 @@ INSERT INTO institution (id, name, meta) VALUES
     (90600, 'Institution1', '{}'),
     (90601, 'Institution2', '{}');
 
-INSERT INTO "user" (id, type, manager_user_id, tutor_user_id, collective_collective_id, institution_institution_id, login, password, can_login, name, surname1, surname2, birthdate, national_id, gender, balance) VALUES
-    (90000, 'CLIENT', null, null, null, null, 'testClient1', '$2a$10$ourB/XLcJaHUAEEAvrNAZ.WcNBInH1o56UuqNiXWwLVXyE00U7IA2', true, 'Test', 'Client', 'User1', '1987-12-25', '12345678Z', 'FEMALE', 20000000),
-    (90001, 'CLIENT', null, null, 90100, null, 'testClient2', '$2a$10$cTIH1wLXliX.3f8jRzaFfu.OJJk57xKLg1YBaze9m4o83IqUltkWa', true, 'Test', 'Client', 'User2', '1985-06-21', '23456789Z', 'MALE', 20),
-    (90002, 'TUTOR', null, null, null, null, 'testTutor1', '$2a$10$JeqiNGmF1AuLNReD5dOrR.olhb3WKgVQNrmOovlWHM80nOeT7l2IS', true, 'Test', 'Tutor', 'User1', '1999-01-01', '34567890Z', 'FEMALE', 4),
-    (90003, 'CLIENT', null, 90002, null, null, 'testPet1', '$2a$10$B2oezu2FWCjEbFqarUFoeOlRy7bN0WKKY7Xxpd8EzBjLPQ.XqCeUa', false, 'Test', 'Client', 'Pet1', '2014-12-01', null, 'MALE', 1000),
-    (90004, 'CLIENT', null, 90002, 90101, null, 'testPet2', null, false, 'Test', 'Client', 'Pet2', '2014-11-01', null, 'FEMALE', 20000),
-    (90005, 'PROFESSIONAL', null, null, null, null, 'testProfessional1', '$2a$10$E/4oidCPkiPwSHDOhIIkLOO6mzfNiZRsKaIbRxqZ1yc0wqEcvt3sm', false, 'Test', 'Professional', 'User1', '1970-01-01', '99999999Z', 'MALE', 2300),
-    (90006, 'PROFESSIONAL', null, null, null, 90600, 'testProfessional2', '$2a$10$bx/i5DemogHrF1zpclbdZOaXd7EvbWdkHDYNgZAFIfJZRQ7SKoTYy', false, 'Test', 'Professional', 'User2', '1970-12-31', '88888888Z', 'FEMALE', 31000),
-    (90007, 'COORDINATOR', null, null, null, null, 'testCoordinator1', '$2a$10$iQfb4CosbqhfVeifnr7Cx.tAUx1gmikEzHXznqd4JgFCe1STaaqsy', false, 'Test', 'Coordinator', 'User1', '1970-12-25', '77777777Z', 'MALE', 9000),
-    (90008, 'PROFESSIONAL', 90007, null, null, null, 'testHired1', '$2a$10$5/Rw1/iWVdjxFPOneDDKVetj5c0zoizB7xTyK.eb58inPKC0mLvzG', false, 'Test', 'Hired', 'User1', '1970-02-28', '66666666Z', 'FEMALE', 3400),
-    (90009, 'PROFESSIONAL', 90007, null, null, 90601, 'testHired2', '$2a$10$xOvmgoioTN0LVetRpBrjSOfkk/aGVwVysXXstdoOVuVQZSr/lwYum', false, 'Test', 'Hired', 'User2', '1970-03-25', '55555555Z', 'MALE', 9000);
+INSERT INTO "user" (id, type, manager_user_id, tutor_user_id, collective_collective_id, institution_institution_id, login, email, password, can_login, name, surname1, surname2, birthdate, national_id, gender, balance) VALUES
+    (90000, 'CLIENT', null, null, null, null, 'testClient1@glue.gl', 'testClient1@glue.gl', '$2a$10$WsjgBbDB0uILyHoz7U7qIuTmWueom1f5AQ9fzlRlrQS1jtO9oeday', true, 'Test', 'Client', 'User1', '1987-12-25', '12345678Z', 'FEMALE', 20000000),
+    (90001, 'CLIENT', null, null, 90100, null, 'testClient2@glue.gl', 'testClient2@glue.gl', '$2a$10$Fet.SSfzU013yDhiBFoyh.PTHE1HV/TR6DQZQ1beWVjTk.V2yllTe', true, 'Test', 'Client', 'User2', '1985-06-21', '23456789Z', 'MALE', 20),
+    (90002, 'TUTOR', null, null, null, null, 'testTutor1@glue.gl', 'testTutor1@glue.gl', '$2a$10$hyaM.y3UyCIKWmq/hXMr7Oqcd4KmryMIdFi7mQxH9iBH7ASM53CBe', true, 'Test', 'Tutor', 'User1', '1999-01-01', '34567890Z', 'FEMALE', 4),
+    (90003, 'CLIENT', null, 90002, null, null, 'testPet1@glue.gl', 'testPet1@glue.gl', '$2a$10$9wC2cRkENN0hyQdfV9wny.GFdhd01iJixfCSynb8DKKnaBfWkj5q.', false, 'Test', 'Client', 'Pet1', '2014-12-01', null, 'MALE', 1000),
+    (90004, 'CLIENT', null, 90002, 90101, null, 'testPet2@glue.gl', 'testPet2@glue.gl', null, false, 'Test', 'Client', 'Pet2', '2014-11-01', null, 'FEMALE', 20000),
+    (90005, 'PROFESSIONAL', null, null, null, null, 'testProfessional1@glue.gl', 'testProfessional1@glue.gl', '$2a$10$N8/bNSwCRvgkLllU7dPqwOhnLRhunhrFuZAsq6hHoQceXDvQsdMAq', false, 'Test', 'Professional', 'User1', '1970-01-01', '99999999Z', 'MALE', 2300),
+    (90006, 'PROFESSIONAL', null, null, null, 90600, 'testProfessional2@glue.gl', 'testProfessional2@glue.gl', '$2a$10$ujNb2RvpINeFHTDVtrH9HeVsFP0MxtRFeQf1tENXegtk7dOh9hl9K', false, 'Test', 'Professional', 'User2', '1970-12-31', '88888888Z', 'FEMALE', 31000),
+    (90007, 'COORDINATOR', null, null, null, null, 'testCoordinator1@glue.gl', 'testCoordinator1@glue.gl', '$2a$10$GKckVNVdU0MeMHoKi6B7ke8SW5BVOIscKjgm4gxYMV5hcT9ujW1rq', false, 'Test', 'Coordinator', 'User1', '1970-12-25', '77777777Z', 'MALE', 9000),
+    (90008, 'PROFESSIONAL', 90007, null, null, null, 'testHired1@glue.gl', 'testHired1@glue.gl', '$2a$10$rk..ceMCVA73nlIKnll.d.qRtB61iIC2.Ruy.x5b2bR0JCgf1MSQ2', false, 'Test', 'Hired', 'User1', '1970-02-28', '66666666Z', 'FEMALE', 3400),
+    (90009, 'PROFESSIONAL', 90007, null, null, 90601, 'testHired2@glue.gl', 'testHired2@glue.gl', '$2a$10$nDkLcWlv7BlDY0u/DlYFMOPQvoerzbnqd.QAMNYDz2N5b8DxHLG.W', false, 'Test', 'Hired', 'User2', '1970-03-25', '55555555Z', 'MALE', 9000);
 
 INSERT INTO field (id, name) VALUES
     (90200, 'Field1'),

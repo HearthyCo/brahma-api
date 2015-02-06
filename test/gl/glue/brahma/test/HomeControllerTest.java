@@ -23,7 +23,7 @@ public class HomeControllerTest extends TransactionalTest {
 
     @Test // Request home
     public void requestHomeOk() {
-        String login = "testClient1";
+        String login = "testClient1@glue.gl";
         Result responseLogin = TestUtils.makeLoginRequest(login, login);
 
         Result result = TestUtils.getHomeRequest(responseLogin);

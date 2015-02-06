@@ -24,7 +24,7 @@ public class ServiceControllerTest extends TransactionalTest {
 
     @Test // Request balance success
     public void requestServicesOk() {
-        String login = "testClient1";
+        String login = "testClient1@glue.gl";
         Result responseLogin = TestUtils.makeLoginRequest(login, login);
 
         Result result = TestUtils.getServicesRequest(responseLogin);

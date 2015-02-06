@@ -46,13 +46,14 @@ CREATE TABLE IF NOT EXISTS "user" (
   login                      TEXT      NOT NULL,
   password                   TEXT      NULL,
   can_login                  BOOLEAN   NOT NULL,
-  name                       TEXT      NOT NULL,
+  email                      TEXT      NOT NULL,
+  name                       TEXT      NULL,
   surname1                   TEXT      NULL,
   surname2                   TEXT      NULL,
-  birthdate                  DATE      NOT NULL,
+  birthdate                  DATE      NULL,
   avatar                     TEXT      NULL,
   national_id                TEXT      NULL,
-  gender                     gender    NOT NULL,
+  gender                     gender    NULL,
   balance                    INT       NOT NULL,
   online_limit               TIMESTAMP NULL,
   admin_level                INT       NULL DEFAULT 0,
@@ -72,6 +73,7 @@ CREATE TABLE IF NOT EXISTS "user" (
   REFERENCES institution (id)
 );
 CREATE UNIQUE INDEX user_login ON "user" (login ASC);
+CREATE UNIQUE INDEX user_email ON "user" (email ASC);
 
 CREATE TABLE IF NOT EXISTS notification (
   id                SERIAL    NOT NULL,
