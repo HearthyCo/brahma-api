@@ -79,10 +79,10 @@ public class UserController extends Controller {
 
         JsonNode json = request().body().asJson();
 
-        ObjectNode result = JsonUtils.checkRequiredFields(json, "login", "password");
+        ObjectNode result = JsonUtils.checkRequiredFields(json, "email", "password");
         if (result != null) return badRequest(result);
 
-        String login = json.findPath("login").textValue();
+        String login = json.findPath("email").textValue();
         String pass = json.findPath("password").textValue();
 
         User user = userService.login(login, pass);
@@ -124,19 +124,19 @@ public class UserController extends Controller {
      * @apiName Register
      * @apiDescription Allow new user can to register in service.
      *
-     * @apiParam {String}               login       Unique identifier for user in service.
+     * @apiParam {String}               email       Unique identifier for user in service.
      * @apiParam {String}               password    Password
-     * @apiParam {Enum="MALE","FEMALE"} gender      User gender.
-     * @apiParam {String}               name        Real user name.
-     * @apiParam {Date}                 birthdate   Date of user birthdate.
+     * @apiParam {Enum="MALE","FEMALE"} gender      Optional. User gender.
+     * @apiParam {String}               name        Optional. Real user name.
+     * @apiParam {Date}                 birthdate   Optional. Date of user birthdate.
      * @apiParam {String}               surname1    Optional. Real user first surname.
      * @apiParam {String}               surname2    Optional. Real user second surname.
      * @apiParam {String}               avatar      Optional. Url for user avatar.
      * @apiParam {String}               nationalId  Optional. Number iof id card.
-     * @apiParam {Object}               meta    Optional. Other data still to be determined.
+     * @apiParam {Object}               meta        Optional. Other data still to be determined.
      * @apiParamExample {json} Request-Example
      *      {
-     *          "login": "client1",
+     *          "email": "client1@example.com",
      *          "password": "client1PasswordDummy",
      *          "gender": "MALE",
      *          "name": "Client1",
@@ -154,7 +154,7 @@ public class UserController extends Controller {
      *      {
      *          "user": {
      *              "id": 1,
-     *              "login": "client1",
+     *              "email": "client1@example.com",
      *              "name": "Client1",
      *              "surname1": "For",
      *              "surname2": "Service",
@@ -206,7 +206,7 @@ public class UserController extends Controller {
         try {
             user = userService.register(client);
         } catch (PersistenceException e) {
-            return status(409, JsonUtils.simpleError("409", "Username already in use."));
+            return status(409, JsonUtils.simpleError("409", "Email already in use."));
         }
 
         // Also log him in
@@ -232,7 +232,7 @@ public class UserController extends Controller {
      *      {
      *          "user": {
      *              "id": 1,
-     *              "login": "client1",
+     *              "email": "client1@example.com",
      *              "name": "Client1",
      *              "surname1": "For",
      *              "surname2": "Service",

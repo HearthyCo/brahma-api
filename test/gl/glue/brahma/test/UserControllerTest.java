@@ -23,14 +23,14 @@ public class UserControllerTest extends TransactionalTest {
         ObjectNode ret = TestUtils.toJson(result);
 
         assertTrue(ret.has("user"));
-        assertEquals(login, ret.get("user").get("login").asText());
+        assertEquals(login.toLowerCase(), ret.get("user").get("email").asText());
     }
 
     @Test
     public void testLoginIgnoresExtraFields() {
         String login = "testClient1@glue.gl";
         ObjectNode user = Json.newObject();
-        user.put("login", login);
+        user.put("email", login);
         user.put("password", login);
         user.put("canLogin", true);
         FakeRequest fr = fakeRequest(POST, "/v1/user/login").withJsonBody(user);
@@ -40,7 +40,7 @@ public class UserControllerTest extends TransactionalTest {
         assertTrue(TestUtils.hasCookies(result));
         ObjectNode ret = TestUtils.toJson(result);
         assertTrue(ret.has("user"));
-        assertEquals(login, ret.get("user").get("login").asText());
+        assertEquals(login.toLowerCase(), ret.get("user").get("email").asText());
     }
 
     @Test
@@ -71,7 +71,7 @@ public class UserControllerTest extends TransactionalTest {
     public void testRegisterOk() {
         String login = "testNonexistentUser";
         ObjectNode user = Json.newObject();
-        user.put("login", login);
+        //user.put("login", login);
         user.put("email", login);
         user.put("password", "anyPassword");
         user.put("name", "testName");
@@ -84,7 +84,7 @@ public class UserControllerTest extends TransactionalTest {
         assertTrue(TestUtils.hasCookies(result));
         ObjectNode ret = TestUtils.toJson(result);
         assertTrue(ret.has("user"));
-        assertEquals(login, ret.get("user").get("login").asText());
+        assertEquals(login, ret.get("user").get("email").asText());
     }
 
 }

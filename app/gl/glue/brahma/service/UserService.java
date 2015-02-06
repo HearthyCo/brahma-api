@@ -9,8 +9,8 @@ public class UserService {
     private UserDao userDao = new UserDao();
 
     @Transactional
-    public User login(String username, String password) {
-        User user = userDao.findByLogin(username);
+    public User login(String email, String password) {
+        User user = userDao.findByEmail(email);
         if (user != null && user.canLogin() && user.authenticate(password)) {
             return user;
         } else {
@@ -20,6 +20,7 @@ public class UserService {
 
     @Transactional
     public User register(User user) {
+        user.setEmail(user.getEmail().toLowerCase());
         userDao.create(user);
         return user;
     }

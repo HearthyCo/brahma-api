@@ -21,7 +21,7 @@ public class TestUtils {
 
     public static Result makeLoginRequest(String login, String pass) {
         ObjectNode user = Json.newObject();
-        user.put("login", login);
+        user.put("email", login);
         user.put("password", pass);
 
         FakeRequest fr = fakeRequest(POST, "/v1/user/login").withJsonBody(user);

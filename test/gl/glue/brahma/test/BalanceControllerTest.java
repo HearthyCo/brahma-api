@@ -29,7 +29,7 @@ public class BalanceControllerTest extends TransactionalTest {
         Result result = TestUtils.getBalanceRequest(responseLogin);
 
         assertNotNull(result);
-        assertEquals(result.toScala().header().status(), 200);
+        assertEquals(200, result.toScala().header().status());
 
         ObjectNode ret = TestUtils.toJson(result);
 

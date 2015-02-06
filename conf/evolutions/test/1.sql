@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS "user" (
   tutor_user_id              INT       NULL,
   collective_collective_id   INT       NULL,
   institution_institution_id INT       NULL,
-  login                      TEXT      NOT NULL,
+  login                      TEXT      NULL,
   password                   TEXT      NULL,
   can_login                  BOOLEAN   NOT NULL,
   email                      TEXT      NOT NULL,
@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS "user" (
   FOREIGN KEY (institution_institution_id)
   REFERENCES institution (id)
 );
-CREATE UNIQUE INDEX user_login ON "user" (login ASC);
+CREATE UNIQUE INDEX user_login ON "user" (lower(login) ASC);
 CREATE UNIQUE INDEX user_email ON "user" (email ASC);
 
 CREATE TABLE IF NOT EXISTS notification (
