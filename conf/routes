@@ -27,7 +27,7 @@ GET            /v1/session/:session                                            g
 GET            /v1/services                                                    gl.glue.brahma.controllers.ServiceController.getServices()
 
 # Transactions
-POST        /v1/transaction                                                 gl.glue.brahma.controllers.TransactionController.createTransaction()
+POST        /v1/transaction                                                 gl.glue.brahma.controllers.TransactionController.createPaypalTransaction()
 POST        /v1/transaction/:id                                             gl.glue.brahma.controllers.TransactionController.getTransaction(id: Integer)
 
 # Map static resources from the /public folder to the /assets URL path
