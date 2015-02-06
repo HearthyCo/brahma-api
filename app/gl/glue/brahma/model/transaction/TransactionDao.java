@@ -13,7 +13,8 @@ public class TransactionDao {
             String query =
                     "select transaction from Transaction transaction " +
                     "left join fetch transaction.session session " +
-                    "where transaction.user.id = :id";
+                    "where transaction.user.id = :id " +
+                    "order by transaction.timestamp desc";
 
             return JPA.em().createQuery(query, Transaction.class)
                     .setParameter("id", id)

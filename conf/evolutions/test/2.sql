@@ -87,7 +87,7 @@ INSERT INTO attachment (id, history_entry_id, session_id, user_id, path) VALUES
     (91201, null, 90700, 90000, 'xray.jpg');
 
 INSERT INTO transaction (id, user_id, session_id, amount, timestamp, reason) VALUES
-    (91300, 90000, 90700, 20001000, '2014-12-15 06:00:00', 'Incremento de saldo'),
+    (91300, 90000, null, 20001000, '2014-12-15 06:00:00', 'Compra de créditos'),
     (91301, 90000, 90700, -1000, '2014-12-15 08:00:00', 'Reserva de sesión'),
     (91302, 90000, 90701, -1000, '2014-12-15 09:00:00', 'Reserva de sesión'),
     (91303, 90000, 90701, 1000, '2014-12-15 12:00:00', 'Devolución sesión cancelada');
