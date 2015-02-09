@@ -22,8 +22,8 @@ public class BalanceService {
      * @param uid User id
      * @return {ObjectNode} Balance of user with a current amount and a transaction list
      */
-    public ObjectNode getBalance(int uid) {
-        List<Transaction> transactionList = transactionDao.getTransactionHistory(uid);
+    public ObjectNode getBalance(int uid, int limit) {
+        List<Transaction> transactionList = transactionDao.getTransactionHistory(uid, limit);
         ArrayNode transactions = new ArrayNode(JsonNodeFactory.instance);
 
         if(!transactionList.isEmpty()) {
@@ -42,6 +42,10 @@ public class BalanceService {
         result.put("transactions", transactions);
 
         return result;
+    }
+
+    public ObjectNode getBalance(int uid) {
+        return getBalance(uid, 0);
     }
 
     /**

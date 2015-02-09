@@ -102,7 +102,7 @@ public class HomeController extends Controller {
 
         ObjectNode result = Json.newObject();
         result.put("sessions", sessions);
-        result.put("balance", balanceService.getBalance(uid));
+        result.put("balance", balanceService.getBalance(uid, 2));
 
         return ok(result);
     }
