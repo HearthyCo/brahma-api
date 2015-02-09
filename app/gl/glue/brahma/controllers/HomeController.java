@@ -99,7 +99,6 @@ public class HomeController extends Controller {
         // Get sessions of user with login
         ObjectNode sessions = homeService.getSessions(uid);
 
-
         ObjectNode result = Json.newObject();
         result.put("sessions", sessions);
         result.put("balance", balanceService.getBalance(uid));

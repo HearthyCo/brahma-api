@@ -24,7 +24,6 @@ public abstract class User {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_id_seq")
     private int id;
 
-    @NotNull
     private String login;
 
     private String password;
@@ -175,7 +174,6 @@ public abstract class User {
         this.metaParsed = meta;
         this.meta = meta == null ? "{}" : meta.toString();
     }
-
 
     @Override
     public String toString() {
