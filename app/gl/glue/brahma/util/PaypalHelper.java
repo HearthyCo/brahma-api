@@ -23,6 +23,10 @@ public class PaypalHelper {
     private static Map<String, Transaction.State> paypalStateTranslator = new HashMap<>();
     private static String contextToken = null;
 
+    /**
+     * Subclass PaypalPayment
+     * Used to define a paypal payment
+     */
     public class PaypalPayment {
         private String sku;
         private String title;
@@ -53,6 +57,9 @@ public class PaypalHelper {
         }
     }
 
+    /**
+     * Initialization static methods
+     */
     static {
         conf = ConfigFactory.load();
 
@@ -69,10 +76,17 @@ public class PaypalHelper {
         paypalStateTranslator.put("pending", Transaction.State.INPROGRESS);
     }
 
+    /**
+     * Class Contructor
+     */
     public PaypalHelper() {
         contextToken = getToken();
     }
 
+    /**
+     * Get token
+     * @return Return a valid token from clientId and secret
+     */
     protected String getToken() {
         try {
             String token = new OAuthTokenCredential(
@@ -88,6 +102,12 @@ public class PaypalHelper {
         return null;
     }
 
+    /**
+     * This function creates a valid paypal payment
+     * @param amount Amount in cents for create transaction
+     * @param baseUrl Url base where paypal have to redirect user after login
+     * @return PaypalPayment in in progress status
+     */
     public PaypalPayment createPaypalTransaction(int amount, String baseUrl) {
         if (contextToken == null || amount <= 0) return null;
 
@@ -133,6 +153,12 @@ public class PaypalHelper {
         return null;
     }
 
+    /**
+     * This function execute a transacion previously created
+     * @param sku Paypal transaction identificator
+     * @param payerId User id which paid
+     * @return PaypalPayment in approved status
+     */
     public PaypalPayment executePaypalTransaction(String sku, String payerId) {
         APIContext apiContext = new APIContext(contextToken);
         apiContext.setConfigurationMap(sdkConfig);
