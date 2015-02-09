@@ -54,7 +54,7 @@ public class SessionServiceTest extends TransactionalTest {
         List<SessionUser> result = sessionService.getState(state, uid);
 
         assertNotNull(result);
-        assertEquals(1, result.size());
+        assertEquals(2, result.size());
         for (SessionUser session : result) {
             assertEquals("PROGRAMMED", session.getSession().getState().name());
         }

@@ -94,7 +94,7 @@ public class SessionControllerTest extends TransactionalTest {
 
         assertNotNull(result);
         assertEquals(200, result.toScala().header().status());
-        assertEquals(1, ret.get("sessions").size());
+        assertEquals(2, ret.get("sessions").size());
 
         for(JsonNode session : ret.get("sessions")) {
             String stateSession = session.get("state").asText();

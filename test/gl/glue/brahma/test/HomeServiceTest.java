@@ -31,7 +31,7 @@ public class HomeServiceTest extends TransactionalTest {
         ObjectNode result = homeService.getSessions(uid);
 
         JsonNode programmed = result.get("programmed");
-        assertEquals(1, programmed.size());
+        assertEquals(2, programmed.size());
         assertEquals(90700, programmed.get(0).get("id").asInt());
 
         JsonNode underway = result.get("underway");

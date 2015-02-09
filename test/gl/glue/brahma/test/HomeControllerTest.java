@@ -36,7 +36,7 @@ public class HomeControllerTest extends TransactionalTest {
         JsonNode programmed = ret.get("sessions").get("programmed");
         JsonNode closed = ret.get("sessions").get("closed");
 
-        assertEquals(1, programmed.size());
+        assertEquals(2, programmed.size());
         assertEquals(90700, programmed.get(0).get("id").asInt());
 
         assertEquals(2, closed.size());
