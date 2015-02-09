@@ -20,6 +20,11 @@ public class TransactionService {
     private TransactionDao transactionDao = new TransactionDao();
     private PaypalHelper paypalHelper = new PaypalHelper();
 
+    /**
+     * Service for find in transaction in database
+     * @param id Transaction identificator for search
+     * @return Transaction with id passed
+     */
     @Transactional
     public Transaction getTransaction(int id) {
         Transaction transaction = transactionDao.getById(id);
@@ -64,10 +69,11 @@ public class TransactionService {
     }
 
     /**
-     *
-     * @param uid
-     * @param amount
-     * @return
+     * Service for create a paypal transaction, calls paypalHelper to return a paypal payment and append
+     * in transaction meta
+     * @param uid User identificator which create transaction
+     * @param amount Amount in cents for create transaction
+     * @return A valid transaction in inprogress status
      */
     @Transactional
     public Transaction createPaypalTransaction(int uid, int amount, String baseUrl) {
@@ -86,11 +92,11 @@ public class TransactionService {
     }
 
     /**
-     *
-     * @param token
-     * @param paypalId
-     * @param payerId
-     * @return
+     * Service for execute paypal transaction previously created
+     * @param token ?
+     * @param paypalId Paypal identificator
+     * @param payerId User id which paid
+     * @return  A valid transaction in approved status
      */
     @Transactional
     public Transaction executePaypalTransaction(String token, String paypalId, String payerId) {
