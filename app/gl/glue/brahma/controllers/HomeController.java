@@ -2,8 +2,8 @@ package gl.glue.brahma.controllers;
 
 import actions.BasicAuth;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import gl.glue.brahma.service.BalanceService;
-import gl.glue.brahma.service.HomeService;
+import gl.glue.brahma.service.SessionService;
+import gl.glue.brahma.service.TransactionService;
 import play.db.jpa.Transactional;
 import play.libs.Json;
 import play.mvc.BodyParser;
@@ -12,8 +12,8 @@ import play.mvc.Result;
 
 public class HomeController extends Controller {
 
-    private static HomeService homeService = new HomeService();
-    private static BalanceService balanceService = new BalanceService();
+    private static SessionService sessionService = new SessionService();
+    private static TransactionService transactionService = new TransactionService();
 
     /**
      * @api {get} /user/home Homepage
@@ -97,11 +97,12 @@ public class HomeController extends Controller {
         int uid = Integer.parseInt(session("id"));
 
         // Get sessions of user with login
-        ObjectNode sessions = homeService.getSessions(uid);
+        ObjectNode sessions = sessionService.getUserSessions(uid);
+        ObjectNode transactions = transactionService.getUserTransactions(uid, 2);
 
         ObjectNode result = Json.newObject();
         result.put("sessions", sessions);
-        result.put("balance", balanceService.getBalance(uid, 2));
+        result.put("balance", transactions);
 
         return ok(result);
     }

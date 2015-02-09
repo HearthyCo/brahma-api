@@ -7,9 +7,11 @@ import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.model.session.SessionDao;
 import gl.glue.brahma.model.sessionuser.SessionUser;
 import gl.glue.brahma.model.sessionuser.SessionUserDao;
+import gl.glue.brahma.model.transaction.TransactionDao;
 import gl.glue.brahma.model.user.Client;
 import gl.glue.brahma.model.user.Professional;
 import gl.glue.brahma.model.user.User;
+import gl.glue.brahma.model.user.UserDao;
 import play.db.jpa.Transactional;
 import play.libs.Json;
 
@@ -17,6 +19,7 @@ import java.util.*;
 
 public class SessionService {
 
+    private static final int DEFAULT_LIMIT = 2;
     private SessionDao sessionDao = new SessionDao();
     private SessionUserDao sessionUserDao = new SessionUserDao();
 
@@ -39,7 +42,7 @@ public class SessionService {
         List<SessionUser> sessionUsers = sessionDao.findUsersSession(id);
 
         ArrayNode clients = new ArrayNode(JsonNodeFactory.instance);
-        ArrayNode profesionals = new ArrayNode(JsonNodeFactory.instance);
+        ArrayNode professionals = new ArrayNode(JsonNodeFactory.instance);
 
         for (SessionUser sessionUser : sessionUsers) {
             ObjectNode user = (ObjectNode) Json.toJson(sessionUser.getUser());
@@ -66,14 +69,14 @@ public class SessionService {
                 clients.add(user);
             }
             else if (sessionUser.getUser() instanceof Professional) {
-                profesionals.add(user);
+                professionals.add(user);
             }
 
 
         }
 
         // Add objects to result depends on userType
-        users.put("professionals", profesionals);
+        users.put("professionals", professionals);
 
         if (me instanceof Professional) {
             users.put("clients", clients);
@@ -117,4 +120,50 @@ public class SessionService {
 
         return sessionDao.findByState(states, uid);
     }
+
+
+    /**
+     * Return Sessions by user to show in home screen
+     * @param uid User Login to search in DAO functions
+     * @return ObjectNode with all sessions grouped by state.
+     */
+    @Transactional
+    public ObjectNode getUserSessions(int uid) {
+        // Create object for return
+        ObjectNode result = Json.newObject();
+
+        // Create State Session List Array for iterate and pass DAO function a Session.State ArrayList
+        List<Set<Session.State>> states = new ArrayList<>();
+
+        String[] listStates = { "programmed", "underway", "closed" };
+
+        states.add(EnumSet.of(Session.State.PROGRAMMED));
+        states.add(EnumSet.of(Session.State.UNDERWAY));
+        states.add(EnumSet.of(Session.State.CLOSED, Session.State.FINISHED));
+
+        // Iterate State Session List Array
+        for (Set<Session.State> state : states) {
+            List<SessionUser> sessionUsers = sessionDao.findByState(state, uid, DEFAULT_LIMIT);
+
+            ArrayNode sessions = new ArrayNode(JsonNodeFactory.instance);
+            for(SessionUser sessionUser : sessionUsers) {
+                Session session = sessionUser.getSession();
+
+                boolean isNew = true;
+                if(sessionUser.getViewedDate() != null) {
+                    isNew = session.getTimestamp().after(sessionUser.getViewedDate());
+                }
+
+                ObjectNode sessionObject = (ObjectNode) Json.toJson(session);
+                sessionObject.put("isNew", isNew);
+
+                sessions.add(sessionObject);
+            }
+
+            result.put(listStates[states.indexOf(state)], sessions);
+        }
+
+        return result;
+    }
+
 }

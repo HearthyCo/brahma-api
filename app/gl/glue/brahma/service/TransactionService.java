@@ -1,6 +1,9 @@
 package gl.glue.brahma.service;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.model.transaction.Transaction;
 import gl.glue.brahma.model.transaction.TransactionDao;
 import gl.glue.brahma.model.user.User;
@@ -8,6 +11,8 @@ import gl.glue.brahma.model.user.UserDao;
 import gl.glue.brahma.util.PaypalHelper;
 import play.db.jpa.Transactional;
 import play.libs.Json;
+
+import java.util.List;
 
 public class TransactionService {
 
@@ -24,6 +29,38 @@ public class TransactionService {
 
     public void setPaypalHelper(PaypalHelper paypalHelper) {
         this.paypalHelper = paypalHelper;
+    }
+
+    /**
+     * Search in transactions with uid
+     * @param uid User id
+     * @return {ObjectNode} Balance of user with a current amount and a transaction list
+     */
+    public ObjectNode getUserTransactions(int uid, int limit) {
+        User user = userDao.findById(uid);
+        List<Transaction> transactionList = transactionDao.getTransactionHistory(uid, limit);
+        ArrayNode transactions = new ArrayNode(JsonNodeFactory.instance);
+
+        if(!transactionList.isEmpty()) {
+            for(Transaction transaction : transactionList) {
+                ObjectNode transactionObject = (ObjectNode) Json.toJson(transaction);
+                Session s = transaction.getSession();
+                if (s != null) {
+                    transactionObject.put("title", s.getTitle());
+                }
+                transactions.add(transactionObject);
+            }
+        }
+
+        ObjectNode result = Json.newObject();
+        result.put("amount", user.getBalance());
+        result.put("transactions", transactions);
+
+        return result;
+    }
+
+    public ObjectNode getUserTransactions(int uid) {
+        return getUserTransactions(uid, 0);
     }
 
     /**
@@ -56,7 +93,7 @@ public class TransactionService {
      * @return
      */
     @Transactional
-    public Transaction executePay(String token, String paypalId, String payerId) {
+    public Transaction executePaypalTransaction(String token, String paypalId, String payerId) {
         Transaction transaction = transactionDao.getBySku(paypalId);
         if(transaction.getState() != Transaction.State.INPROGRESS) return null;
 

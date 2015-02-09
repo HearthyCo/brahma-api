@@ -67,11 +67,13 @@ public class PaypalHelper {
         paypalStateTranslator.put("cancelled", Transaction.State.FAILED);
         paypalStateTranslator.put("expired", Transaction.State.FAILED);
         paypalStateTranslator.put("pending", Transaction.State.INPROGRESS);
+    }
 
+    public PaypalHelper() {
         contextToken = getToken();
     }
 
-    private static String getToken() {
+    protected String getToken() {
         try {
             String token = new OAuthTokenCredential(
                     conf.getString("paypal.clientId"),
