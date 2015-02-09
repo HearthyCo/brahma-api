@@ -3,9 +3,11 @@ package gl.glue.brahma.model.transaction;
 import play.db.jpa.JPA;
 
 import javax.persistence.NoResultException;
+import javax.persistence.TypedQuery;
 import java.util.List;
 
 public class TransactionDao {
+
 
     public void create(Transaction transaction) {
         JPA.em().persist(transaction);
@@ -35,23 +37,33 @@ public class TransactionDao {
         }
     }
 
-    public List<Transaction> getTransactionHistory(int uid) {
+    public List<Transaction> getTransactionHistory(int uid, int limit) {
 
         try {
             String query =
                     "select transaction from Transaction transaction " +
-                    "left join fetch transaction.session session " +
-                    "where transaction.user.id = :id " +
-                    "and transaction.state = :state " +
-                    "order by transaction.timestamp desc";
+                            "left join fetch transaction.session session " +
+                            "where transaction.user.id = :id " +
+                            "and transaction.state = :state " +
+                            "order by transaction.timestamp desc";
 
-            return JPA.em().createQuery(query, Transaction.class)
+            TypedQuery<Transaction> queryExec = JPA.em()
+                    .createQuery(query, Transaction.class)
                     .setParameter("id", uid)
-                    .setParameter("state", Transaction.State.APPROVED)
-                    .getResultList();
+                    .setParameter("state", Transaction.State.APPROVED);
+
+            if (limit > 0) {
+                queryExec.setMaxResults(limit);
+            }
+
+            return queryExec.getResultList();
         } catch (NoResultException e) {
             return null;
         }
+    }
+
+    public List<Transaction> getTransactionHistory(int id) {
+        return getTransactionHistory(id, 0);
     }
 
     public int getUserBalance(int uid) {
