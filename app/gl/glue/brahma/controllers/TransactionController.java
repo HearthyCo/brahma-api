@@ -3,6 +3,8 @@ package gl.glue.brahma.controllers;
 import actions.BasicAuth;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import gl.glue.brahma.model.transaction.Transaction;
 import gl.glue.brahma.service.TransactionService;
 import gl.glue.brahma.util.JsonUtils;
@@ -12,9 +14,13 @@ import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 public class TransactionController extends Controller {
 
     private static TransactionService transactionService = new TransactionService();
+    private static Config conf = ConfigFactory.load();
 
     @BasicAuth
     @Transactional
@@ -42,8 +48,16 @@ public class TransactionController extends Controller {
 
         int amount = json.findPath("amount").asInt();
 
+        String baseUrl = conf.getString("cors.origin") + "/#transaction/url";
+        if (request().hasHeader("Referer")) {
+            try {
+                URL url = new URL(request().getHeader("Referer"));
+                baseUrl = url.getProtocol() + "://" + url.getAuthority() + "/#transaction/url";
+            } catch (MalformedURLException e) {}
+        }
+
         Transaction transaction;
-        transaction = transactionService.createPaypalTransaction(uid, amount);
+        transaction = transactionService.createPaypalTransaction(uid, amount, baseUrl);
 
         // Get session with login
         result = Json.newObject();
@@ -55,7 +69,7 @@ public class TransactionController extends Controller {
     @BasicAuth
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
-    public static Result executePay() {
+    public static Result executePaypalTransaction() {
 
         JsonNode json = request().body().asJson();
 
