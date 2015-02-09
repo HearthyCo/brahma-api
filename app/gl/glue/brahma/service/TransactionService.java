@@ -9,16 +9,20 @@ import gl.glue.brahma.model.transaction.Transaction;
 import gl.glue.brahma.model.transaction.TransactionDao;
 import gl.glue.brahma.model.user.User;
 import gl.glue.brahma.model.user.UserDao;
-import org.apache.commons.lang3.StringUtils;
 import play.Logger;
+import play.db.jpa.Transactional;
 import play.libs.Json;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class TransactionService {
 
-    private static enum TYPES { TOPUP }
-    private static enum TPV { PPL }
+    // private static enum TYPES { TOPUP }
+    // private static enum TPV { PPL }
+    private final static String REASON = "Topup your account";
     private final static String CURRENCY = "EUR";
     private final static String CLIENT_ID = "AR-PoBBvPqAFyx1uFFkXa9Xd07XSOacB8wRbRFE25GtC7iRyRwaNq-Mqp0JU";
     private final static String SECRET = "EIYC6xAfIANsvMN59HxgmSpK2O9A9b9-Liv99YVC1sM0ATflklILlUtwJvbg";
@@ -38,7 +42,7 @@ public class TransactionService {
         paypalStates.put("failed", Transaction.State.FAILED);
         paypalStates.put("cancelled", Transaction.State.FAILED);
         paypalStates.put("expired", Transaction.State.FAILED);
-        paypalStates.put("pending", Transaction.State.PENDING);
+        paypalStates.put("pending", Transaction.State.INPROGRESS);
 
         contextToken = getToken();
     }
@@ -47,44 +51,9 @@ public class TransactionService {
     private TransactionDao transactionDao = new TransactionDao();
 
 
+    @Transactional
     public Transaction getTransaction(int id) {
         Transaction transaction = transactionDao.getById(id);
-
-        if(transaction.getState() == Transaction.State.INPROGRESS ||
-                transaction.getState() == Transaction.State.PENDING) {
-
-            if (transaction.getMeta().has("paypal")) {
-                ObjectNode paypal = (ObjectNode) transaction.getMeta().get("paypal");
-
-                String paypalId = paypal.get("id").asText();
-
-                APIContext apiContext = new APIContext(contextToken);
-                apiContext.setConfigurationMap(sdkConfig);
-
-                Payment payment = new Payment();
-                try {
-                    payment.get(apiContext, paypalId);
-
-                    if(payment.getId() != null) {
-                        transaction = updatePaypalTransaction(transaction, payment);
-                    }
-                } catch (PayPalRESTException e) {
-                    e.printStackTrace();
-                }
-
-            }
-        }
-
-        return transaction;
-    }
-
-    private  Transaction updatePaypalTransaction(Transaction transaction, Payment payment) {
-        transaction.setState(paypalStates.get(payment.getState()));
-
-        ObjectNode meta = (ObjectNode) transaction.getMeta();
-        meta.put("paypal", Json.toJson(payment));
-
-        transaction.setMeta(meta);
 
         return transaction;
     }
@@ -101,64 +70,48 @@ public class TransactionService {
         return null;
     }
 
-    private String generatePaypalSKU(TYPES type, TPV tpv, int uid) {
+    /*private String generatePaypalSKU(TYPES type, TPV tpv, int uid) {
 
         Date now = new Date();
         String userId = String.format("%012d", uid);
         String timestamp = String.format("%016d", now.getTime());
 
         return StringUtils.join(new String[]{ type.name() + tpv.name(), userId, timestamp }, "_");
-    }
+    }*/
 
+    /**
+     *
+     * @param uid
+     * @param amount
+     * @return
+     */
+    @Transactional
     public Transaction createPaypalTransaction(int uid, int amount) {
         User user = userDao.findById(uid);
 
-        if(contextToken == null) return null;
+        if(contextToken == null || user == null || amount <= 0) return null;
 
         APIContext apiContext = new APIContext(contextToken);
         apiContext.setConfigurationMap(sdkConfig);
 
-        String paypalSKU = generatePaypalSKU(TYPES.TOPUP, TPV.PPL, uid);
-        Logger.info("SKU " + paypalSKU);
-        String realAmount = String.valueOf(amount / 100);
-        String reason = "Topup your account";
-
-        // Create item
-        Item item = new Item();
-        item.setName("Credits");
-        item.setPrice(realAmount);
-        item.setCurrency(CURRENCY);
-        item.setQuantity("1");
+        String formattedAmount = String.valueOf(amount / 100);
 
         // Create and add item in list item
         List<Item> listItems = new ArrayList<>();
-        listItems.add(item);
+        listItems.add(new Item("1", "Credits", formattedAmount, CURRENCY));
 
-        //  Create ItemList and set list of items
-        ItemList itemList = new ItemList();
-        itemList.setItems(listItems);
+        com.paypal.api.payments.Transaction paypalTransaction = new com.paypal.api.payments.Transaction();
+        paypalTransaction.setDescription(REASON);
+        paypalTransaction.setAmount(new Amount(CURRENCY, formattedAmount));
+        paypalTransaction.setItemList(new ItemList().setItems(listItems));
 
-        Amount amountPay = new Amount();
-        amountPay.setCurrency(CURRENCY);
-        amountPay.setTotal(realAmount);
+        List<com.paypal.api.payments.Transaction> paypalTransactions = new ArrayList<>();
+        paypalTransactions.add(paypalTransaction);
 
-        com.paypal.api.payments.Transaction transaction = new com.paypal.api.payments.Transaction();
-        transaction.setDescription(reason);
-        transaction.setAmount(amountPay);
-        transaction.setItemList(itemList);
-        transaction.setItemList(itemList);
-        transaction.setInvoiceNumber(paypalSKU);
+        Payer payer = new Payer("paypal");
 
-        List<com.paypal.api.payments.Transaction> transactions = new ArrayList<>();
-        transactions.add(transaction);
-
-        Payer payer = new Payer();
-        payer.setPaymentMethod("paypal");
-
-        Payment payment = new Payment();
-        payment.setIntent("sale");
-        payment.setPayer(payer);
-        payment.setTransactions(transactions);
+        Payment payment = new Payment("sale", payer);
+        payment.setTransactions(paypalTransactions);
 
         RedirectUrls redirectUrls = new RedirectUrls();
         redirectUrls.setCancelUrl("http://localhost:3000/#transaction/url/cancel");
@@ -166,60 +119,63 @@ public class TransactionService {
 
         payment.setRedirectUrls(redirectUrls);
 
-        Transaction paypalTransaction;
+        Transaction transaction;
 
         try {
-            Payment createdPayment = payment.create(apiContext);
+            payment = payment.create(apiContext);
 
-            paypalTransaction = new Transaction();
+            transaction = new Transaction(user, amount, paypalStates.get(payment.getState()), payment.getId(), REASON);
 
-            paypalTransaction.setUser(user);
-            paypalTransaction.setAmount(amount);
-            paypalTransaction.setTimestamp(new Date());
-            paypalTransaction.setReason(reason);
-            paypalTransaction.setSku(paypalSKU);
+            ObjectNode meta = Json.newObject();
+            meta.put("paypal", Json.toJson(payment));
+            transaction.setMeta(meta);
 
-            paypalTransaction = updatePaypalTransaction(paypalTransaction, createdPayment);
+            transactionDao.create(transaction);
 
-            transactionDao.create(paypalTransaction);
         } catch (PayPalRESTException e) {
             e.printStackTrace();
             return null;
         }
 
-        return paypalTransaction;
+        return transaction;
     }
 
-
+    /**
+     *
+     * @param token
+     * @param paypalId
+     * @param payerId
+     * @return
+     */
+    @Transactional
     public Transaction executePay(String token, String paypalId, String payerId) {
         // Confirm transaction change transaction state and update user amount
         APIContext apiContext = new APIContext(contextToken);
         apiContext.setConfigurationMap(sdkConfig);
 
-        Logger.info("- TOKEN " + contextToken);
-        Logger.info("- TOKEN PAY " + token);
+        Transaction transaction = transactionDao.getBySku(paypalId);
+
+        if(transaction.getState() != Transaction.State.INPROGRESS) return null;
 
         Payment payment = new Payment();
         payment.setId(paypalId);
+
         try {
-            //payment.get(apiContext, paypalId);
-            Logger.info("PAYMENT " + payment.getId());
+            PaymentExecution paymentExecute = new PaymentExecution(payerId);
 
-            if(payment.getId() != null) {
-                PaymentExecution paymentExecute = new PaymentExecution();
-                paymentExecute.setPayerId(payerId);
+            payment = payment.execute(apiContext, paymentExecute);
 
-                payment.execute(apiContext, paymentExecute);
+            transaction.setState(paypalStates.get(payment.getState()));
 
-                // Gitanada
-                // String paypalSku = payment.getTransactions().get(0).getInvoiceNumber();
+            ObjectNode meta = (ObjectNode) transaction.getMeta();
+            meta.put("paypal", Json.toJson(payment));
+            transaction.setMeta(meta);
 
-                //Logger.info("PAYPALSKU " + paypalSku);
+            User user = transaction.getUser();
+            user.setBalance(transactionDao.getUserBalance(user.getId()));
 
-                //Transaction transaction = transactionDao.getBySku(paypalSku);
+            return transaction;
 
-                return null;
-            }
         } catch (PayPalRESTException e) {
             e.printStackTrace();
         }

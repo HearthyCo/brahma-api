@@ -37,8 +37,8 @@ public class TransactionController extends Controller {
 
         JsonNode json = request().body().asJson();
 
-        ObjectNode params = JsonUtils.checkRequiredFields(json, "amount");
-        if (params != null) return badRequest(params);
+        ObjectNode result = JsonUtils.checkRequiredFields(json, "amount");
+        if (result != null) return badRequest(result);
 
         int amount = json.findPath("amount").asInt();
 
@@ -46,7 +46,7 @@ public class TransactionController extends Controller {
         transaction = transactionService.createPaypalTransaction(uid, amount);
 
         // Get session with login
-        ObjectNode result = Json.newObject();
+        result = Json.newObject();
         result.put("transaction", Json.toJson(transaction));
 
         return ok(result);
@@ -59,8 +59,8 @@ public class TransactionController extends Controller {
 
         JsonNode json = request().body().asJson();
 
-        ObjectNode params = JsonUtils.checkRequiredFields(json, "paymentId", "token", "PayerID");
-        if (params != null) return badRequest(params);
+        ObjectNode result = JsonUtils.checkRequiredFields(json, "paymentId", "token", "PayerID");
+        if (result != null) return badRequest(result);
 
         String paypalId = json.findPath("paymentId").asText();
         String token = json.findPath("token").asText();
@@ -69,10 +69,13 @@ public class TransactionController extends Controller {
         Transaction transaction;
         transaction = transactionService.executePay(token, paypalId, payerId);
 
-        // Get session with login
-        ObjectNode result = Json.newObject();
-        result.put("transaction", Json.toJson(transaction));
+        if(transaction == null) return status(412, JsonUtils.simpleError("412", "Transaction is not executable"));
 
-        return ok();
+        // Get session with login
+        result = Json.newObject();
+        result.put("transaction", Json.toJson(transaction));
+        result.put("balance", transaction.getUser().getBalance());
+
+        return ok(result);
     }
 }

@@ -24,7 +24,6 @@ public abstract class User {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_id_seq")
     private int id;
 
-    @NotNull
     private String login;
 
     private String password;

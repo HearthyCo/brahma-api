@@ -13,8 +13,9 @@ import java.util.Date;
 @Entity
 public class Transaction {
 
-    public enum State { INPROGRESS, PENDING, APPROVED, FAILED }
 
+
+    public enum State { INPROGRESS, APPROVED, FAILED;}
     @Id
     @SequenceGenerator(name = "transaction_id_seq", sequenceName = "transaction_id_seq", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "transaction_id_seq")
@@ -52,6 +53,16 @@ public class Transaction {
     @Transient
     private JsonNode metaParsed; // Cache for meta parsing
 
+    public Transaction() { }
+
+    public Transaction(User user, int amount, State state, String sku, String reason) {
+        this.user = user;
+        this.amount = amount;
+        this.state = state;
+        this.sku = sku;
+        this.timestamp = new Date();
+        this.reason = reason;
+    }
 
     public int getId() {
         return id;
