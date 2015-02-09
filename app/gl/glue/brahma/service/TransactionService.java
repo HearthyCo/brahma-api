@@ -13,13 +13,17 @@ public class TransactionService {
 
     private UserDao userDao = new UserDao();
     private TransactionDao transactionDao = new TransactionDao();
-
+    private PaypalHelper paypalHelper = new PaypalHelper();
 
     @Transactional
     public Transaction getTransaction(int id) {
         Transaction transaction = transactionDao.getById(id);
 
         return transaction;
+    }
+
+    public void setPaypalHelper(PaypalHelper paypalHelper) {
+        this.paypalHelper = paypalHelper;
     }
 
     /**
@@ -33,7 +37,7 @@ public class TransactionService {
         User user = userDao.findById(uid);
         if (user == null) return null;
 
-        PaypalHelper.PaypalPayment payment = new PaypalHelper().createPaypalTransaction(amount, baseUrl);
+        PaypalHelper.PaypalPayment payment = paypalHelper.createPaypalTransaction(amount, baseUrl);
         Transaction transaction = new Transaction(user, amount, payment.getState(), payment.getSku(), payment.getTitle());
 
         ObjectNode meta = Json.newObject();
@@ -56,7 +60,7 @@ public class TransactionService {
         Transaction transaction = transactionDao.getBySku(paypalId);
         if(transaction.getState() != Transaction.State.INPROGRESS) return null;
 
-        PaypalHelper.PaypalPayment payment = new PaypalHelper().executePaypalTransaction(paypalId, payerId);
+        PaypalHelper.PaypalPayment payment = paypalHelper.executePaypalTransaction(paypalId, payerId);
         if (payment == null) return null;
 
         transaction.setState(payment.getState());
