@@ -18,60 +18,60 @@ public class UserControllerTest extends TransactionalTest {
     public void testLoginOk() {
         String login = "testClient1@glue.gl";
         Result result = TestUtils.makeLoginRequest(login, login);
-        assertEquals(result.toScala().header().status(), 200);
+        assertEquals(200, result.toScala().header().status());
         assertTrue(TestUtils.hasCookies(result));
         ObjectNode ret = TestUtils.toJson(result);
 
         assertTrue(ret.has("user"));
-        assertEquals(login, ret.get("user").get("login").asText());
+        assertEquals(login.toLowerCase(), ret.get("user").get("email").asText());
     }
 
     @Test
     public void testLoginIgnoresExtraFields() {
         String login = "testClient1@glue.gl";
         ObjectNode user = Json.newObject();
-        user.put("login", login);
+        user.put("email", login);
         user.put("password", login);
         user.put("canLogin", true);
         FakeRequest fr = fakeRequest(POST, "/v1/user/login").withJsonBody(user);
         Result result = routeAndCall(fr, REQUEST_TIMEOUT);
         assertNotNull(result);
-        assertEquals(result.toScala().header().status(), 200);
+        assertEquals(200, result.toScala().header().status());
         assertTrue(TestUtils.hasCookies(result));
         ObjectNode ret = TestUtils.toJson(result);
         assertTrue(ret.has("user"));
-        assertEquals(login, ret.get("user").get("login").asText());
+        assertEquals(login.toLowerCase(), ret.get("user").get("email").asText());
     }
 
     @Test
     public void testLoginBadPass() {
         Result result = TestUtils.makeLoginRequest("testClient1", "bad-password");
-        assertEquals(result.toScala().header().status(), 401);
+        assertEquals(401, result.toScala().header().status());
         assertFalse(TestUtils.hasCookies(result));
-        TestUtils.assertError(TestUtils.toJson(result), 401);
+        TestUtils.assertError(401, TestUtils.toJson(result));
     }
 
     @Test
     public void testLoginBadUser() {
         Result result = TestUtils.makeLoginRequest("testNonexistentUser", "anyPassword");
-        assertEquals(result.toScala().header().status(), 401);
+        assertEquals(401, result.toScala().header().status());
         assertFalse(TestUtils.hasCookies(result));
-        TestUtils.assertError(TestUtils.toJson(result), 401);
+        TestUtils.assertError(401, TestUtils.toJson(result));
     }
 
     @Test
     public void testLoginBlockedUser() {
         Result result = TestUtils.makeLoginRequest("testPet1", "testPet1");
-        assertEquals(result.toScala().header().status(), 401);
+        assertEquals(401, result.toScala().header().status());
         assertFalse(TestUtils.hasCookies(result));
-        TestUtils.assertError(TestUtils.toJson(result), 401);
+        TestUtils.assertError(401, TestUtils.toJson(result));
     }
 
     //@Test // Disabled: there is some problem with transactions on this layer...
     public void testRegisterOk() {
         String login = "testNonexistentUser";
         ObjectNode user = Json.newObject();
-        user.put("login", login);
+        //user.put("login", login);
         user.put("email", login);
         user.put("password", "anyPassword");
         user.put("name", "testName");
@@ -80,11 +80,11 @@ public class UserControllerTest extends TransactionalTest {
         FakeRequest fr = fakeRequest(POST, "/v1/user").withJsonBody(user);
         Result result = routeAndCall(fr, REQUEST_TIMEOUT);
         assertNotNull(result);
-        assertEquals(result.toScala().header().status(), 200);
+        assertEquals(200, result.toScala().header().status());
         assertTrue(TestUtils.hasCookies(result));
         ObjectNode ret = TestUtils.toJson(result);
         assertTrue(ret.has("user"));
-        assertEquals(login, ret.get("user").get("login").asText());
+        assertEquals(login, ret.get("user").get("email").asText());
     }
 
 }

@@ -21,7 +21,7 @@ public class TestUtils {
 
     public static Result makeLoginRequest(String login, String pass) {
         ObjectNode user = Json.newObject();
-        user.put("login", login);
+        user.put("email", login);
         user.put("password", pass);
 
         FakeRequest fr = fakeRequest(POST, "/v1/user/login").withJsonBody(user);
@@ -41,7 +41,7 @@ public class TestUtils {
         return !cookie.isEmpty() && !cookie.get().equals("");
     }
 
-    public static void assertError(ObjectNode ret, int status) {
+    public static void assertError(int status, ObjectNode ret) {
         assertTrue(ret.has("errors"));
         assertEquals(Integer.toString(status), ret.get("errors").get(0).get("status").asText());
     }

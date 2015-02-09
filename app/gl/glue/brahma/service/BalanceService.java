@@ -3,6 +3,7 @@ package gl.glue.brahma.service;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.model.transaction.Transaction;
 import gl.glue.brahma.model.transaction.TransactionDao;
 import gl.glue.brahma.model.user.User;
@@ -28,8 +29,10 @@ public class BalanceService {
         if(!transactionList.isEmpty()) {
             for(Transaction transaction : transactionList) {
                 ObjectNode transactionObject = (ObjectNode) Json.toJson(transaction);
-                transactionObject.put("title", transaction.getSession().getTitle());
-
+                Session s = transaction.getSession();
+                if (s != null) {
+                    transactionObject.put("title", s.getTitle());
+                }
                 transactions.add(transactionObject);
             }
         }

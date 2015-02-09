@@ -19,7 +19,7 @@ public class ServiceControllerTest extends TransactionalTest {
         FakeRequest fr = fakeRequest(GET, "/v1/services");
         Result result = routeAndCall(fr, REQUEST_TIMEOUT);
         assertNotNull(result);
-        assertEquals(result.toScala().header().status(), 401);
+        assertEquals(401, result.toScala().header().status());
     }
 
     @Test // Request balance success
@@ -30,9 +30,9 @@ public class ServiceControllerTest extends TransactionalTest {
         Result result = TestUtils.getServicesRequest(responseLogin);
 
         assertNotNull(result);
-        assertEquals(result.toScala().header().status(), 200);
+        assertEquals(200, result.toScala().header().status());
 
         ObjectNode ret = TestUtils.toJson(result);
-        assertEquals(ret.get("services").size(), 3);
+        assertEquals(3, ret.get("services").size());
     }
 }

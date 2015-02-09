@@ -33,7 +33,7 @@ public class UserServiceTest extends TransactionalTest {
         User user = getRegisteringUser(login, pass);
         User ret = userService.register(user);
         assertNotNull(ret);
-        assertEquals(ret.getLogin(), login);
+        assertEquals(login, ret.getLogin());
         assertTrue(ret.authenticate(pass));
         assertNotNull(userService.login(login, pass));
     }
@@ -63,7 +63,7 @@ public class UserServiceTest extends TransactionalTest {
         String login = "testClient1@glue.gl";
         User ret = userService.login(login, login);
         assertNotNull(ret);
-        assertEquals(ret.getLogin(), login);
+        assertEquals(login.toLowerCase(), ret.getEmail());
     }
 
     @Test
