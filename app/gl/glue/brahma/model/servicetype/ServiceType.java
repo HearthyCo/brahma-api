@@ -32,6 +32,8 @@ public class ServiceType {
     @NotNull
     private ServiceMode mode;
 
+    private int poolsize;
+
 
     public int getId() {
         return id;
@@ -67,6 +69,14 @@ public class ServiceType {
 
     public void setMode(ServiceMode mode) {
         this.mode = mode;
+    }
+
+    public int getPoolsize() {
+        return poolsize;
+    }
+
+    public void setPoolsize(int poolsize) {
+        this.poolsize = poolsize;
     }
 
 
