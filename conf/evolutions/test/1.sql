@@ -147,14 +147,19 @@ CREATE INDEX availability_user_id ON availability (user_id ASC);
 
 CREATE TABLE IF NOT EXISTS session (
   id                           SERIAL        NOT NULL,
+  service_type_id              INT           NOT NULL,
   title                        TEXT          NOT NULL,
   start_date                   TIMESTAMP     NOT NULL,
   end_date                     TIMESTAMP     NULL,
   state                        session_state NOT NULL,
   meta                         JSON          NULL,
   timestamp                    TIMESTAMP     NOT NULL,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  CONSTRAINT fk_session_service_type1
+  FOREIGN KEY (service_type_id)
+  REFERENCES "service_type" (id)
 );
+CREATE INDEX session_pool ON session (service_type_id ASC, start_date ASC) where state = 'REQUESTED';
 
 CREATE TABLE IF NOT EXISTS "session_user" (
   id                           SERIAL        NOT NULL,
@@ -222,6 +227,7 @@ CREATE TABLE IF NOT EXISTS transaction (
   REFERENCES session (id)
 );
 CREATE INDEX transaction_user_id ON transaction (user_id ASC);
+CREATE INDEX transaction_sku ON transaction (sku ASC);
 
 CREATE TABLE IF NOT EXISTS history_entry_type (
   id TEXT NOT NULL,
