@@ -31,10 +31,10 @@ INSERT INTO field (id, name) VALUES
   (90201, 'Field2'),
   (90202, 'Field3');
 
-INSERT INTO service_type (id, name, field_id, price, mode) VALUES
-  (90300, 'Service Field1 Async', 90200, 500, 'ASYNC'),
-  (90301, 'Service Field1 Video', 90200, 1000, 'VIDEO'),
-  (90302, 'Service Field1 Video2', 90200, 1500, 'VIDEO');
+INSERT INTO service_type (id, name, field_id, price, mode, poolsize) VALUES
+  (90300, 'Service Field1 Free', 90200, 0, 'ASYNC', 100),
+  (90301, 'Service Field1 Instant', 90200, 500, 'ASYNC', 0),
+  (90302, 'Service Field1 Video', 90200, 1500, 'VIDEO', 0);
 
 INSERT INTO service (id, user_id, service_type_id, earnings) VALUES
   (90400, 90005, 90300, 400),
@@ -51,19 +51,19 @@ INSERT INTO notification (id, user_id, type, meta, creation_date, notification_d
   (90601, 90005, 'session', '{}', '2014-12-15 09:00:00', '2015-03-02 17:00:00'),
   (90602, 90006, 'session', '{}', '2014-12-15 09:00:00', '2015-03-02 17:00:00');
 
-INSERT INTO session (id, title, start_date, end_date, state, timestamp) VALUES
-  (90700, 'testSession1', '2015-03-02 17:00:00', '2015-03-02 17:15:00', 'PROGRAMMED', '2014-12-15 08:00:00'),
-  (90701, 'testSession2', '2015-03-01 12:00:00', '2015-03-01 12:15:00', 'CANCELED', '2014-12-15 09:00:00'),
-  (90702, 'testSession3', '2015-03-03 13:00:00', '2015-03-01 12:15:00', 'CLOSED', '2014-12-15 19:00:00'),
-  (90703, 'testSession4', '2015-03-04 14:00:00', '2015-03-01 12:15:00', 'FINISHED', '2014-12-15 12:00:00'),
-  (90704, 'testSession5', '2015-03-05 17:00:00', '2015-03-12 17:15:00', 'PROGRAMMED', '2014-12-15 08:00:00'),
-  (90705, 'testSession6', '2015-04-06 17:00:00', '2015-04-12 17:15:00', 'PROGRAMMED', '2014-12-15 08:00:00'),
-  (90706, 'testSession7', '2015-04-07 17:00:00', '2015-04-12 17:15:00', 'PROGRAMMED', '2014-12-15 08:00:00'),
-  (90707, 'testSession8', '2015-04-08 17:00:00', '2015-04-12 17:15:00', 'PROGRAMMED', '2014-12-15 08:00:00'),
-  (90708, 'testSession9', '2015-04-09 17:00:00', '2015-04-12 17:15:00', 'CLOSED', '2014-12-15 08:00:00'),
-  (90709, 'testSession10', '2015-05-12 17:00:00', '2015-05-20 17:15:00', 'CLOSED', '2014-12-15 08:00:00'),
-  (90710, 'testSession11', '2015-05-22 17:00:00', '2015-05-23 17:15:00', 'PROGRAMMED', '2014-12-15 08:00:00'),
-  (90711, 'testSession12', '2015-06-27 17:00:00', '2015-06-30 17:15:00', 'PROGRAMMED', '2014-12-15 08:00:00');
+INSERT INTO session (id, service_type_id, title, start_date, end_date, state, timestamp) VALUES
+  (90700, 90302, 'testSession1', '2015-03-02 17:00:00', '2015-03-02 17:15:00', 'PROGRAMMED', '2014-12-15 08:00:00'),
+  (90701, 90302, 'testSession2', '2015-03-01 12:00:00', '2015-03-01 12:15:00', 'CANCELED', '2014-12-15 09:00:00'),
+  (90702, 90300, 'testSession3', '2015-03-03 13:00:00', '2015-03-01 12:15:00', 'CLOSED', '2014-12-15 19:00:00'),
+  (90703, 90300, 'testSession4', '2015-03-04 14:00:00', '2015-03-01 12:15:00', 'FINISHED', '2014-12-15 12:00:00'),
+  (90704, 90302, 'testSession5', '2015-03-05 17:00:00', '2015-03-12 17:15:00', 'PROGRAMMED', '2014-12-15 08:00:00'),
+  (90705, 90302, 'testSession6', '2015-04-06 17:00:00', '2015-04-12 17:15:00', 'PROGRAMMED', '2014-12-15 08:00:00'),
+  (90706, 90302, 'testSession7', '2015-04-07 17:00:00', '2015-04-12 17:15:00', 'PROGRAMMED', '2014-12-15 08:00:00'),
+  (90707, 90302, 'testSession8', '2015-04-08 17:00:00', '2015-04-12 17:15:00', 'PROGRAMMED', '2014-12-15 08:00:00'),
+  (90708, 90300, 'testSession9', '2015-04-09 17:00:00', '2015-04-12 17:15:00', 'CLOSED', '2014-12-15 08:00:00'),
+  (90709, 90300, 'testSession10', '2015-05-12 17:00:00', '2015-05-20 17:15:00', 'CLOSED', '2014-12-15 08:00:00'),
+  (90710, 90302, 'testSession11', '2015-05-22 17:00:00', '2015-05-23 17:15:00', 'PROGRAMMED', '2014-12-15 08:00:00'),
+  (90711, 90302, 'testSession12', '2015-06-27 17:00:00', '2015-06-30 17:15:00', 'PROGRAMMED', '2014-12-15 08:00:00');
 
 INSERT INTO "session_user" (id, session_id, user_id, notification_id, service_id, availability_id, meta) VALUES
   (91600, 90700, 90000, 90600, 90401, 90501, '{}'),
