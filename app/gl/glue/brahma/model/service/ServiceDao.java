@@ -1,5 +1,6 @@
 package gl.glue.brahma.model.service;
 
+import gl.glue.brahma.model.servicetype.ServiceType;
 import play.db.jpa.JPA;
 import play.db.jpa.Transactional;
 
@@ -13,14 +14,14 @@ public class ServiceDao {
      * @return List of services
      */
     @Transactional
-    public List<Service> findServices() {
+    public List<ServiceType> findServiceTypes() {
         try {
             String queryString =
-                    "select service " +
-                    "from Service service " +
-                    "left join fetch service.serviceType";
+                    "select serviceType " +
+                    "from ServiceType serviceType " +
+                    "left join fetch serviceType.field";
 
-            return JPA.em().createQuery(queryString, Service.class)
+            return JPA.em().createQuery(queryString, ServiceType.class)
                     .getResultList();
 
         } catch (NoResultException e) {

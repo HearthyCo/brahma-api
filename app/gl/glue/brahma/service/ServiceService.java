@@ -3,7 +3,6 @@ package gl.glue.brahma.service;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import gl.glue.brahma.model.service.Service;
 import gl.glue.brahma.model.service.ServiceDao;
 import gl.glue.brahma.model.servicetype.ServiceType;
 import play.db.jpa.Transactional;
@@ -22,22 +21,24 @@ public class ServiceService {
     @Transactional
     public ObjectNode getServices() {
 
-        ArrayNode servicesArray = new ArrayNode(JsonNodeFactory.instance);
-        List<Service> services = serviceDao.findServices();
+        List<ServiceType> serviceTypes = serviceDao.findServiceTypes();
 
-        for(Service service : services) {
+        ObjectNode services = Json.newObject();
+        for(ServiceType serviceType : serviceTypes) {
+            String field = serviceType.getField().getName();
+            ArrayNode service = services.has(field) ? (ArrayNode) services.get(field) : new ArrayNode(JsonNodeFactory.instance);
+
             ObjectNode srv = Json.newObject();
-            ServiceType serviceType = service.getServiceType();
 
-            srv.put("name", serviceType.getField().getName());
+            srv.put("name", serviceType.getName());
             srv.put("mode", String.valueOf(serviceType.getMode()));
             srv.put("price", serviceType.getPrice());
 
-            servicesArray.add(srv);
+            service.add(srv);
         }
 
         ObjectNode result = Json.newObject();
-        result.put("services", servicesArray);
+        result.put("services", services);
 
         return result;
     }
