@@ -27,14 +27,12 @@ INSERT INTO "user" (id, type, manager_user_id, tutor_user_id, collective_collect
   (90009, 'PROFESSIONAL', 90007, null, null, 90601, 'testhired2@glue.gl', '$2a$10$nDkLcWlv7BlDY0u/DlYFMOPQvoerzbnqd.QAMNYDz2N5b8DxHLG.W', false, 'Test', 'Hired', 'User2', '1970-03-25', '55555555Z', 'MALE', 9000, '{}');
 
 INSERT INTO field (id, name) VALUES
-  (90200, 'Field1'),
-  (90201, 'Field2'),
-  (90202, 'Field3');
+  (90200, 'General');
 
-INSERT INTO service_type (id, name, field_id, price, mode) VALUES
-  (90300, 'Service Field1 Async', 90200, 500, 'ASYNC'),
-  (90301, 'Service Field1 Video', 90200, 1000, 'VIDEO'),
-  (90302, 'Service Field1 Video2', 90200, 1500, 'VIDEO');
+INSERT INTO service_type (id, name, field_id, price, mode, poolsize) VALUES
+  (90300, 'Video Session', 90200, 1500, 'ASYNC', 5),
+  (90301, 'Chat', 90200, 250, 'VIDEO', 10),
+  (90302, 'Chat free', 90200, 0, 'VIDEO', 20);
 
 INSERT INTO service (id, user_id, service_type_id, earnings) VALUES
   (90400, 90005, 90300, 400),
