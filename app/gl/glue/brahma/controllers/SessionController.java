@@ -1,6 +1,7 @@
 package gl.glue.brahma.controllers;
 
 import actions.BasicAuth;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -194,6 +195,28 @@ public class SessionController extends Controller {
 
         ObjectNode result = Json.newObject();
         result.put("sessions", sessions);
+        return ok(result);
+    }
+
+    @BasicAuth
+    @Transactional
+    @BodyParser.Of(BodyParser.Json.class)
+    public static Result requestSession(){
+        int uid = Integer.parseInt(session("id"));
+
+        JsonNode json = request().body().asJson();
+        Long startDate = json.findPath("startDate").asLong();
+
+        ObjectNode session = null;
+        if(startDate == null) {
+            session = sessionService.requestSession(uid);
+        }
+        else {
+            session = sessionService.requestSession(uid, startDate);
+        }
+
+        ObjectNode result = Json.newObject();
+        result.put("session", session);
         return ok(result);
     }
 }

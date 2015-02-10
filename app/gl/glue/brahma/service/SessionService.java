@@ -7,11 +7,9 @@ import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.model.session.SessionDao;
 import gl.glue.brahma.model.sessionuser.SessionUser;
 import gl.glue.brahma.model.sessionuser.SessionUserDao;
-import gl.glue.brahma.model.transaction.TransactionDao;
 import gl.glue.brahma.model.user.Client;
 import gl.glue.brahma.model.user.Professional;
 import gl.glue.brahma.model.user.User;
-import gl.glue.brahma.model.user.UserDao;
 import play.db.jpa.Transactional;
 import play.libs.Json;
 
@@ -164,6 +162,18 @@ public class SessionService {
         }
 
         return result;
+    }
+
+    @Transactional
+    public ObjectNode requestSession(int uid, Long startDate) {
+        ObjectNode result = Json.newObject();
+
+        return result;
+    }
+
+    @Transactional
+    public ObjectNode requestSession(int uid) {
+        return requestSession(uid, new Date().getTime());
     }
 
 }
