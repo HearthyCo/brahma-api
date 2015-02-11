@@ -10,9 +10,8 @@ import java.util.Set;
 
 public class SessionDao {
 
-    public void save(Session session) {
+    public void create(Session session) {
         JPA.em().persist(session);
-        JPA.em().flush();
     }
 
     public Session findById(int id, int uid) {

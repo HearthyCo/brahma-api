@@ -5,8 +5,7 @@ import play.db.jpa.JPA;
 
 public class SessionUserDao {
 
-    public void save(SessionUser sessionUser) {
+    public void create(SessionUser sessionUser) {
         JPA.em().persist(sessionUser);
-        JPA.em().flush();
     }
 }

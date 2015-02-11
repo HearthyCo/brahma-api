@@ -45,8 +45,21 @@ public class Session {
     @Transient
     private JsonNode metaParsed; // Cache for meta parsing
 
+    @NotNull
     private Date timestamp;
 
+    // Constructor
+    public Session () {
+
+    }
+
+    public Session (ServiceType serviceType, String title, Date startDate, State state) {
+        this.serviceType = serviceType;
+        this.title = title;
+        this.startDate = startDate;
+        this.state = state;
+        this.timestamp = new Date();
+    }
 
     public int getId() {
         return id;
