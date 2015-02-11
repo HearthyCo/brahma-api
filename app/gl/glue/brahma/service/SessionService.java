@@ -7,6 +7,8 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import gl.glue.brahma.model.servicetype.ServiceType;
 import gl.glue.brahma.model.servicetype.ServiceTypeDao;
+import gl.glue.brahma.model.service.Service;
+import gl.glue.brahma.model.service.ServiceDao;
 import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.model.session.SessionDao;
 import gl.glue.brahma.model.sessionuser.SessionUser;
@@ -23,17 +25,15 @@ import java.util.*;
 
 public class SessionService {
 
-    private static Config conf = null;
-    private static final int DEFAULT_LIMIT = 2;
+    private static Config conf = ConfigFactory.load();
 
+    private static final int MAX_RESULTS = 2;
+    private static final int MAX_SESSIONS_PER_PROFESSIONAL = 10;
     private UserDao userDao = new UserDao();
     private SessionDao sessionDao = new SessionDao();
     private SessionUserDao sessionUserDao = new SessionUserDao();
+    private ServiceDao serviceDao = new ServiceDao();
     private ServiceTypeDao serviceTypeDao = new ServiceTypeDao();
-
-    static {
-        conf = ConfigFactory.load();
-    }
 
     /**
      * Create Session JSON object from object array from Session DAO
@@ -103,6 +103,7 @@ public class SessionService {
         return result;
     }
 
+
     /**
      * Search session by id
      * @param uid User login to search
@@ -112,6 +113,7 @@ public class SessionService {
     public Session getById(int uid, int id) {
         return sessionDao.findById(id, uid);
     }
+
 
     /**
      * Search sessions with state passed
@@ -155,7 +157,7 @@ public class SessionService {
 
         // Iterate State Session List Array
         for (Set<Session.State> state : states) {
-            List<SessionUser> sessionUsers = sessionDao.findByState(state, uid, DEFAULT_LIMIT);
+            List<SessionUser> sessionUsers = sessionDao.findByState(state, uid, MAX_RESULTS);
 
             ArrayNode sessions = new ArrayNode(JsonNodeFactory.instance);
             for(SessionUser sessionUser : sessionUsers) {
@@ -178,6 +180,7 @@ public class SessionService {
         return result;
     }
 
+
     /**
      * Creates a session
      * @param uid           User Login to create session
@@ -189,6 +192,7 @@ public class SessionService {
     public Session requestSession(int uid, int serviceType, Session.State state) {
         return requestSession(uid, serviceType, state, new Date());
     }
+
 
     /**
      * Creates a session
@@ -217,6 +221,38 @@ public class SessionService {
         SessionUser sessionUser = new SessionUser(user, session);
         sessionUserDao.create(sessionUser);
 
+        return session;
+    }
+
+
+    /**
+     * Assigns a session from the selected pool to a given user.
+     * @param uid The User (probably a Professional) that will get assigned.
+     * @param service_type_id Target pool of services to pick from.
+     * @return Session with the User assigned to it.
+     */
+    @Transactional
+    public Session assignSessionFromPool(int uid, int service_type_id) {
+        User user = userDao.findById(uid);
+
+        // Can the User assign more Sessions?
+        int current = sessionDao.countByState(EnumSet.of(Session.State.UNDERWAY), uid);
+        if (current >= MAX_SESSIONS_PER_PROFESSIONAL) return null;
+
+        Service service = serviceDao.getServiceForType(uid, service_type_id);
+        Session session = sessionDao.getFromPool(service_type_id);
+        if (session == null) return null;
+
+        SessionUser sessionUser = new SessionUser();
+        sessionUser.setUser(user);
+        sessionUser.setSession(session);
+        sessionUser.setMeta(Json.newObject());
+        if (service != null) {
+            sessionUser.setService(service);
+        }
+        sessionUserDao.create(sessionUser);
+
+        session.setState(Session.State.UNDERWAY);
         return session;
     }
 

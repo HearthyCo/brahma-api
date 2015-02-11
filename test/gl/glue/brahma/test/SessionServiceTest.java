@@ -6,9 +6,11 @@ import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.model.sessionuser.SessionUser;
 import gl.glue.brahma.service.SessionService;
 import org.junit.Test;
+import play.db.jpa.JPA;
 import play.libs.Json;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -143,4 +145,32 @@ public class SessionServiceTest extends TransactionalTest {
         assertEquals(2, closed.size());
         assertEquals(90702, closed.get(0).get("id").asInt());
     }
+
+    @Test
+    public void assignSessionFromPool() {
+        int uid = 90005;
+        Session session = sessionService.assignSessionFromPool(uid, 90302);
+        assertNotNull(session);
+        assertEquals(Session.State.UNDERWAY, session.getState());
+
+        List<SessionUser> userUnderwaySessions = sessionService.getState("underway", uid);
+        List<SessionUser> matches = userUnderwaySessions
+                .stream()
+                .filter(su -> su.getSession().getId() == session.getId())
+                .collect(Collectors.toList());
+        assertEquals(1, matches.size());
+    }
+
+    @Test
+    public void assignSessionFromPoolEmpty() {
+        int uid = 90005;
+        Session session = sessionService.assignSessionFromPool(uid, 90302);
+        assertNotNull(session);
+        JPA.em().flush();
+
+        // There should be only one session in queue for this pool.
+        Session session2 = sessionService.assignSessionFromPool(uid, 90302);
+        assertNull(session2);
+    }
+
 }
