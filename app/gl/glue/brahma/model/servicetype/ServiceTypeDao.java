@@ -49,4 +49,26 @@ public class ServiceTypeDao {
             return null;
         }
     }
+
+    /**
+     * Find services in database fetch serviceTypes
+     * @return List of services
+     */
+    @Transactional
+    public List<ServiceType> findServiceTypesByField(int fid) {
+        try {
+            String queryString =
+                    "select serviceType " +
+                            "from ServiceType serviceType " +
+                            "left join fetch serviceType.field field " +
+                            "where field.id = :fid";
+
+            return JPA.em().createQuery(queryString, ServiceType.class)
+                    .setParameter("fid", fid)
+                    .getResultList();
+
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
 }

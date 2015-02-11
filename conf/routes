@@ -24,7 +24,7 @@ POST           /v1/session                                                     g
 GET            /v1/session/:session                                            gl.glue.brahma.controllers.SessionController.getSession(session: Integer)
 
 #Services
-GET            /v1/services                                                    gl.glue.brahma.controllers.ServiceController.getServices()
+POST            /v1/services                                                    gl.glue.brahma.controllers.ServiceController.getServices()
 
 # Transactions
 POST           /v1/transaction                                                 gl.glue.brahma.controllers.TransactionController.createPaypalTransaction()

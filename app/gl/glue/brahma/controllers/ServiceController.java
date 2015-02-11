@@ -1,6 +1,7 @@
 package gl.glue.brahma.controllers;
 
 import actions.BasicAuth;
+import com.fasterxml.jackson.databind.JsonNode;
 import gl.glue.brahma.service.ServiceService;
 import play.db.jpa.Transactional;
 import play.mvc.BodyParser;
@@ -25,14 +26,18 @@ public class ServiceController extends Controller {
      *          services: {
      *              "general": [
      *                  {
-     *                      "name": "Chat",
-     *                      "mode": "ASYNC",
-     *                      "price": 250
-     *                  },
-     *                  {
+     *                      "id": 90300,
+     *                      "price": 1500
      *                      "name": "Video Session",
      *                      "mode": "VIDEO",
-     *                      "price": 1500
+     *                      "poolsize": 5
+     *                  },
+     *                  {
+     *                      "id": 90301,
+     *                      "price": 250
+     *                      "name": "Chat",
+     *                      "mode": "ASYNC",
+     *                      "poolsize": 10
      *                  }
      *              ]
      *          }
@@ -52,6 +57,9 @@ public class ServiceController extends Controller {
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
     public static Result getServices() {
-        return ok(serviceService.getServices());
+        JsonNode json = request().body().asJson();
+        int fid = json.has("fieldId") ? json.findPath("fieldId").asInt() : 0;
+
+        return ok(serviceService.getServices(fid));
     }
 }

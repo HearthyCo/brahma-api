@@ -56,7 +56,7 @@ public class TestUtils {
     public static Result getServicesRequest(Result responseLogin) {
         Http.Cookie[] cookies = FluentIterable.from(cookies(responseLogin)).toArray(Http.Cookie.class);
 
-        FakeRequest fr = fakeRequest(GET, "/v1/services").withCookies(cookies);
+        FakeRequest fr = fakeRequest(POST, "/v1/services").withCookies(cookies);
         return routeAndCall(fr, REQUEST_TIMEOUT);
     }
 

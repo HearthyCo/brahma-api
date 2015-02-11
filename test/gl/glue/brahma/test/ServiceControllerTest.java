@@ -16,7 +16,7 @@ public class ServiceControllerTest extends TransactionalTest {
 
     @Test // Request balance without user authentication
     public void requestServicesWithoutAuthentication() {
-        FakeRequest fr = fakeRequest(GET, "/v1/services");
+        FakeRequest fr = fakeRequest(POST, "/v1/services");
         Result result = routeAndCall(fr, REQUEST_TIMEOUT);
         assertNotNull(result);
         assertEquals(401, result.toScala().header().status());

@@ -19,20 +19,16 @@ public class ServiceService {
      * @return An ObjectNode with an array of services with his name, mode and price
      */
     @Transactional
-    public ObjectNode getServices() {
+    public ObjectNode getServices(int fid) {
 
-        List<ServiceType> serviceTypes = serviceTypeDao.findServiceTypes();
+        List<ServiceType> serviceTypes = (fid == 0) ? serviceTypeDao.findServiceTypes() : serviceTypeDao.findServiceTypesByField(fid);
 
         ObjectNode services = Json.newObject();
         for(ServiceType serviceType : serviceTypes) {
             String field = serviceType.getField().getName().toLowerCase();
             ArrayNode service = services.has(field) ? (ArrayNode) services.get(field) : new ArrayNode(JsonNodeFactory.instance);
 
-            ObjectNode srv = Json.newObject();
-
-            srv.put("name", serviceType.getName());
-            srv.put("mode", String.valueOf(serviceType.getMode()));
-            srv.put("price", serviceType.getPrice());
+            ObjectNode srv = (ObjectNode) Json.toJson(serviceType);
 
             service.add(srv);
             services.put(field, service);
