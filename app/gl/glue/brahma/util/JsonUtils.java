@@ -51,6 +51,15 @@ public class JsonUtils {
     }
 
     /**
+     * Generates a JSON error response for a missing field.
+     * @param field The name of the field.
+     * @return A JSON detailing the error.
+     */
+    public static ObjectNode invalidRequiredField(String field) {
+        return simpleError("400", "Invalid required field \"" + field + "\"");
+    }
+
+    /**
      * Check if a JSON request contains all the required fields.
      * @param json The request JSON.
      * @param args The required fields (specified by strings such as "user.login").
