@@ -60,7 +60,6 @@ public class TestUtils {
         return routeAndCall(fr, REQUEST_TIMEOUT);
     }
 
-
     public static Result getHomeRequest(Result responseLogin) {
         Http.Cookie[] cookies = FluentIterable.from(cookies(responseLogin)).toArray(Http.Cookie.class);
 
@@ -79,6 +78,13 @@ public class TestUtils {
         Http.Cookie[] cookies = FluentIterable.from(cookies(responseLogin)).toArray(Http.Cookie.class);
 
         FakeRequest fr = fakeRequest(GET, "/v1/user/sessions/" + state).withCookies(cookies);
+        return routeAndCall(fr, REQUEST_TIMEOUT);
+    }
+
+    public static Result getNewSessionRequest(Result responseLogin, ObjectNode data) {
+        Http.Cookie[] cookies = FluentIterable.from(cookies(responseLogin)).toArray(Http.Cookie.class);
+
+        FakeRequest fr = fakeRequest(POST, "/v1/session").withCookies(cookies).withJsonBody(data);
         return routeAndCall(fr, REQUEST_TIMEOUT);
     }
 }
