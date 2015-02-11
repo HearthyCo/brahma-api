@@ -1,6 +1,9 @@
 package gl.glue.brahma.model.session;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
+import gl.glue.brahma.model.field.Field;
+import gl.glue.brahma.model.servicetype.ServiceType;
 import play.libs.Json;
 
 import javax.persistence.*;
@@ -17,6 +20,12 @@ public class Session {
     @SequenceGenerator(name = "session_id_seq", sequenceName = "session_id_seq", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "session_id_seq")
     private int id;
+
+    @ManyToOne
+    @JoinColumn(name = "service_type_id")
+    @NotNull
+    @JsonIgnore
+    private ServiceType serviceType;
 
     @NotNull
     private String title;
@@ -41,6 +50,14 @@ public class Session {
 
     public int getId() {
         return id;
+    }
+
+    public ServiceType getServiceType() {
+        return serviceType;
+    }
+
+    public void setServiceType(ServiceType serviceType) {
+        this.serviceType = serviceType;
     }
 
     public String getTitle() { return title; }

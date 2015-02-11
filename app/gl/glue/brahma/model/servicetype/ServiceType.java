@@ -32,6 +32,7 @@ public class ServiceType {
     @NotNull
     private ServiceMode mode;
 
+    @NotNull
     private int poolsize;
 
 
