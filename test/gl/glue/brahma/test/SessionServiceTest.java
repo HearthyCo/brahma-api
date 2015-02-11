@@ -2,9 +2,11 @@ package gl.glue.brahma.test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.model.sessionuser.SessionUser;
 import gl.glue.brahma.service.SessionService;
 import org.junit.Test;
+import play.libs.Json;
 
 import java.util.List;
 
@@ -13,6 +15,34 @@ import static org.junit.Assert.*;
 public class SessionServiceTest extends TransactionalTest {
 
     private SessionService sessionService = new SessionService();
+
+    @Test // Request with invalid user Authentication. User uid = 1 is an invalid user
+    public void requestNewSessionWithInvalidAuthentication() {
+        int uid = 1;
+        int serviceType = 90302;
+        Session result = sessionService.requestSession(uid, serviceType, Session.State.REQUESTED);
+        assertNull(result);
+    }
+
+    @Test // Request with invalid serviceType. ServiceType = 1 is an invalid serviceType
+    public void requestNewSessionWithInvalidServiceType() {
+        int uid = 90001;
+        int serviceType = 1;
+        Session result = sessionService.requestSession(uid, serviceType, Session.State.REQUESTED);
+        assertNull(result);
+    }
+
+    @Test // Request new session
+    public void requestNewSession() {
+        int uid = 90000;
+        int serviceType = 90302;
+        Session result = sessionService.requestSession(uid, serviceType, Session.State.REQUESTED);
+        ObjectNode ret = (ObjectNode) Json.toJson(result);
+        assertEquals(Session.State.REQUESTED, Session.State.valueOf(ret.get("state").asText()));
+
+        Session session = sessionService.getById(uid, ret.get("id").asInt());
+        assertNotNull(session);
+    }
 
     @Test // Request with invalid user Authentication. User "testClient2" is not an user for session 90700
     public void requestSessionWithInvalidAuthentication() {

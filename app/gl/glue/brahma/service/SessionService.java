@@ -3,11 +3,14 @@ package gl.glue.brahma.service;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import gl.glue.brahma.model.servicetype.ServiceType;
+import gl.glue.brahma.model.servicetype.ServiceTypeDao;
 import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.model.session.SessionDao;
 import gl.glue.brahma.model.sessionuser.SessionUser;
 import gl.glue.brahma.model.sessionuser.SessionUserDao;
-import gl.glue.brahma.model.transaction.TransactionDao;
 import gl.glue.brahma.model.user.Client;
 import gl.glue.brahma.model.user.Professional;
 import gl.glue.brahma.model.user.User;
@@ -15,13 +18,22 @@ import gl.glue.brahma.model.user.UserDao;
 import play.db.jpa.Transactional;
 import play.libs.Json;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class SessionService {
 
+    private static Config conf = null;
     private static final int DEFAULT_LIMIT = 2;
+
+    private UserDao userDao = new UserDao();
     private SessionDao sessionDao = new SessionDao();
     private SessionUserDao sessionUserDao = new SessionUserDao();
+    private ServiceTypeDao serviceTypeDao = new ServiceTypeDao();
+
+    static {
+        conf = ConfigFactory.load();
+    }
 
     /**
      * Create Session JSON object from object array from Session DAO
@@ -63,7 +75,7 @@ public class SessionService {
                 users.put("me", user);
 
                 sessionUser.setViewedDate(new Date());
-                sessionUserDao.save(sessionUser);
+                sessionUserDao.create(sessionUser);
             }
             else if (sessionUser.getUser() instanceof Client) {
                 clients.add(user);
@@ -164,6 +176,48 @@ public class SessionService {
         }
 
         return result;
+    }
+
+    /**
+     * Creates a session
+     * @param uid           User Login to create session
+     * @param serviceType   Service type id to search in DAO functions
+     * @param state         Session state
+     * @return Session      Session created
+     */
+    @Transactional
+    public Session requestSession(int uid, int serviceType, Session.State state) {
+        return requestSession(uid, serviceType, state, new Date());
+    }
+
+    /**
+     * Creates a session
+     * @param uid           User Login to create session
+     * @param serviceType   Service type id to search in DAO functions
+     * @param state         Session state
+     * @param startDate     Date when start session, this param only is important if state is "PROGRAMMED"
+     * @return Session      Session created
+     */
+    @Transactional
+    public Session requestSession(int uid, int serviceType, Session.State state, Date startDate) {
+        String title = conf.getString("entity.session") + " " + new SimpleDateFormat("dd-MM-yyyy").format(startDate);
+
+        ServiceType service = serviceTypeDao.findById(serviceType);
+        if(service == null) return null;
+
+        User user = userDao.findById(uid);
+        if(user == null) return null;
+
+
+
+        Session session = new Session(service, title, startDate, state);
+        sessionDao.create(session);
+
+
+        SessionUser sessionUser = new SessionUser(user, session);
+        sessionUserDao.create(sessionUser);
+
+        return session;
     }
 
 }

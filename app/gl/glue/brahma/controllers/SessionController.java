@@ -1,6 +1,7 @@
 package gl.glue.brahma.controllers;
 
 import actions.BasicAuth;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -8,12 +9,14 @@ import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.model.sessionuser.SessionUser;
 import gl.glue.brahma.service.SessionService;
 import gl.glue.brahma.util.JsonUtils;
+import gl.glue.brahma.util.ModelSecurity;
 import play.db.jpa.Transactional;
 import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
 
+import java.util.Date;
 import java.util.List;
 
 public class SessionController extends Controller {
@@ -194,6 +197,106 @@ public class SessionController extends Controller {
 
         ObjectNode result = Json.newObject();
         result.put("sessions", sessions);
+        return ok(result);
+    }
+
+    /**
+     * @api {post} /user/session New sessions
+     *
+     * @apiGroup Session
+     * @apiName NewSession
+     * @apiDescription Request new session
+     *
+     * @apiParam {String}   state       The session state. One of: `programmed`, `underway` or `requested`.
+     * @apiParam {Integer}  serviceType Service type id.
+     * @apiParam {Long}     date        Timestamp date.
+     * @apiParamExample {json} Request-Example
+     *      {
+     *          "service": 1,
+     *          "state": "PROGRAMMED",
+     *          "startDate": 1423699595548
+     *      }
+     *
+     * @apiSuccess {Object[]} session Info about the session created.
+     * @apiSuccessExample {json} Success-Response:
+     *      HTTP/1.1 200 OK
+     *      {
+     *         "session": {
+     *             "id": 90700,
+     *             "title": "Consulta 11-02-2015",
+     *             "startDate": 1425312000000,
+     *             "endDate": null,
+     *             "state": "PROGRAMMED",
+     *             "meta": {},
+     *             "timestamp": 1418626800000,
+     *             "isNew": true
+     *         }
+     *     }
+     *
+     * @apiError StateNotFound The <code>state</code> contains a unknown value.
+     * @apiErrorExample {json} StateNotFound
+     *      HTTP/1.1 404 Not Found
+     *      {
+     *          "status": "404",
+     *          "title": "Invalid identifier"
+     *      }
+     *
+     * @apiError UserNotLoggedIn User is not logged in.
+     * @apiErrorExample {json} UserNotLoggedIn
+     *      HTTP/1.1 401 Unauthorized
+     *      {
+     *          "status": "401",
+     *          "title": "You are not logged in"
+     *      }
+     *
+     * @apiError MissingRequiredField Missing required field
+     * @apiErrorExample {json} MissingRequiredField
+     *      HTTP/1.1 400 BadRequest
+     *      {
+     *          "status": "400",
+     *          "title": "You are not logged in"
+     *      }
+     *
+     * @apiVersion 0.1.0
+     */
+    @BasicAuth
+    @Transactional
+    @BodyParser.Of(BodyParser.Json.class)
+    public static Result requestSession() {
+        int uid = Integer.parseInt(session("id"));
+        JsonNode json = request().body().asJson();
+
+        ObjectNode result = JsonUtils.checkRequiredFields(json, ModelSecurity.SESSION_REQUIRED_FIELDS);
+        if (result != null) return badRequest(result);
+
+        int serviceType = json.findPath("service").asInt();
+        Date startDate = new Date(json.findPath("startDate").asLong());
+
+        Session.State state;
+        try {
+            state = Session.State.valueOf(json.findPath("state").asText());
+        } catch (IllegalArgumentException e) {
+            return status(400, JsonUtils.invalidRequiredField("Session state"));
+        }
+
+        Session session;
+        if(state == Session.State.PROGRAMMED) {
+            Date now = new Date();
+            if(startDate == null || now.after(startDate)) return status(400, JsonUtils.invalidRequiredField("Date"));
+
+            session = sessionService.requestSession(uid, serviceType, state, startDate);
+        }
+        else {
+            session = sessionService.requestSession(uid, serviceType, state);
+        }
+
+        if(session == null) return status(404, JsonUtils.simpleError("404", "Invalid user identifier"));
+
+        ObjectNode sessionRet = (ObjectNode) Json.toJson(session);
+        sessionRet.put("isNew", true);
+
+        result = Json.newObject();
+        result.put("session", sessionRet);
         return ok(result);
     }
 }

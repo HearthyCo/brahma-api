@@ -11,4 +11,6 @@ public class ModelSecurity {
             "surname1", "surname2", "avatar", "nationalId", "meta"
     };
 
+    public static final String[] SESSION_REQUIRED_FIELDS = { "service", "state" };
+
 }

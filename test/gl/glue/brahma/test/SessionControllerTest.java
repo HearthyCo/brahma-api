@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.FluentIterable;
 import org.junit.Test;
+import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.FakeRequest;
@@ -14,8 +15,73 @@ import static play.test.Helpers.*;
 
 public class SessionControllerTest extends TransactionalTest {
 
+    @Test // Request new session without params, must return null
+    public void requestNewSessionWithoutParams() {
+        String login = "testClient1@glue.gl";
+        Result responseLogin = TestUtils.makeLoginRequest(login, login);
 
+        Result result = TestUtils.getNewSessionRequest(responseLogin, Json.newObject());
+        assertEquals(400, result.toScala().header().status());
+    }
 
+    @Test // Request new session without autentication, must retrun 401
+    public void requestNewSessionWithoutAuthentication() {
+        FakeRequest fr = fakeRequest(POST, "/v1/session");
+        Result result = routeAndCall(fr, REQUEST_TIMEOUT);
+        assertNotNull(result);
+        assertEquals(401, result.toScala().header().status());
+    }
+
+    @Test // Request new session with an invalid state (DUMMYSTATE), must return 400
+    public void requestNewSessionInvalidState() {
+        String login = "testClient1@glue.gl";
+        Result responseLogin = TestUtils.makeLoginRequest(login, login);
+
+        ObjectNode user = Json.newObject();
+        user.put("service", 90302);
+        user.put("state", "DUMMYSTATE");
+
+        Result result = TestUtils.getNewSessionRequest(responseLogin, user);
+        assertNotNull(result);
+        assertEquals(400, result.toScala().header().status());
+    }
+
+    @Test // Request new session with an invalid date (programmed is before that now date), must return 400
+    public void requestNewSessionInvalidDate() {
+        String login = "testClient1@glue.gl";
+        Result responseLogin = TestUtils.makeLoginRequest(login, login);
+
+        ObjectNode user = Json.newObject();
+        user.put("service", 90302);
+        user.put("state", "PROGRAMMED");
+        user.put("startDate", 1423653792229L);
+
+        Result result = TestUtils.getNewSessionRequest(responseLogin, user);
+        assertNotNull(result);
+        assertEquals(400, result.toScala().header().status());
+    }
+
+    @Test // Request new valid session
+    public void requestNewProgrammedSession() {
+        String login = "testClient1@glue.gl";
+        Result responseLogin = TestUtils.makeLoginRequest(login, login);
+
+        int service = 90302;
+        String state = "REQUESTED";
+        ObjectNode user = Json.newObject();
+        user.put("service", service);
+        user.put("state", state);
+
+        Result result = TestUtils.getNewSessionRequest(responseLogin, user);
+        assertNotNull(result);
+
+        ObjectNode ret = TestUtils.toJson(result);
+
+        ObjectNode session = (ObjectNode) ret.get("session");
+
+        assertEquals(state, session.get("state").asText());
+        assertEquals(true, session.get("isNew").asBoolean());
+    }
 
     @Test // Request without id param
     public void requestSessionWithoutParams() {

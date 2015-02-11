@@ -20,6 +20,7 @@ GET            /v1/user/history/:section                                       g
 
 
 # Sessions
+POST           /v1/session                                                     gl.glue.brahma.controllers.SessionController.requestSession()
 GET            /v1/session/:session                                            gl.glue.brahma.controllers.SessionController.getSession(session: Integer)
 
 #Services

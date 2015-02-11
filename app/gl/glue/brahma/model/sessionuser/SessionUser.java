@@ -52,12 +52,21 @@ public class SessionUser {
     private Availability availability;
 
     @NotNull
-    private String meta;
+    private String meta = "{}";
 
     @Transient
     private JsonNode metaParsed; // Cache for meta parsing
 
     private String report;
+
+    public SessionUser() {
+
+    }
+
+    public SessionUser(User user, Session session) {
+        this.user = user;
+        this.session = session;
+    }
 
 
     public int getId() {
