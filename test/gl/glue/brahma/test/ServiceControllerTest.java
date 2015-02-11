@@ -33,6 +33,10 @@ public class ServiceControllerTest extends TransactionalTest {
         assertEquals(200, result.toScala().header().status());
 
         ObjectNode ret = TestUtils.toJson(result);
-        assertEquals(3, ret.get("services").size());
+        ObjectNode services = (ObjectNode) ret.get("services");
+
+        assertEquals(1, services.size());
+        assertEquals(3, services.get("general").size());
+
     }
 }

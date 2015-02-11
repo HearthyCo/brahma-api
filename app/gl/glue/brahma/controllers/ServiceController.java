@@ -18,22 +18,24 @@ public class ServiceController extends Controller {
      * @apiName GetService
      * @apiDescription Return all services in database
      *
-     * @apiSuccess {object[]} services Object with all services in database
+     * @apiSuccess {object}     services Object with all services in database
      * @apiSuccessExample {json} Success-Response:
      *     HTTP/1.1 200 OK
      *     {
-     *          services: [
-     *              {
-     *                  "name": "Field1",
-     *                  "mode": "ASYNC",
-     *                  "price": 500
-     *              },
-     *              {
-     *                  "name": "Field1",
-     *                  "mode": "VIDEO",
-     *                  "price": 1000
-     *              }
-     *          ]
+     *          services: {
+     *              "general": [
+     *                  {
+     *                      "name": "Chat",
+     *                      "mode": "ASYNC",
+     *                      "price": 250
+     *                  },
+     *                  {
+     *                      "name": "Video Session",
+     *                      "mode": "VIDEO",
+     *                      "price": 1500
+     *                  }
+     *              ]
+     *          }
      *     }
      *
      * @apiError UserNotLoggedIn User is not logged in.

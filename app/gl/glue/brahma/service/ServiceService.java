@@ -25,7 +25,7 @@ public class ServiceService {
 
         ObjectNode services = Json.newObject();
         for(ServiceType serviceType : serviceTypes) {
-            String field = serviceType.getField().getName();
+            String field = serviceType.getField().getName().toLowerCase();
             ArrayNode service = services.has(field) ? (ArrayNode) services.get(field) : new ArrayNode(JsonNodeFactory.instance);
 
             ObjectNode srv = Json.newObject();
@@ -35,6 +35,7 @@ public class ServiceService {
             srv.put("price", serviceType.getPrice());
 
             service.add(srv);
+            services.put(field, service);
         }
 
         ObjectNode result = Json.newObject();
