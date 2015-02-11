@@ -3,8 +3,8 @@ package gl.glue.brahma.service;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import gl.glue.brahma.model.service.ServiceDao;
 import gl.glue.brahma.model.servicetype.ServiceType;
+import gl.glue.brahma.model.servicetype.ServiceTypeDao;
 import play.db.jpa.Transactional;
 import play.libs.Json;
 
@@ -12,7 +12,7 @@ import java.util.List;
 
 public class ServiceService {
 
-    private ServiceDao serviceDao = new ServiceDao();
+    private ServiceTypeDao serviceTypeDao = new ServiceTypeDao();
 
     /**
      * Find all services in database
@@ -21,7 +21,7 @@ public class ServiceService {
     @Transactional
     public ObjectNode getServices() {
 
-        List<ServiceType> serviceTypes = serviceDao.findServiceTypes();
+        List<ServiceType> serviceTypes = serviceTypeDao.findServiceTypes();
 
         ObjectNode services = Json.newObject();
         for(ServiceType serviceType : serviceTypes) {
