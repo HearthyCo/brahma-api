@@ -44,10 +44,11 @@ import java.util.Date;
         ),
         @NamedQuery(
                 name = "Session.getPoolsSize",
-                query = "select session.serviceType, count(session) " +
+                query = "select session.serviceType.id, count(session.id) " +
                         "from Session session " +
                         "where session.state = :state " +
-                        "group by session.serviceType"
+                        "group by session.serviceType.id " +
+                        "order by session.serviceType.id"
         ),
         @NamedQuery(
                 name = "Session.getFromPool",

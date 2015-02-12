@@ -1,15 +1,14 @@
 package gl.glue.brahma.model.session;
 
-import gl.glue.brahma.model.servicetype.ServiceType;
 import gl.glue.brahma.model.sessionuser.SessionUser;
-import javafx.util.Pair;
 import play.db.jpa.JPA;
 
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class SessionDao {
 
@@ -101,16 +100,16 @@ public class SessionDao {
 
 
     /**
-     * Returns a list of the available session pools and how many sessions they contain.
-     * @return The list of pools with their sizes.
+     * Returns a map of the non-empty session pools, with their queue length.
+     * @return A map keyed by the pool ids, with their queue length as the value.
      */
-    public List<Pair<ServiceType, Integer>> getPoolsSize() {
-        return JPA.em().createNamedQuery("Session.getPoolsSize", Object[].class)
+    public Map<Integer, Integer> getPoolsSize() {
+        Map<Integer, Integer> pools = new LinkedHashMap<>();
+        JPA.em().createNamedQuery("Session.getPoolsSize", Object[].class)
                 .setParameter("state", Session.State.REQUESTED)
                 .getResultList()
-                .stream()
-                .map(o -> new Pair<>((ServiceType) o[0], (Integer)o[1]))
-                .collect(Collectors.toList());
+                .forEach(o -> pools.put((Integer) o[0], ((Long) o[1]).intValue()));
+        return pools;
     }
 
 
