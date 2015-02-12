@@ -30,11 +30,7 @@ public class SessionDao {
      */
     public Session findById(int id, int uid) {
         try {
-            String query =
-                "select session from Session session, SessionUser sessionUser" +
-                " where session.id = :id and sessionUser.session.id = session.id and sessionUser.user.id = :uid";
-
-            return JPA.em().createQuery(query, Session.class)
+            return JPA.em().createNamedQuery("Session.findById", Session.class)
                     .setParameter("id", id)
                     .setParameter("uid", uid)
                     .getSingleResult();
@@ -52,15 +48,7 @@ public class SessionDao {
      * @return List Object[] (id, title, startDate, isNew) with all sessions grouped by state.
      */
     public List<SessionUser> findByState(Set<Session.State> states, int uid, int limit) {
-        // Select id, title, startDate, isNew
-        String queryString =
-                "select sessionUser " +
-                "from SessionUser sessionUser " +
-                "left join fetch sessionUser.session session " +
-                "where session.state in :states " +
-                "and sessionUser.user.id = :uid";
-
-        Query queryListSessionsState = JPA.em().createQuery(queryString, SessionUser.class)
+        Query queryListSessionsState = JPA.em().createNamedQuery("Session.findByState", SessionUser.class)
                 .setParameter("states", states)
                 .setParameter("uid", uid);
 
@@ -80,13 +68,7 @@ public class SessionDao {
      * @return The number of sessions found.
      */
     public int countByState(Set<Session.State> states, int uid) {
-        String queryString =
-                "select count(sessionUser) " +
-                "from SessionUser sessionUser " +
-                "where sessionUser.session.state in :states " +
-                "and sessionUser.user.id = :uid";
-
-        return JPA.em().createQuery(queryString, Long.class)
+        return JPA.em().createNamedQuery("Session.countByState", Long.class)
                 .setParameter("states", states)
                 .setParameter("uid", uid)
                 .getSingleResult()
@@ -112,15 +94,7 @@ public class SessionDao {
      * @return The list of SessionUsers on the Session.
      */
     public List<SessionUser> findUsersSession(int id) {
-        String query = "select sessionUser " +
-                "from SessionUser sessionUser " +
-                "left join fetch sessionUser.user " +
-                "left join fetch sessionUser.service service " +
-                "left join fetch service.serviceType serviceType " +
-                "left join fetch serviceType.field " +
-                "where sessionUser.session.id = :id";
-
-        return JPA.em().createQuery(query, SessionUser.class)
+        return JPA.em().createNamedQuery("Session.findUsersSession", SessionUser.class)
                 .setParameter("id", id)
                 .getResultList();
     }
@@ -131,12 +105,7 @@ public class SessionDao {
      * @return The list of pools with their sizes.
      */
     public List<Pair<ServiceType, Integer>> getPoolsSize() {
-        String query = "select session.serviceType, count(session) " +
-                "from Session session " +
-                "where session.state = :state " +
-                "group by session.serviceType";
-
-        return JPA.em().createQuery(query, Object[].class)
+        return JPA.em().createNamedQuery("Session.getPoolsSize", Object[].class)
                 .setParameter("state", Session.State.REQUESTED)
                 .getResultList()
                 .stream()
@@ -152,13 +121,7 @@ public class SessionDao {
      */
     public Session getFromPool(int service_type_id) {
         try {
-            String query = "select session " +
-                    "from Session session " +
-                    "where session.state = :state " +
-                    "and session.serviceType.id = :type " +
-                    "order by session.startDate asc";
-
-            return JPA.em().createQuery(query, Session.class)
+            return JPA.em().createNamedQuery("Session.getFromPool", Session.class)
                     .setParameter("state", Session.State.REQUESTED)
                     .setParameter("type", service_type_id)
                     .setMaxResults(1)

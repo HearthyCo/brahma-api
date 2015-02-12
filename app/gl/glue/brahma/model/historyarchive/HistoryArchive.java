@@ -11,6 +11,16 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 
+@NamedQueries({
+
+        @NamedQuery(
+                name = "HistoryArchive.findByHistoryEntry",
+                query = "select ha " +
+                        "from HistoryArchive ha " +
+                        "where ha.historyEntry.id = :id"
+        )
+
+})
 @Entity
 public class HistoryArchive {
 

@@ -13,7 +13,7 @@ public class UserDao {
     @Deprecated
     public User findByLogin(String login) {
         try {
-            return JPA.em().createQuery("select x from User x where x.login = :login", User.class)
+            return JPA.em().createNamedQuery("User.findByLogin", User.class)
                     .setParameter("login", login)
                     .getSingleResult();
         } catch (NoResultException e) {
@@ -24,7 +24,7 @@ public class UserDao {
     public User findByEmail(String email) {
         email = email.toLowerCase();
         try {
-            return JPA.em().createQuery("select x from User x where x.email = :email", User.class)
+            return JPA.em().createNamedQuery("User.findByEmail", User.class)
                     .setParameter("email", email)
                     .getSingleResult();
         } catch (NoResultException e) {
@@ -33,12 +33,6 @@ public class UserDao {
     }
 
     public User findById(int id) {
-        try {
-            return JPA.em().createQuery("select x from User x where x.id = :id", User.class)
-                    .setParameter("id", id)
-                    .getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
+        return JPA.em().find(User.class, id);
     }
 }

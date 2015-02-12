@@ -3,11 +3,20 @@ package gl.glue.brahma.model.service;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import gl.glue.brahma.model.servicetype.ServiceType;
 import gl.glue.brahma.model.user.Professional;
-import gl.glue.brahma.model.user.User;
-
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
+@NamedQueries({
+
+        @NamedQuery(
+                name = "Service.getServiceForType",
+                query = "select service " +
+                        "from Service service " +
+                        "where service.provider.id = :uid " +
+                        "and service.serviceType.id = :type"
+        )
+
+})
 @Entity
 public class Service {
 

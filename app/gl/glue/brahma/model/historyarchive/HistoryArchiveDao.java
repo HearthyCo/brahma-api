@@ -2,7 +2,6 @@ package gl.glue.brahma.model.historyarchive;
 
 import play.db.jpa.JPA;
 import play.db.jpa.Transactional;
-
 import javax.persistence.NoResultException;
 import java.util.List;
 
@@ -15,19 +14,9 @@ public class HistoryArchiveDao {
      */
     @Transactional
     public List<HistoryArchive> findByHistoryEntry(int id) {
-        try {
-            String queryString =
-                    "select ha " +
-                            "from HistoryArchive ha " +
-                            "where ha.historyEntry.id = :id";
-
-            return JPA.em().createQuery(queryString, HistoryArchive.class)
-                    .setParameter("id", id)
-                    .getResultList();
-
-        } catch (NoResultException e) {
-            return null;
-        }
+        return JPA.em().createNamedQuery("HistoryArchive.findByHistoryEntry", HistoryArchive.class)
+                .setParameter("id", id)
+                .getResultList();
     }
 
     /**
