@@ -21,7 +21,9 @@ public class PaypalHelper {
     private static Config conf = null;
     private static Map<String, String> sdkConfig;
     private static Map<String, Transaction.State> paypalStateTranslator = new HashMap<>();
-    private static String contextToken = null;
+
+    private static OAuthTokenCredential credential;
+    private static String contextToken;
 
     /**
      * Subclass PaypalPayment
@@ -80,26 +82,38 @@ public class PaypalHelper {
      * Class Contructor
      */
     public PaypalHelper() {
-        contextToken = getToken();
+        checkToken();
     }
 
     /**
      * Get token
      * @return Return a valid token from clientId and secret
      */
-    protected String getToken() {
-        try {
-            String token = new OAuthTokenCredential(
-                    conf.getString("paypal.clientId"),
-                    conf.getString("paypal.secret"),
-                    sdkConfig
-            ).getAccessToken();
-            return token;
-        } catch (PayPalRESTException e) {
-            e.printStackTrace();
+    protected void checkToken() {
+        // Is the token still valid? No need to mess with concurrency then.
+        if (credential != null && credential.expiresIn() > 300) {
+            return;
         }
-
-        return null;
+        // We have to update it. Only one thread should do this, so we have to lock on a
+        // shared object across all instances, instead of <this>.
+        synchronized (sdkConfig) {
+            // Some other thread might have updated it while we were waiting. Check it again.
+            if (credential != null && credential.expiresIn() > 300) {
+                return;
+            }
+            // Ok, so we have to update it after all.
+            try {
+                OAuthTokenCredential newCredential = new OAuthTokenCredential(
+                        conf.getString("paypal.clientId"),
+                        conf.getString("paypal.secret"),
+                        sdkConfig
+                );
+                contextToken = newCredential.getAccessToken();
+                credential = newCredential;
+            } catch (PayPalRESTException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     /**
@@ -109,6 +123,7 @@ public class PaypalHelper {
      * @return PaypalPayment in in progress status
      */
     public PaypalPayment createPaypalTransaction(int amount, String baseUrl) {
+        checkToken();
         if (contextToken == null || amount <= 0) return null;
 
         APIContext apiContext = new APIContext(contextToken);
@@ -160,6 +175,7 @@ public class PaypalHelper {
      * @return PaypalPayment in approved status
      */
     public PaypalPayment executePaypalTransaction(String sku, String payerId) {
+        checkToken();
         APIContext apiContext = new APIContext(contextToken);
         apiContext.setConfigurationMap(sdkConfig);
 

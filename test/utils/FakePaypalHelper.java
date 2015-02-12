@@ -11,9 +11,7 @@ import play.libs.Json;
 public class FakePaypalHelper extends PaypalHelper {
 
     @Override
-    protected String getToken() {
-        return "~~~TOKEN~~~";
-    }
+    protected void checkToken() {}
 
     @Override
     public PaypalPayment createPaypalTransaction(int amount, String baseUrl) {
