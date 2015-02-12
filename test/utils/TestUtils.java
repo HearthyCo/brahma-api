@@ -87,4 +87,11 @@ public class TestUtils {
         FakeRequest fr = fakeRequest(POST, "/v1/session").withCookies(cookies).withJsonBody(data);
         return routeAndCall(fr, REQUEST_TIMEOUT);
     }
+
+    public static Result getPoolsSizeRequest(Result responseLogin) {
+        Http.Cookie[] cookies = FluentIterable.from(cookies(responseLogin)).toArray(Http.Cookie.class);
+
+        FakeRequest fr = fakeRequest(GET, "/v1/session/pools").withCookies(cookies);
+        return routeAndCall(fr, REQUEST_TIMEOUT);
+    }
 }

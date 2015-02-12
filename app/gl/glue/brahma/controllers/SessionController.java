@@ -376,4 +376,40 @@ public class SessionController extends Controller {
         return ok(res);
     }
 
+
+    /**
+     * @api {get} /user/session/pools Get pools size
+     *
+     * @apiGroup Session
+     * @apiName GetPoolsSize
+     * @apiDescription Returns the current queue size for each pool. Pools without queue are ignored.
+     *
+     * @apiSuccess {Object} pools Info about the assigned session.
+     * @apiSuccessExample {json} Success-Response:
+     *      HTTP/1.1 200 OK
+     *      {
+     *          "pools": {
+     *              "90300": 1,
+     *         }
+     *     }
+     *
+     * @apiError UserNotLoggedIn User is not logged in.
+     * @apiErrorExample {json} UserNotLoggedIn
+     *      HTTP/1.1 401 Unauthorized
+     *      {
+     *          "status": "401",
+     *          "title": "You are not logged in"
+     *      }
+     *
+     * @apiVersion 0.1.0
+     */
+    @BasicAuth
+    @Transactional
+    @BodyParser.Of(BodyParser.Json.class)
+    public static Result getPoolsSize() {
+        ObjectNode ret = Json.newObject();
+        ret.put("pools", Json.toJson(sessionService.getPoolsSize()));
+        return ok(ret);
+    }
+
 }

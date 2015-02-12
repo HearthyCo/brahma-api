@@ -11,6 +11,18 @@ import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Date;
 
+@NamedQueries({
+
+        @NamedQuery(
+                name = "User.findByLogin",
+                query = "select x from User x where x.login = :login"
+        ),
+        @NamedQuery(
+                name = "User.findByEmail",
+                query = "select x from User x where x.email = :email"
+        )
+
+})
 @Entity
 @Inheritance
 @DiscriminatorColumn(name = "type")

@@ -2,7 +2,6 @@ package gl.glue.brahma.model.historyentry;
 
 import play.db.jpa.JPA;
 import play.db.jpa.Transactional;
-
 import javax.persistence.NoResultException;
 import java.util.List;
 
@@ -15,11 +14,7 @@ public class HistoryEntryDao {
      */
     @Transactional
     public HistoryEntry findById(int id) {
-        try {
-            return JPA.em().find(HistoryEntry.class, id);
-        } catch (NoResultException e) {
-            return null;
-        }
+        return JPA.em().find(HistoryEntry.class, id);
     }
 
     /**
@@ -29,20 +24,9 @@ public class HistoryEntryDao {
      */
     @Transactional
     public List<HistoryEntry> findByUser(int uid) {
-        try {
-            String queryString =
-                    "select he " +
-                    "from HistoryEntry he " +
-                    "where he.owner.id = :uid " +
-                    "and he.removed = false";
-
-            return JPA.em().createQuery(queryString, HistoryEntry.class)
-                    .setParameter("uid", uid)
-                    .getResultList();
-
-        } catch (NoResultException e) {
-            return null;
-        }
+        return JPA.em().createNamedQuery("HistoryEntry.findByUser", HistoryEntry.class)
+                .setParameter("uid", uid)
+                .getResultList();
     }
 
     /**
@@ -53,22 +37,10 @@ public class HistoryEntryDao {
      */
     @Transactional
     public List<HistoryEntry> findByUserAndType(int uid, String type) {
-        try {
-            String queryString =
-                    "select he " +
-                    "from HistoryEntry he " +
-                    "where he.owner.id = :uid " +
-                    "and he.type.id = :kind " +
-                    "and he.removed = false";
-
-            return JPA.em().createQuery(queryString, HistoryEntry.class)
-                    .setParameter("uid", uid)
-                    .setParameter("kind", type)
-                    .getResultList();
-
-        } catch (NoResultException e) {
-            return null;
-        }
+        return JPA.em().createNamedQuery("HistoryEntry.findByUserAndType", HistoryEntry.class)
+                .setParameter("uid", uid)
+                .setParameter("kind", type)
+                .getResultList();
     }
 
     /**

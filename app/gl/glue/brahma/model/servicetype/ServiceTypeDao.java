@@ -15,13 +15,7 @@ public class ServiceTypeDao {
     @Transactional
     public ServiceType findById(int id) {
         try {
-            String queryString =
-                    "select serviceType " +
-                    "from ServiceType serviceType " +
-                    "left join fetch serviceType.field " +
-                    "where serviceType.id = :id";
-
-            return JPA.em().createQuery(queryString, ServiceType.class)
+            return JPA.em().createNamedQuery("ServiceType.findById", ServiceType.class)
                     .setParameter("id", id)
                     .getSingleResult();
 
@@ -37,12 +31,7 @@ public class ServiceTypeDao {
      */
     @Transactional
     public List<ServiceType> findServiceTypes() {
-        String queryString =
-                "select serviceType " +
-                "from ServiceType serviceType " +
-                "left join fetch serviceType.field";
-
-        return JPA.em().createQuery(queryString, ServiceType.class)
+        return JPA.em().createNamedQuery("ServiceType.findServiceTypes", ServiceType.class)
                 .getResultList();
     }
 
@@ -52,19 +41,9 @@ public class ServiceTypeDao {
      */
     @Transactional
     public List<ServiceType> findServiceTypesByField(int fid) {
-        try {
-            String queryString =
-                    "select serviceType " +
-                            "from ServiceType serviceType " +
-                            "left join fetch serviceType.field field " +
-                            "where field.id = :fid";
-
-            return JPA.em().createQuery(queryString, ServiceType.class)
-                    .setParameter("fid", fid)
-                    .getResultList();
-
-        } catch (NoResultException e) {
-            return null;
-        }
+        return JPA.em().createNamedQuery("ServiceType.findServiceTypesByField", ServiceType.class)
+                .setParameter("fid", fid)
+                .getResultList();
     }
+
 }

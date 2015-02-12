@@ -10,6 +10,7 @@ import play.db.jpa.JPA;
 import play.libs.Json;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
@@ -171,6 +172,16 @@ public class SessionServiceTest extends TransactionalTest {
         // There should be only one session in queue for this pool.
         Session session2 = sessionService.assignSessionFromPool(uid, 90302);
         assertNull(session2);
+    }
+
+    @Test
+    public void getPoolsSize() {
+        Map<Integer, Integer> pools = sessionService.getPoolsSize();
+        assertNotNull(pools);
+        assertEquals(1, pools.size());
+        Map.Entry<Integer, Integer> first = pools.entrySet().iterator().next();
+        assertEquals(90302, first.getKey().intValue());
+        assertEquals(1, first.getValue().intValue());
     }
 
 }

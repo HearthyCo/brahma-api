@@ -2,14 +2,64 @@ package gl.glue.brahma.model.session;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
-import gl.glue.brahma.model.field.Field;
 import gl.glue.brahma.model.servicetype.ServiceType;
 import play.libs.Json;
-
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 
+@NamedQueries({
+
+        @NamedQuery(
+                name = "Session.findById",
+                query = "select sessionUser.session " +
+                        "from SessionUser sessionUser " +
+                        "where sessionUser.session.id = :id " +
+                        "and sessionUser.user.id = :uid"
+        ),
+        @NamedQuery(
+                name = "Session.findByState",
+                query = "select sessionUser " +
+                        "from SessionUser sessionUser " +
+                        "left join fetch sessionUser.session session " +
+                        "where session.state in :states " +
+                        "and sessionUser.user.id = :uid"
+        ),
+        @NamedQuery(
+                name = "Session.countByState",
+                query = "select count(sessionUser) " +
+                        "from SessionUser sessionUser " +
+                        "where sessionUser.session.state in :states " +
+                        "and sessionUser.user.id = :uid"
+        ),
+        @NamedQuery(
+                name = "Session.findUsersSession",
+                query = "select sessionUser " +
+                        "from SessionUser sessionUser " +
+                        "left join fetch sessionUser.user " +
+                        "left join fetch sessionUser.service service " +
+                        "left join fetch service.serviceType serviceType " +
+                        "left join fetch serviceType.field " +
+                        "where sessionUser.session.id = :id"
+        ),
+        @NamedQuery(
+                name = "Session.getPoolsSize",
+                query = "select session.serviceType.id, count(session.id) " +
+                        "from Session session " +
+                        "where session.state = :state " +
+                        "group by session.serviceType.id " +
+                        "order by session.serviceType.id"
+        ),
+        @NamedQuery(
+                name = "Session.getFromPool",
+                query = "select session " +
+                        "from Session session " +
+                        "where session.state = :state " +
+                        "and session.serviceType.id = :type " +
+                        "order by session.startDate asc"
+        )
+
+})
 @Entity
 public class Session {
 

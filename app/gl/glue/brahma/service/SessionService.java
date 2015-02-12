@@ -226,6 +226,16 @@ public class SessionService {
 
 
     /**
+     * Returns a map of the non-empty session pools, with their queue length.
+     * @return A map keyed by the pool ids, with their queue length as the value.
+     */
+    @Transactional
+    public Map<Integer, Integer> getPoolsSize() {
+        return sessionDao.getPoolsSize();
+    }
+
+
+    /**
      * Assigns a session from the selected pool to a given user.
      * @param uid The User (probably a Professional) that will get assigned.
      * @param service_type_id Target pool of services to pick from.

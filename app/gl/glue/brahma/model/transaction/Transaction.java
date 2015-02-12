@@ -10,6 +10,32 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 
+@NamedQueries({
+
+        @NamedQuery(
+                name = "Transaction.getBySku",
+                query = "select transaction " +
+                        "from Transaction transaction " +
+                        "where transaction.sku = :sku"
+        ),
+        @NamedQuery(
+                name = "Transaction.getTransactionHistory",
+                query = "select transaction " +
+                        "from Transaction transaction " +
+                        "left join fetch transaction.session session " +
+                        "where transaction.user.id = :id " +
+                        "and transaction.state = :state " +
+                        "order by transaction.timestamp desc"
+        ),
+        @NamedQuery(
+                name = "Transaction.getUserBalance",
+                query = "select sum(transaction.amount) " +
+                        "from Transaction transaction " +
+                        "where transaction.user.id = :id " +
+                        "and transaction.state = :state"
+        )
+
+})
 @Entity
 public class Transaction {
 

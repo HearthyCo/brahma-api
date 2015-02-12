@@ -12,6 +12,26 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 
+@NamedQueries({
+
+        @NamedQuery(
+                name="HistoryEntry.findByUser",
+                query="select he " +
+                        "from HistoryEntry he " +
+                        "where he.owner.id = :uid " +
+                        "and he.removed = false"
+        ),
+
+        @NamedQuery(
+                name="HistoryEntry.findByUserAndType",
+                query="select he " +
+                        "from HistoryEntry he " +
+                        "where he.owner.id = :uid " +
+                        "and he.type.id = :kind " +
+                        "and he.removed = false"
+        )
+
+})
 @Entity
 public class HistoryEntry {
 
