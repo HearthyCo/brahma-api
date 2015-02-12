@@ -25,7 +25,7 @@ GET            /v1/session/:session                                            g
 POST           /v1/session/assignPool                                          gl.glue.brahma.controllers.SessionController.assignSessionFromPool()
 
 #Services
-GET            /v1/services                                                    gl.glue.brahma.controllers.ServiceController.getServices()
+POST            /v1/services                                                    gl.glue.brahma.controllers.ServiceController.getServices()
 
 # Transactions
 POST           /v1/transaction                                                 gl.glue.brahma.controllers.TransactionController.createPaypalTransaction()

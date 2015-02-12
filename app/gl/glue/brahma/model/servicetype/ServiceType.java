@@ -15,14 +15,19 @@ import javax.validation.constraints.NotNull;
                         "left join fetch serviceType.field " +
                         "where serviceType.id = :id"
         ),
-
         @NamedQuery(
                 name = "ServiceType.findServiceTypes",
                 query = "select serviceType " +
                         "from ServiceType serviceType " +
                         "left join fetch serviceType.field"
+        ),
+        @NamedQuery(
+                name = "ServiceType.findServiceTypesByField",
+                query = "select serviceType " +
+                        "from ServiceType serviceType " +
+                        "left join fetch serviceType.field field " +
+                        "where field.id = :fid"
         )
-
 
 })
 @Entity

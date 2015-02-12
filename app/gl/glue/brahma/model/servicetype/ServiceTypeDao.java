@@ -35,4 +35,15 @@ public class ServiceTypeDao {
                 .getResultList();
     }
 
+    /**
+     * Find services in database fetch serviceTypes
+     * @return List of services
+     */
+    @Transactional
+    public List<ServiceType> findServiceTypesByField(int fid) {
+        return JPA.em().createNamedQuery("ServiceType.findServiceTypesByField", ServiceType.class)
+                .setParameter("fid", fid)
+                .getResultList();
+    }
+
 }
