@@ -200,4 +200,17 @@ public class SessionControllerTest extends TransactionalTest {
             assertTrue(stateSession.equals("CLOSED") || stateSession.equals("FINISHED"));
         }
     }
+
+    @Test // Valid request
+    public void getPoolsSize() {
+        String login = "testClient1@glue.gl";
+        Result responseLogin = TestUtils.makeLoginRequest(login, login);
+
+        Result result = TestUtils.getPoolsSizeRequest(responseLogin);
+        ObjectNode ret = TestUtils.toJson(result);
+
+        assertNotNull(result);
+        assertEquals(200, result.toScala().header().status());
+        assertEquals(1, ret.get("pools").get("90302").asInt());
+    }
 }
