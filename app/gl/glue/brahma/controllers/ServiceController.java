@@ -1,9 +1,9 @@
 package gl.glue.brahma.controllers;
 
 import actions.BasicAuth;
-import com.fasterxml.jackson.databind.JsonNode;
 import gl.glue.brahma.service.ServiceService;
 import play.db.jpa.Transactional;
+import play.libs.F;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -17,7 +17,10 @@ public class ServiceController extends Controller {
      *
      * @apiGroup Services
      * @apiName GetService
-     * @apiDescription Return all services in database
+     * @apiDescription Return all services in database, we can pass "id" optional paramenter to return only services
+     * that identifier
+     *
+     * @apiParam {Integer}   id Service id {Optional}
      *
      * @apiSuccess {object}     services Object with all services in database
      * @apiSuccessExample {json} Success-Response:
@@ -56,10 +59,8 @@ public class ServiceController extends Controller {
     @BasicAuth
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
-    public static Result getServices() {
-        JsonNode json = request().body().asJson();
-        int fid = json.has("fieldId") ? json.findPath("fieldId").asInt() : 0;
-
+    public static Result getServices(final F.Option<Integer> id) {
+        int fid = (id.isDefined()) ? id.get() : 0;
         return ok(serviceService.getServices(fid));
     }
 }
