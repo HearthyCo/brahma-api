@@ -1,4 +1,4 @@
-package gl.glue.brahma.controllers;
+package gl.glue.brahma.controllers.client;
 
 import actions.BasicAuth;
 import gl.glue.brahma.service.ServiceService;

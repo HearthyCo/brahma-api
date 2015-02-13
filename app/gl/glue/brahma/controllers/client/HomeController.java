@@ -1,4 +1,4 @@
-package gl.glue.brahma.controllers;
+package gl.glue.brahma.controllers.client;
 
 import actions.BasicAuth;
 import com.fasterxml.jackson.databind.node.ObjectNode;
