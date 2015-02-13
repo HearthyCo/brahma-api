@@ -1,13 +1,15 @@
 package gl.glue.brahma.controllers.client;
 
-import actions.BasicAuth;
+import actions.ClientAuth;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import gl.glue.brahma.model.transaction.Transaction;
 import gl.glue.brahma.service.TransactionService;
+import gl.glue.brahma.service.UserService;
 import gl.glue.brahma.util.JsonUtils;
+import play.Logger;
 import play.db.jpa.Transactional;
 import play.libs.Json;
 import play.mvc.BodyParser;
@@ -19,26 +21,14 @@ import java.net.URL;
 
 public class TransactionController extends Controller {
 
+    private static UserService userService = new UserService();
     private static TransactionService transactionService = new TransactionService();
     private static Config conf = ConfigFactory.load();
 
-    @BasicAuth
-    @Transactional
-    @BodyParser.Of(BodyParser.Json.class)
-    public static Result getTransaction(int id) {
-        Transaction transaction = transactionService.getTransaction(id);
-
-        // Get session with login
-        ObjectNode result = Json.newObject();
-        result.put("payment", Json.toJson(transaction));
-
-        return ok(result);
-    }
-
     /**
-     * @api {get} /user/balance Balance
+     * @api {get} /client/me/balance Balance
      *
-     * @apiGroup User
+     * @apiGroup Client
      * @apiName GetBalance
      * @apiDescription Return a state of user balance in addition also return a history os transactions
      *
@@ -70,19 +60,25 @@ public class TransactionController extends Controller {
      *          "title": "You are not logged in"
      *      }
      *
+     * @apiError {Object} UserUnauthorized User is not a client
+     * @apiErrorExample {json} UserUnauthorized
+     *      HTTP/1.1 403 Unauthorized
+     *      {
+     *          "status": "403",
+     *          "title": "Unauthorized"
+     *      }
+     *
      * @apiVersion 0.1.0
      */
-    @BasicAuth
+    @ClientAuth
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
     public static Result getUserTransactions() {
         int uid = Integer.parseInt(session("id"));
 
-        // Get session with login
-        ObjectNode balance = transactionService.getUserTransactions(uid);
-
         ObjectNode result = Json.newObject();
-        result.put("balance", balance);
+        result.put("amount", userService.getById(uid).getBalance());
+        result.put("transactions", Json.toJson(transactionService.getUserTransactions(uid)));
 
         return ok(result);
     }
@@ -125,9 +121,17 @@ public class TransactionController extends Controller {
      *          "title": "You are not logged in"
      *      }
      *
+     * @apiError {Object} UserUnauthorized User is not a client
+     * @apiErrorExample {json} UserUnauthorized
+     *      HTTP/1.1 403 Unauthorized
+     *      {
+     *          "status": "403",
+     *          "title": "Unauthorized"
+     *      }
+     *
      * @apiVersion 0.1.0
      */
-    @BasicAuth
+    @ClientAuth
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
     public static Result createPaypalTransaction() {
@@ -213,9 +217,17 @@ public class TransactionController extends Controller {
      *          "title": "Transaction is not executable"
      *      }
      *
+     * @apiError {Object} UserUnauthorized User is not a client
+     * @apiErrorExample {json} UserUnauthorized
+     *      HTTP/1.1 403 Unauthorized
+     *      {
+     *          "status": "403",
+     *          "title": "Unauthorized"
+     *      }
+     *
      * @apiVersion 0.1.0
      */
-    @BasicAuth
+    @ClientAuth
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
     public static Result executePaypalTransaction() {
@@ -238,6 +250,8 @@ public class TransactionController extends Controller {
         result = Json.newObject();
         result.put("transaction", Json.toJson(transaction));
         result.put("balance", transaction.getUser().getBalance());
+
+        Logger.info("RESULT " + result);
 
         return ok(result);
     }

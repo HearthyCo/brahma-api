@@ -33,7 +33,7 @@ GET            /v1/client/services                                              
 
 # Transactions
 POST           /v1/client/transaction                                               gl.glue.brahma.controllers.client.TransactionController.createPaypalTransaction()
-#GET            /v1/client/transaction/:id                                           gl.glue.brahma.controllers.common.TransactionController.getTransaction(id: Integer)
+GET            /v1/client/transaction/:id                                           gl.glue.brahma.controllers.common.TransactionController.getTransaction(id: Integer)
 POST           /v1/client/transaction/execute                                       gl.glue.brahma.controllers.client.TransactionController.executePaypalTransaction()
 
 
@@ -56,4 +56,4 @@ GET            /v1/professional/                                                
 GET            /v1/professional/services                                            gl.glue.brahma.controllers.common.ServiceController.getServices(id: F.Option[Integer])
 
 # Transactions
-#GET            /v1/professional/transaction/:id                                     gl.glue.brahma.controllers.common.TransactionController.getTransaction(id: Integer)
+GET            /v1/professional/transaction/:id                                     gl.glue.brahma.controllers.common.TransactionController.getTransaction(id: Integer)

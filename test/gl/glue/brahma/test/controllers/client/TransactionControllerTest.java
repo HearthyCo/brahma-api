@@ -2,11 +2,11 @@ package gl.glue.brahma.test.controllers.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import utils.TransactionalTest;
 import org.junit.Test;
 import play.mvc.Result;
 import play.test.FakeRequest;
 import utils.TestUtils;
+import utils.TransactionalTest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

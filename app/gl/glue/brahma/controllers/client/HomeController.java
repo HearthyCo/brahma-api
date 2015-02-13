@@ -6,8 +6,10 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.model.sessionuser.SessionUser;
+import gl.glue.brahma.model.user.User;
 import gl.glue.brahma.service.SessionService;
 import gl.glue.brahma.service.TransactionService;
+import gl.glue.brahma.service.UserService;
 import play.db.jpa.Transactional;
 import play.libs.Json;
 import play.mvc.BodyParser;
@@ -21,13 +23,15 @@ import java.util.Set;
 
 public class HomeController extends Controller {
 
+    private static final int MAX_RESULTS = 2;
+    private static UserService userService = new UserService();
     private static SessionService sessionService = new SessionService();
     private static TransactionService transactionService = new TransactionService();
 
     /**
-     * @api {get} /user/home Homepage
+     * @api {get} /client/me/home Homepage
      *
-     * @apiGroup User
+     * @apiGroup Client
      * @apiName GetHome
      * @apiDescription Collect all entities required to show in home view.
      *
@@ -97,8 +101,8 @@ public class HomeController extends Controller {
      *          "title": "You are not logged in"
      *      }
      *
-     * @apiError {Object} UnauthorizedUser User is not a client.
-     * @apiErrorExample {json} UnauthorizedUser
+     * @apiError {Object} UserUnauthorizedUser User is not a client.
+     * @apiErrorExample {json} UserUnauthorizedUser
      *      HTTP/1.1 403 Unauthorized
      *      {
      *          "status": "403",
@@ -112,6 +116,8 @@ public class HomeController extends Controller {
     @BodyParser.Of(BodyParser.Json.class)
     public static Result getHome() {
         int uid = Integer.parseInt(session("id"));
+
+        User user = userService.getById(uid);
 
         // Create State Session List Array for iterate and pass DAO function a Session.State ArrayList
         List<Set<Session.State>> states = new ArrayList<>();
@@ -145,12 +151,11 @@ public class HomeController extends Controller {
             sessions.put(listStates[states.indexOf(state)], sessionsState);
         }
 
-        ObjectNode transactions = transactionService.getUserTransactions(uid, 2);
+        return ok(Json.newObject()
+                .putPOJO("sessions", sessions)
+                .put("balance", Json.newObject()
+                        .put("balance", user.getBalance())
+                        .put("transactions", Json.toJson(transactionService.getUserTransactions(uid, MAX_RESULTS)))));
 
-        ObjectNode result = Json.newObject();
-        result.put("sessions", sessions);
-        result.put("balance", transactions);
-
-        return ok(result);
     }
 }

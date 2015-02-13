@@ -1,13 +1,20 @@
 package gl.glue.brahma.model.transaction;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.model.user.User;
+import gl.glue.brahma.util.serializers.SessionToTitleSerializer;
 import play.libs.Json;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.io.IOException;
 import java.util.Date;
 
 @NamedQueries({
@@ -55,7 +62,7 @@ public class Transaction {
 
     @ManyToOne
     @JoinColumn(name = "session_id")
-    @JsonIgnore
+    @JsonSerialize(using = SessionToTitleSerializer.class, as=Session.class)
     private Session session;
 
     @NotNull
@@ -161,5 +168,5 @@ public class Transaction {
     public String toString() {
         return "Transaction #" + id;
     }
-
 }
+
