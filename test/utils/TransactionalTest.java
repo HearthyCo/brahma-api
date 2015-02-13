@@ -1,4 +1,4 @@
-package gl.glue.brahma.test;
+package utils;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;

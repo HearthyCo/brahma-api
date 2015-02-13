@@ -1,9 +1,10 @@
-package gl.glue.brahma.test;
+package gl.glue.brahma.test.service;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.model.sessionuser.SessionUser;
 import gl.glue.brahma.service.SessionService;
+import utils.TransactionalTest;
 import org.junit.Test;
 import play.db.jpa.JPA;
 import play.libs.Json;

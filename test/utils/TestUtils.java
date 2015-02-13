@@ -19,12 +19,19 @@ public class TestUtils {
 
     private static final int REQUEST_TIMEOUT = 1000;
 
-    public static Result makeLoginRequest(String login, String pass) {
+    public static Result makeClientLoginRequest(String login, String pass) {
+        return makeLoginRequest(login, pass, "client");
+    }
+    public static Result makeProfessionalLoginRequest(String login, String pass) {
+        return makeLoginRequest(login, pass, "professional");
+    }
+
+    public static Result makeLoginRequest(String login, String pass, String type) {
         ObjectNode user = Json.newObject();
         user.put("email", login);
         user.put("password", pass);
 
-        FakeRequest fr = fakeRequest(POST, "/v1/user/login").withJsonBody(user);
+        FakeRequest fr = fakeRequest(POST, "/v1/" + type + "/login").withJsonBody(user);
         Result result = routeAndCall(fr, REQUEST_TIMEOUT);
         assertNotNull(result);
         return result;
@@ -46,52 +53,15 @@ public class TestUtils {
         assertEquals(Integer.toString(status), ret.get("errors").get(0).get("status").asText());
     }
 
-    public static Result getTransactionRequest(Result responseLogin) {
-        Http.Cookie[] cookies = FluentIterable.from(cookies(responseLogin)).toArray(Http.Cookie.class);
 
-        FakeRequest fr = fakeRequest(GET, "/v1/user/balance").withCookies(cookies);
+    public static Result callController(String method, String url, Result auth) {
+        return callController(method, url, auth, null);
+    }
+    public static Result callController(String method, String url, Result auth, ObjectNode data) {
+        Http.Cookie[] cookies = FluentIterable.from(cookies(auth)).toArray(Http.Cookie.class);
+        FakeRequest fr = fakeRequest(method, url).withCookies(cookies);
+        if (data != null) fr.withJsonBody(data);
         return routeAndCall(fr, REQUEST_TIMEOUT);
     }
 
-    public static Result getServicesRequest(Result responseLogin) {
-        Http.Cookie[] cookies = FluentIterable.from(cookies(responseLogin)).toArray(Http.Cookie.class);
-
-        FakeRequest fr = fakeRequest(POST, "/v1/services").withCookies(cookies);
-        return routeAndCall(fr, REQUEST_TIMEOUT);
-    }
-
-    public static Result getHomeRequest(Result responseLogin) {
-        Http.Cookie[] cookies = FluentIterable.from(cookies(responseLogin)).toArray(Http.Cookie.class);
-
-        FakeRequest fr = fakeRequest(GET, "/v1/user/home").withCookies(cookies);
-        return routeAndCall(fr, REQUEST_TIMEOUT);
-    }
-
-    public static Result getSessionRequest(int id, Result responseLogin) {
-        Http.Cookie[] cookies = FluentIterable.from(cookies(responseLogin)).toArray(Http.Cookie.class);
-
-        FakeRequest fr = fakeRequest(GET, "/v1/session/" + id).withCookies(cookies);
-        return routeAndCall(fr, REQUEST_TIMEOUT);
-    }
-
-    public static Result getSessionStateRequest(String state, Result responseLogin) {
-        Http.Cookie[] cookies = FluentIterable.from(cookies(responseLogin)).toArray(Http.Cookie.class);
-
-        FakeRequest fr = fakeRequest(GET, "/v1/user/sessions/" + state).withCookies(cookies);
-        return routeAndCall(fr, REQUEST_TIMEOUT);
-    }
-
-    public static Result getNewSessionRequest(Result responseLogin, ObjectNode data) {
-        Http.Cookie[] cookies = FluentIterable.from(cookies(responseLogin)).toArray(Http.Cookie.class);
-
-        FakeRequest fr = fakeRequest(POST, "/v1/session").withCookies(cookies).withJsonBody(data);
-        return routeAndCall(fr, REQUEST_TIMEOUT);
-    }
-
-    public static Result getPoolsSizeRequest(Result responseLogin) {
-        Http.Cookie[] cookies = FluentIterable.from(cookies(responseLogin)).toArray(Http.Cookie.class);
-
-        FakeRequest fr = fakeRequest(GET, "/v1/session/pools").withCookies(cookies);
-        return routeAndCall(fr, REQUEST_TIMEOUT);
-    }
 }

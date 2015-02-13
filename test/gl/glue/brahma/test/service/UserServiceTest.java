@@ -1,8 +1,9 @@
-package gl.glue.brahma.test;
+package gl.glue.brahma.test.service;
 
 import gl.glue.brahma.model.user.Client;
 import gl.glue.brahma.model.user.User;
 import gl.glue.brahma.service.UserService;
+import utils.TransactionalTest;
 import org.junit.Test;
 import play.db.jpa.JPA;
 

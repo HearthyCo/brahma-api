@@ -1,7 +1,8 @@
-package gl.glue.brahma.test;
+package gl.glue.brahma.test.controllers.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import utils.TransactionalTest;
 import org.junit.Test;
 import play.mvc.Result;
 import play.test.FakeRequest;
@@ -14,7 +15,8 @@ import static play.test.Helpers.*;
 public class HomeControllerTest extends TransactionalTest {
 
     @Test // Request without user authentication
-    public void requestHomeWithoutAuthentication() {
+
+    public void testGetHomeUnauthenticated() {
         FakeRequest fr = fakeRequest(GET, "/v1/client/me/home");
         Result result = routeAndCall(fr, REQUEST_TIMEOUT);
         assertNotNull(result);
@@ -22,11 +24,12 @@ public class HomeControllerTest extends TransactionalTest {
     }
 
     @Test // Request home
-    public void requestHomeOk() {
+    public void testGetHomeOk() {
         String login = "testClient1@glue.gl";
-        Result responseLogin = TestUtils.makeClientLoginRequest(login, login);
 
-        Result result = TestUtils.getHomeRequest(responseLogin);
+        Result auth = TestUtils.makeClientLoginRequest(login, login);
+        Result result = TestUtils.callController(GET, "/v1/client/me/home", auth);
+
         assertNotNull(result);
         assertEquals(200, result.toScala().header().status());
 
