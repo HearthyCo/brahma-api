@@ -29,11 +29,11 @@ POST           /v1/client/session                                               
 GET            /v1/client/session/:session                                          gl.glue.brahma.controllers.client.SessionController.getSession(session: Integer)
 
 # Services
-GET            /v1/client/services                                                  gl.glue.brahma.controllers.common.ServiceController.getServices(id: F.Option[Integer])
+#GET            /v1/client/services                                                  gl.glue.brahma.controllers.common.ServiceController.getServices(id: F.Option[Integer])
 
 # Transactions
 POST           /v1/client/transaction                                               gl.glue.brahma.controllers.client.TransactionController.createPaypalTransaction()
-GET            /v1/client/transaction/:id                                           gl.glue.brahma.controllers.common.TransactionController.getTransaction(id: Integer)
+#GET            /v1/client/transaction/:id                                           gl.glue.brahma.controllers.common.TransactionController.getTransaction(id: Integer)
 POST           /v1/client/transaction/execute                                       gl.glue.brahma.controllers.client.TransactionController.executePaypalTransaction()
 
 
@@ -48,12 +48,12 @@ GET            /v1/professional/                                                
 # GET            /v1/professional/my/home                                             gl.glue.brahma.controllers.professional.HomeController.get()
 
 #Sessions
-GET            /v1/professional/session/pools                                       gl.glue.brahma.controllers.professional.SessionController.getPoolsSize()
-POST           /v1/professional/session/assignPool                                  gl.glue.brahma.controllers.professional.SessionController.assignSessionFromPool()
-GET            /v1/professional/session/:session                                    gl.glue.brahma.controllers.professional.SessionController.getSession(session: Integer)
+#GET            /v1/professional/session/pools                                       gl.glue.brahma.controllers.professional.SessionController.getPoolsSize()
+#POST           /v1/professional/session/assignPool                                  gl.glue.brahma.controllers.professional.SessionController.assignSessionFromPool()
+#GET            /v1/professional/session/:session                                    gl.glue.brahma.controllers.professional.SessionController.getSession(session: Integer)
 
 # Services
-GET            /v1/professional/services                                            gl.glue.brahma.controllers.common.ServiceController.getServices(id: F.Option[Integer])
+#GET            /v1/professional/services                                            gl.glue.brahma.controllers.common.ServiceController.getServices(id: F.Option[Integer])
 
 # Transactions
-GET            /v1/professional/transaction/:id                                     gl.glue.brahma.controllers.common.TransactionController.getTransaction(id: Integer)
+#GET            /v1/professional/transaction/:id                                     gl.glue.brahma.controllers.common.TransactionController.getTransaction(id: Integer)
