@@ -1,7 +1,11 @@
 package gl.glue.brahma.controllers.client;
 
-import actions.BasicAuth;
+import actions.ClientAuth;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import gl.glue.brahma.model.session.Session;
+import gl.glue.brahma.model.sessionuser.SessionUser;
 import gl.glue.brahma.service.SessionService;
 import gl.glue.brahma.service.TransactionService;
 import play.db.jpa.Transactional;
@@ -9,6 +13,11 @@ import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
+
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
 
 public class HomeController extends Controller {
 
@@ -88,21 +97,53 @@ public class HomeController extends Controller {
      *          "title": "You are not logged in"
      *      }
      *
+     * @apiError {Object} UnauthorizedUser User is not a client.
+     * @apiErrorExample {json} UnauthorizedUser
+     *      HTTP/1.1 403 Unauthorized
+     *      {
+     *          "status": "403",
+     *          "title": "Unauthorized"
+     *      }
+     *
      * @apiVersion 0.1.0
      */
-    @BasicAuth
+    @ClientAuth
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
-    public static Result get() {
+    public static Result getHome() {
         int uid = Integer.parseInt(session("id"));
 
-        // Get sessions of user with login
-        ObjectNode sessions = sessionService.getUserSessions(uid);
-        ObjectNode transactions = transactionService.getUserTransactions(uid, 2);
-
         ObjectNode result = Json.newObject();
-        result.put("sessions", sessions);
-        result.put("balance", transactions);
+
+        // Create State Session List Array for iterate and pass DAO function a Session.State ArrayList
+        List<Set<Session.State>> states = new ArrayList<>();
+        String[] listStates = { "programmed", "underway", "closed" };
+
+        states.add(EnumSet.of(Session.State.PROGRAMMED));
+        states.add(EnumSet.of(Session.State.UNDERWAY));
+        states.add(EnumSet.of(Session.State.CLOSED, Session.State.FINISHED));
+
+        // Iterate State Session List Array
+        for (Set<Session.State> state : states) {
+            List<SessionUser> sessionUsers = sessionService.getUserSessionsByState(uid, state);
+
+            ArrayNode sessions = new ArrayNode(JsonNodeFactory.instance);
+            for(SessionUser sessionUser : sessionUsers) {
+                Session session = sessionUser.getSession();
+
+                boolean isNew = true;
+                if(sessionUser.getViewedDate() != null) {
+                    isNew = session.getTimestamp().after(sessionUser.getViewedDate());
+                }
+
+                ObjectNode sessionObject = (ObjectNode) Json.toJson(session);
+                sessionObject.put("isNew", isNew);
+
+                sessions.add(sessionObject);
+            }
+
+            result.put(listStates[states.indexOf(state)], sessions);
+        }
 
         return ok(result);
     }

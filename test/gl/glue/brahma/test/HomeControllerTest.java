@@ -15,7 +15,7 @@ public class HomeControllerTest extends TransactionalTest {
 
     @Test // Request without user authentication
     public void requestHomeWithoutAuthentication() {
-        FakeRequest fr = fakeRequest(GET, "/v1/user/home");
+        FakeRequest fr = fakeRequest(GET, "/v1/client/me/home");
         Result result = routeAndCall(fr, REQUEST_TIMEOUT);
         assertNotNull(result);
         assertEquals(401, result.toScala().header().status());
@@ -24,7 +24,7 @@ public class HomeControllerTest extends TransactionalTest {
     @Test // Request home
     public void requestHomeOk() {
         String login = "testClient1@glue.gl";
-        Result responseLogin = TestUtils.makeLoginRequest(login, login);
+        Result responseLogin = TestUtils.makeClientLoginRequest(login, login);
 
         Result result = TestUtils.getHomeRequest(responseLogin);
         assertNotNull(result);

@@ -19,7 +19,7 @@ POST           /v1/client                                                       
 POST           /v1/client/login                                                     gl.glue.brahma.controllers.client.UserController.login()
 POST           /v1/client/logout                                                    gl.glue.brahma.controllers.common.UserController.logout()
 GET            /v1/client/me                                                        gl.glue.brahma.controllers.client.UserController.getMe()
-GET            /v1/client/me/home                                                   gl.glue.brahma.controllers.client.HomeController.get()
+GET            /v1/client/me/home                                                   gl.glue.brahma.controllers.client.HomeController.getHome()
 GET            /v1/client/me/sessions/$state<(programmed|underway|closed)\b>        gl.glue.brahma.controllers.client.SessionController.getState(state: String)
 GET            /v1/client/me/balance                                                gl.glue.brahma.controllers.client.TransactionController.getUserTransactions()
 GET            /v1/client/me/history/:section                                       gl.glue.brahma.controllers.client.HistoryController.getHistorySection(section: String)
@@ -45,7 +45,7 @@ POST           /v1/client/transaction/execute                                   
 POST           /v1/professional/login                                               gl.glue.brahma.controllers.professional.UserController.login()
 POST           /v1/professional/logout                                              gl.glue.brahma.controllers.common.UserController.logout()
 GET            /v1/professional/                                                    gl.glue.brahma.controllers.professional.UserController.getMe()
-# GET            /v1/professional/my/home                                             gl.glue.brahma.controllers.professional.HomeController.get()
+# GET            /v1/professional/me/home                                             gl.glue.brahma.controllers.professional.HomeController.getHome()
 
 #Sessions
 #GET            /v1/professional/session/pools                                       gl.glue.brahma.controllers.professional.SessionController.getPoolsSize()
