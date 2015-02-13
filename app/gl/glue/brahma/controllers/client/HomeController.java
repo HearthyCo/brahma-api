@@ -113,8 +113,6 @@ public class HomeController extends Controller {
     public static Result getHome() {
         int uid = Integer.parseInt(session("id"));
 
-        ObjectNode result = Json.newObject();
-
         // Create State Session List Array for iterate and pass DAO function a Session.State ArrayList
         List<Set<Session.State>> states = new ArrayList<>();
         String[] listStates = { "programmed", "underway", "closed" };
@@ -123,11 +121,13 @@ public class HomeController extends Controller {
         states.add(EnumSet.of(Session.State.UNDERWAY));
         states.add(EnumSet.of(Session.State.CLOSED, Session.State.FINISHED));
 
+        ObjectNode sessions = Json.newObject();
+
         // Iterate State Session List Array
         for (Set<Session.State> state : states) {
             List<SessionUser> sessionUsers = sessionService.getUserSessionsByState(uid, state);
 
-            ArrayNode sessions = new ArrayNode(JsonNodeFactory.instance);
+            ArrayNode sessionsState = new ArrayNode(JsonNodeFactory.instance);
             for(SessionUser sessionUser : sessionUsers) {
                 Session session = sessionUser.getSession();
 
@@ -139,11 +139,17 @@ public class HomeController extends Controller {
                 ObjectNode sessionObject = (ObjectNode) Json.toJson(session);
                 sessionObject.put("isNew", isNew);
 
-                sessions.add(sessionObject);
+                sessionsState.add(sessionObject);
             }
 
-            result.put(listStates[states.indexOf(state)], sessions);
+            sessions.put(listStates[states.indexOf(state)], sessionsState);
         }
+
+        ObjectNode transactions = transactionService.getUserTransactions(uid, 2);
+
+        ObjectNode result = Json.newObject();
+        result.put("sessions", sessions);
+        result.put("balance", transactions);
 
         return ok(result);
     }
