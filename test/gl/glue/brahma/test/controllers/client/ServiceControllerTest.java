@@ -1,7 +1,8 @@
-package gl.glue.brahma.test;
+package gl.glue.brahma.test.controllers.client;
 
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import utils.TransactionalTest;
 import org.junit.Test;
 import play.mvc.Result;
 import play.test.FakeRequest;
@@ -15,19 +16,18 @@ import static play.test.Helpers.*;
 public class ServiceControllerTest extends TransactionalTest {
 
     @Test // Request balance without user authentication
-    public void requestServicesWithoutAuthentication() {
-        FakeRequest fr = fakeRequest(POST, "/v1/services");
+    public void testGetServicesUnauthenticated() {
+        FakeRequest fr = fakeRequest(GET, "/v1/client/services");
         Result result = routeAndCall(fr, REQUEST_TIMEOUT);
         assertNotNull(result);
         assertEquals(401, result.toScala().header().status());
     }
 
     @Test // Request balance success
-    public void requestServicesOk() {
+    public void testGetServicesOk() {
         String login = "testClient1@glue.gl";
-        Result responseLogin = TestUtils.makeLoginRequest(login, login);
-
-        Result result = TestUtils.getServicesRequest(responseLogin);
+        Result auth = TestUtils.makeClientLoginRequest(login, login);
+        Result result = TestUtils.callController(GET, "/v1/client/services", auth);
 
         assertNotNull(result);
         assertEquals(200, result.toScala().header().status());

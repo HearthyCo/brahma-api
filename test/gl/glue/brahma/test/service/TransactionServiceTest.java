@@ -1,4 +1,4 @@
-package gl.glue.brahma.test;
+package gl.glue.brahma.test.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -6,13 +6,14 @@ import gl.glue.brahma.model.transaction.Transaction;
 import gl.glue.brahma.model.user.User;
 import gl.glue.brahma.service.TransactionService;
 import gl.glue.brahma.service.UserService;
+import utils.TransactionalTest;
 import org.junit.Test;
 import utils.FakePaypalHelper;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class TransactionServiceTest extends TransactionalTest  {
+public class TransactionServiceTest extends TransactionalTest {
 
     private TransactionService transactionService = new TransactionService();
     private UserService userService = new UserService();

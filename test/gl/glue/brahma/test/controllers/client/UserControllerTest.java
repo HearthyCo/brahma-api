@@ -1,6 +1,7 @@
-package gl.glue.brahma.test;
+package gl.glue.brahma.test.controllers.client;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import utils.TransactionalTest;
 import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
@@ -17,7 +18,7 @@ public class UserControllerTest extends TransactionalTest {
     @Test
     public void testLoginOk() {
         String login = "testClient1@glue.gl";
-        Result result = TestUtils.makeLoginRequest(login, login);
+        Result result = TestUtils.makeClientLoginRequest(login, login);
         assertEquals(200, result.toScala().header().status());
         assertTrue(TestUtils.hasCookies(result));
         ObjectNode ret = TestUtils.toJson(result);
@@ -33,7 +34,7 @@ public class UserControllerTest extends TransactionalTest {
         user.put("email", login);
         user.put("password", login);
         user.put("canLogin", true);
-        FakeRequest fr = fakeRequest(POST, "/v1/user/login").withJsonBody(user);
+        FakeRequest fr = fakeRequest(POST, "/v1/client/login").withJsonBody(user);
         Result result = routeAndCall(fr, REQUEST_TIMEOUT);
         assertNotNull(result);
         assertEquals(200, result.toScala().header().status());
@@ -45,7 +46,7 @@ public class UserControllerTest extends TransactionalTest {
 
     @Test
     public void testLoginBadPass() {
-        Result result = TestUtils.makeLoginRequest("testClient1", "bad-password");
+        Result result = TestUtils.makeClientLoginRequest("testClient1", "bad-password");
         assertEquals(401, result.toScala().header().status());
         assertFalse(TestUtils.hasCookies(result));
         TestUtils.assertError(401, TestUtils.toJson(result));
@@ -53,7 +54,7 @@ public class UserControllerTest extends TransactionalTest {
 
     @Test
     public void testLoginBadUser() {
-        Result result = TestUtils.makeLoginRequest("testNonexistentUser", "anyPassword");
+        Result result = TestUtils.makeClientLoginRequest("testNonexistentUser", "anyPassword");
         assertEquals(401, result.toScala().header().status());
         assertFalse(TestUtils.hasCookies(result));
         TestUtils.assertError(401, TestUtils.toJson(result));
@@ -61,7 +62,7 @@ public class UserControllerTest extends TransactionalTest {
 
     @Test
     public void testLoginBlockedUser() {
-        Result result = TestUtils.makeLoginRequest("testPet1", "testPet1");
+        Result result = TestUtils.makeClientLoginRequest("testPet1", "testPet1");
         assertEquals(401, result.toScala().header().status());
         assertFalse(TestUtils.hasCookies(result));
         TestUtils.assertError(401, TestUtils.toJson(result));
