@@ -1,6 +1,7 @@
 package gl.glue.brahma.controllers.client;
 
 import actions.BasicAuth;
+import actions.ClientAuth;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -101,7 +102,7 @@ public class SessionController extends Controller {
      *
      * @apiVersion 0.1.0
      */
-    @BasicAuth
+    @ClientAuth
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
     public static Result getSession(int id) {
@@ -171,7 +172,7 @@ public class SessionController extends Controller {
      *
      * @apiVersion 0.1.0
      */
-    @BasicAuth
+    @ClientAuth
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
     public static Result getState(String state) {
@@ -259,7 +260,7 @@ public class SessionController extends Controller {
      *
      * @apiVersion 0.1.0
      */
-    @BasicAuth
+    @ClientAuth
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
     public static Result requestSession() {
@@ -354,7 +355,7 @@ public class SessionController extends Controller {
      *
      * @apiVersion 0.1.0
      */
-    @BasicAuth
+    @ClientAuth
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
     public static Result assignSessionFromPool() {
@@ -403,7 +404,7 @@ public class SessionController extends Controller {
      *
      * @apiVersion 0.1.0
      */
-    @BasicAuth
+    @ClientAuth
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
     public static Result getPoolsSize() {

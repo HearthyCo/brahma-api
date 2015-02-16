@@ -1,6 +1,7 @@
 package gl.glue.brahma.controllers.client;
 
 import actions.BasicAuth;
+import actions.ClientAuth;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -87,6 +88,8 @@ public class UserController extends Controller {
 
         User user = userService.login(login, pass);
         if (user == null) return status(401, JsonUtils.simpleError("401", "Invalid username or password."));
+
+        if (!(user instanceof Client)) return status(403, JsonUtils.simpleError("403", "Unauthorized"));
 
         session().clear();
         session("id", Integer.toString(user.getId()));
@@ -248,7 +251,7 @@ public class UserController extends Controller {
      *
      * @apiVersion 0.1.0
      */
-    @BasicAuth
+    @ClientAuth
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
     public static Result getMe() {

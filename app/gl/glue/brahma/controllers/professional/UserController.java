@@ -1,11 +1,13 @@
 package gl.glue.brahma.controllers.professional;
 
 import actions.BasicAuth;
+import actions.ProfessionalAuth;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import gl.glue.brahma.model.user.Client;
+import gl.glue.brahma.model.user.Professional;
 import gl.glue.brahma.model.user.User;
 import gl.glue.brahma.service.UserService;
 import gl.glue.brahma.util.JsonUtils;
@@ -87,6 +89,8 @@ public class UserController extends Controller {
 
         User user = userService.login(login, pass);
         if (user == null) return status(401, JsonUtils.simpleError("401", "Invalid username or password."));
+
+        if (!(user instanceof Professional)) return status(403, JsonUtils.simpleError("403", "Unauthorized"));
 
         session().clear();
         session("id", Integer.toString(user.getId()));
@@ -246,7 +250,7 @@ public class UserController extends Controller {
      *
      * @apiVersion 0.1.0
      */
-    @BasicAuth
+    @ProfessionalAuth
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
     public static Result getMe() {
