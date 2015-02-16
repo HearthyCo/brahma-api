@@ -52,11 +52,11 @@ public class TransactionService {
      * @return A valid transaction in inprogress status
      */
     @Transactional
-    public Transaction createPaypalTransaction(int uid, int amount, String baseUrl) {
+    public Transaction createPaypalTransaction(int uid, int amount, ObjectNode redirectUrls) {
         User user = userDao.findById(uid);
         if (user == null) return null;
 
-        PaypalHelper.PaypalPayment payment = paypalHelper.createPaypalTransaction(amount, baseUrl);
+        PaypalHelper.PaypalPayment payment = paypalHelper.createPaypalTransaction(amount, redirectUrls);
         Transaction transaction = new Transaction(user, amount, payment.getState(), payment.getSku(), payment.getTitle());
 
         ObjectNode meta = Json.newObject();

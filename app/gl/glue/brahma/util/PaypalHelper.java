@@ -1,6 +1,7 @@
 package gl.glue.brahma.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.paypal.api.payments.*;
 import com.paypal.base.rest.APIContext;
 import com.paypal.base.rest.OAuthTokenCredential;
@@ -119,10 +120,10 @@ public class PaypalHelper {
     /**
      * This function creates a valid paypal payment
      * @param amount Amount in cents for create transaction
-     * @param baseUrl Url base where paypal have to redirect user after login
+     * @param rUrls Url base where paypal have to redirect user after login
      * @return PaypalPayment in in progress status
      */
-    public PaypalPayment createPaypalTransaction(int amount, String baseUrl) {
+    public PaypalPayment createPaypalTransaction(int amount, ObjectNode rUrls) {
         checkToken();
         if (contextToken == null || amount <= 0) return null;
 
@@ -149,8 +150,8 @@ public class PaypalHelper {
         payment.setTransactions(paypalTransactions);
 
         RedirectUrls redirectUrls = new RedirectUrls();
-        redirectUrls.setCancelUrl(baseUrl + "/cancel");
-        redirectUrls.setReturnUrl(baseUrl + "/success");
+        redirectUrls.setCancelUrl(rUrls.get("cancel").asText());
+        redirectUrls.setReturnUrl(rUrls.get("success").asText());
 
         payment.setRedirectUrls(redirectUrls);
 

@@ -141,16 +141,26 @@ public class TransactionController extends Controller {
 
         int amount = json.findPath("amount").asInt();
 
-        String baseUrl = conf.getString("cors.origin") + "/#transaction/url";
-        if (request().hasHeader("Referer")) {
-            try {
-                URL url = new URL(request().getHeader("Referer"));
-                baseUrl = url.getProtocol() + "://" + url.getAuthority() + "/#transaction/url";
-            } catch (MalformedURLException e) {}
+        ObjectNode redirectUrls;
+        if(json.has("redirectUrls")) {
+            redirectUrls = (ObjectNode) json.findPath("redirectUrls");
+        }
+        else {
+            String baseUrl = conf.getString("cors.origin") + "/#transaction/url";
+            redirectUrls = Json.newObject();
+            if (request().hasHeader("Referer")) {
+                try {
+                    URL url = new URL(request().getHeader("Referer"));
+                    baseUrl = url.getProtocol() + "://" + url.getAuthority() + "/#transaction/url";
+                } catch (MalformedURLException e) {
+                }
+            }
+            redirectUrls.put("success", baseUrl + "/success");
+            redirectUrls.put("cancel", baseUrl + "/cancel");
         }
 
         Transaction transaction;
-        transaction = transactionService.createPaypalTransaction(uid, amount, baseUrl);
+        transaction = transactionService.createPaypalTransaction(uid, amount, redirectUrls);
 
         // Put the transaction in the response
         result = Json.newObject();
