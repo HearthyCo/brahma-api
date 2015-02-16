@@ -32,24 +32,21 @@ public class TransactionController extends Controller {
      * @apiName GetBalance
      * @apiDescription Return a state of user balance in addition also return a history os transactions
      *
-     * @apiSuccess {object}      balance                 Contains a balance of user
-     * @apiSuccess {int}         balance.amount          Current amount balance of user
-     * @apiSuccess {object[]}    balance.transactions    List of all transactions of user
+     * @apiSuccess {int}         amount                  Current user balance
+     * @apiSuccess {object[]}    transactions            List of all transactions of user
      * @apiSuccessExample {json} Success-Response
      *      HTTP/1.1 200 OK
      *      {
-     *          "balance": {
-     *              "amount": 20000000,
-     *              "transactions": [
-     *                  {
-     *                      "id": 91300,
-     *                      "amount": -1000,
-     *                      "timestamp": 1418626800000,
-     *                      "reason": "Reserva de sesión",
-     *                      "title": "testSession1"
-     *                  }
-     *              ]
-     *          }
+     *          "balance": 20000000,
+     *          "transactions": [
+     *              {
+     *                  "id": 91300,
+     *                  "amount": -1000,
+     *                  "timestamp": 1418626800000,
+     *                  "reason": "Reserva de sesión",
+     *                  "title": "testSession1"
+     *              }
+     *          ]
      *      }
      *
      * @apiError {Object} UserNotLoggedIn User is not logged in.
@@ -77,7 +74,7 @@ public class TransactionController extends Controller {
         int uid = Integer.parseInt(session("id"));
 
         ObjectNode result = Json.newObject();
-        result.put("amount", userService.getById(uid).getBalance());
+        result.put("balance", userService.getById(uid).getBalance());
         result.put("transactions", Json.toJson(transactionService.getUserTransactions(uid)));
 
         return ok(result);

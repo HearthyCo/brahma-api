@@ -153,9 +153,9 @@ public class HomeController extends Controller {
 
         return ok(Json.newObject()
                 .putPOJO("sessions", sessions)
-                .put("balance", Json.newObject()
+                .putPOJO("balance", Json.newObject()
                         .put("balance", user.getBalance())
-                        .put("transactions", Json.toJson(transactionService.getUserTransactions(uid, MAX_RESULTS)))));
+                        .putPOJO("transactions", Json.toJson(transactionService.getUserTransactions(uid, MAX_RESULTS)))));
 
     }
 }

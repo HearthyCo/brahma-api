@@ -46,6 +46,6 @@ public class HomeControllerTest extends TransactionalTest {
         assertEquals(90702, closed.get(0).get("id").asInt());
 
         // Balance
-        assertEquals(20000000, ret.get("balance").get("amount").asInt());
+        assertEquals(20000000, ret.get("balance").get("balance").asInt());
     }
 }

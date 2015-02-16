@@ -141,7 +141,7 @@ public class SessionServiceTest extends TransactionalTest {
         state = EnumSet.of(Session.State.PROGRAMMED);
         sessionsUser = sessionService.getUserSessionsByState(uid, state);
         assertEquals(2, sessionsUser.size());
-        assertEquals(90700, sessionsUser.get(0).getId());
+        assertEquals(91600, sessionsUser.get(0).getId());
 
         state = EnumSet.of(Session.State.UNDERWAY);
         sessionsUser = sessionService.getUserSessionsByState(uid, state);
@@ -150,7 +150,7 @@ public class SessionServiceTest extends TransactionalTest {
         state = EnumSet.of(Session.State.CLOSED, Session.State.FINISHED);
         sessionsUser = sessionService.getUserSessionsByState(uid, state);
         assertEquals(2, sessionsUser.size());
-        assertEquals(90702, sessionsUser.get(0).getId());
+        assertEquals(91604, sessionsUser.get(0).getId());
     }
 
     @Test

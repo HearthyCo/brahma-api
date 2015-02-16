@@ -34,16 +34,15 @@ public class TransactionControllerTest extends TransactionalTest {
 
         ObjectNode ret = TestUtils.toJson(result);
 
-        JsonNode balance = ret.get("balance");
-        assertEquals(balance.get("amount").asInt(), 20000000);
+        assertEquals(ret.get("balance").asInt(), 20000000);
 
-        assertEquals(balance.get("transactions").size(), 4);
+        assertEquals(ret.get("transactions").size(), 4);
 
         int sum = 0;
-        for(JsonNode transaction : balance.get("transactions")) {
+        for(JsonNode transaction : ret.get("transactions")) {
             sum += transaction.get("amount").asInt();
         }
 
-        assertEquals(ret.get("balance").get("amount").asInt(), sum);
+        assertEquals(ret.get("balance").asInt(), sum);
     }
 }

@@ -18,12 +18,22 @@ import java.util.Date;
                         "and sessionUser.user.id = :uid"
         ),
         @NamedQuery(
-                name = "Session.findByState",
+                name = "Session.findByStateSortStart",
                 query = "select sessionUser " +
                         "from SessionUser sessionUser " +
                         "left join fetch sessionUser.session session " +
                         "where session.state in :states " +
-                        "and sessionUser.user.id = :uid"
+                        "and sessionUser.user.id = :uid " +
+                        "order by session.startDate asc"
+        ),
+        @NamedQuery(
+                name = "Session.findByStateSortTS",
+                query = "select sessionUser " +
+                        "from SessionUser sessionUser " +
+                        "left join fetch sessionUser.session session " +
+                        "where session.state in :states " +
+                        "and sessionUser.user.id = :uid " +
+                        "order by session.timestamp desc"
         ),
         @NamedQuery(
                 name = "Session.countByState",
