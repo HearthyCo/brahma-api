@@ -1,16 +1,15 @@
-package gl.glue.brahma.test;
+package gl.glue.brahma.test.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.model.sessionuser.SessionUser;
 import gl.glue.brahma.service.SessionService;
+import utils.TransactionalTest;
 import org.junit.Test;
 import play.db.jpa.JPA;
 import play.libs.Json;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
@@ -119,32 +118,39 @@ public class SessionServiceTest extends TransactionalTest {
     @Test // Request with invalid user Authentication. User "testClientDummy" not exists
     public void requestSessionsWithInvalidAuthentication() {
         int uid = 99999;
-        ObjectNode result = sessionService.getUserSessions(uid);
+        List<Set<Session.State>> states = new ArrayList<>();
 
-        JsonNode programmed = result.get("programmed");
-        JsonNode underway = result.get("underway");
-        JsonNode closed = result.get("closed");
+        states.add(EnumSet.of(Session.State.PROGRAMMED));
+        states.add(EnumSet.of(Session.State.UNDERWAY));
+        states.add(EnumSet.of(Session.State.CLOSED, Session.State.FINISHED));
 
-        assertEquals(0, programmed.size());
-        assertEquals(0, underway.size());
-        assertEquals(0, closed.size());
+        // Iterate State Session List Array
+        for (Set<Session.State> state : states) {
+            List<SessionUser> sessionUser = sessionService.getUserSessionsByState(uid, state);
+            assertEquals(0, sessionUser.size());
+        }
     }
 
     @Test // Request sessions with valid user Authentication
     public void requestSessionsOk() {
         int uid = 90000;
-        ObjectNode result = sessionService.getUserSessions(uid);
 
-        JsonNode programmed = result.get("programmed");
-        assertEquals(2, programmed.size());
-        assertEquals(90700, programmed.get(0).get("id").asInt());
+        List<SessionUser> sessionsUser;
+        Set<Session.State> state;
 
-        JsonNode underway = result.get("underway");
-        assertEquals(0, underway.size());
+        state = EnumSet.of(Session.State.PROGRAMMED);
+        sessionsUser = sessionService.getUserSessionsByState(uid, state);
+        assertEquals(2, sessionsUser.size());
+        assertEquals(91600, sessionsUser.get(0).getId());
 
-        JsonNode closed = result.get("closed");
-        assertEquals(2, closed.size());
-        assertEquals(90702, closed.get(0).get("id").asInt());
+        state = EnumSet.of(Session.State.UNDERWAY);
+        sessionsUser = sessionService.getUserSessionsByState(uid, state);
+        assertEquals(0, sessionsUser.size());
+
+        state = EnumSet.of(Session.State.CLOSED, Session.State.FINISHED);
+        sessionsUser = sessionService.getUserSessionsByState(uid, state);
+        assertEquals(2, sessionsUser.size());
+        assertEquals(91604, sessionsUser.get(0).getId());
     }
 
     @Test

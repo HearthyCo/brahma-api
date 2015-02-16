@@ -1,18 +1,19 @@
-package gl.glue.brahma.test;
+package gl.glue.brahma.test.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import gl.glue.brahma.model.transaction.Transaction;
 import gl.glue.brahma.model.user.User;
 import gl.glue.brahma.service.TransactionService;
 import gl.glue.brahma.service.UserService;
 import org.junit.Test;
 import utils.FakePaypalHelper;
+import utils.TransactionalTest;
+
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class TransactionServiceTest extends TransactionalTest  {
+public class TransactionServiceTest extends TransactionalTest {
 
     private TransactionService transactionService = new TransactionService();
     private UserService userService = new UserService();
@@ -20,18 +21,10 @@ public class TransactionServiceTest extends TransactionalTest  {
     @Test // Request sessions with valid user Authentication
     public void requestBalanceOk() {
         int uid = 90000;
-        ObjectNode result = transactionService.getUserTransactions(uid);
+        List<Transaction> result = transactionService.getUserTransactions(uid);
 
         assertNotNull(result);
-        assertEquals(result.get("amount").asInt(), 20000000);
-        assertEquals(result.get("transactions").size(), 4);
-
-        int sum = 0;
-        for(JsonNode transaction : result.get("transactions")) {
-            sum += transaction.get("amount").asInt();
-        }
-
-        assertEquals(result.get("amount").asInt(), sum);
+        assertEquals(result.size(), 4);
     }
 
     @Test

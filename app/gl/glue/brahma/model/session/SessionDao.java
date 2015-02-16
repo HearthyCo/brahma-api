@@ -47,7 +47,11 @@ public class SessionDao {
      * @return List Object[] (id, title, startDate, isNew) with all sessions grouped by state.
      */
     public List<SessionUser> findByState(Set<Session.State> states, int uid, int limit) {
-        Query queryListSessionsState = JPA.em().createNamedQuery("Session.findByState", SessionUser.class)
+        String query = "Session.findByStateSortTS";
+        if (states.contains(Session.State.PROGRAMMED)) {
+            query = "Session.findByStateSortStart";
+        }
+        Query queryListSessionsState = JPA.em().createNamedQuery(query, SessionUser.class)
                 .setParameter("states", states)
                 .setParameter("uid", uid);
 

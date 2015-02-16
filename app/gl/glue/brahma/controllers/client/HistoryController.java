@@ -1,6 +1,7 @@
-package gl.glue.brahma.controllers;
+package gl.glue.brahma.controllers.client;
 
 import actions.BasicAuth;
+import actions.ClientAuth;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import gl.glue.brahma.service.HistoryService;
@@ -15,7 +16,7 @@ public class HistoryController extends Controller {
     private static HistoryService historyService = new HistoryService();
 
     /**
-     * @api {get} /user/history/:type History
+     * @api {get} /client/history/:type History
      *
      * @apiGroup User
      * @apiName GetHistorySection
@@ -52,7 +53,7 @@ public class HistoryController extends Controller {
      *
      * @apiVersion 0.1.0
      */
-    @BasicAuth
+    @ClientAuth
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
     public static Result getHistorySection(String section) {

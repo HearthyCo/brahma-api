@@ -1,8 +1,9 @@
-package gl.glue.brahma.test;
+package gl.glue.brahma.test.controllers.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.FluentIterable;
+import utils.TransactionalTest;
 import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Http;
@@ -16,55 +17,55 @@ import static play.test.Helpers.*;
 public class SessionControllerTest extends TransactionalTest {
 
     @Test // Request new session without params, must return null
-    public void requestNewSessionWithoutParams() {
+    public void testNewSessionWithoutParams() {
         String login = "testClient1@glue.gl";
-        Result responseLogin = TestUtils.makeLoginRequest(login, login);
+        Result auth = TestUtils.makeClientLoginRequest(login, login);
+        Result result = TestUtils.callController(POST, "/v1/client/session", auth, Json.newObject());
 
-        Result result = TestUtils.getNewSessionRequest(responseLogin, Json.newObject());
         assertEquals(400, result.toScala().header().status());
     }
 
     @Test // Request new session without autentication, must retrun 401
-    public void requestNewSessionWithoutAuthentication() {
-        FakeRequest fr = fakeRequest(POST, "/v1/session");
+    public void testNewSessionUnauthenticated() {
+        FakeRequest fr = fakeRequest(POST, "/v1/client/session");
         Result result = routeAndCall(fr, REQUEST_TIMEOUT);
         assertNotNull(result);
         assertEquals(401, result.toScala().header().status());
     }
 
     @Test // Request new session with an invalid state (DUMMYSTATE), must return 400
-    public void requestNewSessionInvalidState() {
+    public void testNewSessionInvalidState() {
         String login = "testClient1@glue.gl";
-        Result responseLogin = TestUtils.makeLoginRequest(login, login);
+        Result auth = TestUtils.makeClientLoginRequest(login, login);
 
         ObjectNode user = Json.newObject();
         user.put("service", 90302);
         user.put("state", "DUMMYSTATE");
 
-        Result result = TestUtils.getNewSessionRequest(responseLogin, user);
+        Result result = TestUtils.callController(POST, "/v1/client/session", auth, user);
         assertNotNull(result);
         assertEquals(400, result.toScala().header().status());
     }
 
     @Test // Request new session with an invalid date (programmed is before that now date), must return 400
-    public void requestNewSessionInvalidDate() {
+    public void testNewSessionInvalidDate() {
         String login = "testClient1@glue.gl";
-        Result responseLogin = TestUtils.makeLoginRequest(login, login);
+        Result auth = TestUtils.makeClientLoginRequest(login, login);
 
         ObjectNode user = Json.newObject();
         user.put("service", 90302);
         user.put("state", "PROGRAMMED");
         user.put("startDate", 1423653792229L);
 
-        Result result = TestUtils.getNewSessionRequest(responseLogin, user);
+        Result result = TestUtils.callController(POST, "/v1/client/session", auth, user);
         assertNotNull(result);
         assertEquals(400, result.toScala().header().status());
     }
 
     //@Test // Request new valid session // Disabled because of rollback bug at controllers
-    public void requestNewProgrammedSession() {
+    public void testNewProgrammedSession() {
         String login = "testClient1@glue.gl";
-        Result responseLogin = TestUtils.makeLoginRequest(login, login);
+        Result auth = TestUtils.makeClientLoginRequest(login, login);
 
         int service = 90302;
         String state = "REQUESTED";
@@ -72,7 +73,7 @@ public class SessionControllerTest extends TransactionalTest {
         user.put("service", service);
         user.put("state", state);
 
-        Result result = TestUtils.getNewSessionRequest(responseLogin, user);
+        Result result = TestUtils.callController(POST, "/v1/client/session", auth, user);
         assertNotNull(result);
 
         ObjectNode ret = TestUtils.toJson(result);
@@ -84,53 +85,53 @@ public class SessionControllerTest extends TransactionalTest {
     }
 
     @Test // Request without id param
-    public void requestSessionWithoutParams() {
+    public void testGetSessionWithoutParams() {
         String login = "testClient1@glue.gl";
-        Result responseLogin = TestUtils.makeLoginRequest(login, login);
+        Result auth = TestUtils.makeClientLoginRequest(login, login);
 
-        Http.Cookie[] cookies = FluentIterable.from(cookies(responseLogin)).toArray(Http.Cookie.class);
+        Http.Cookie[] cookies = FluentIterable.from(cookies(auth)).toArray(Http.Cookie.class);
 
-        FakeRequest fr = fakeRequest(GET, "/v1/session/").withCookies(cookies);
+        FakeRequest fr = fakeRequest(GET, "/v1/client/session/").withCookies(cookies);
         Result result = routeAndCall(fr, REQUEST_TIMEOUT);
         assertNull(result);
     }
 
     @Test // Request without user authentication
-    public void requestSessionWithoutAuthentication() {
+    public void testGetSessionUnauthenticated() {
         int id = 90700;
-        FakeRequest fr = fakeRequest(GET, "/v1/session/" + id);
+        FakeRequest fr = fakeRequest(GET, "/v1/client/session/" + id);
         Result result = routeAndCall(fr, REQUEST_TIMEOUT);
         assertNotNull(result);
         assertEquals(401, result.toScala().header().status());
     }
 
     @Test // Request with invalid user Authentication. User "testClient2" is not an user for session 90700
-    public void requestSessionWithInvalidAuthentication() {
+    public void testGetSessionUnauthorized() {
         String login = "testClient2@glue.gl";
-        Result responseLogin = TestUtils.makeLoginRequest(login, login);
+        Result auth = TestUtils.makeClientLoginRequest(login, login);
 
-        Result result = TestUtils.getSessionRequest(90700, responseLogin);
+        Result result = TestUtils.callController(GET, "/v1/client/session/90700", auth);
         assertNotNull(result);
         assertEquals(404, result.toScala().header().status());
     }
 
     @Test // Request with an non-existent session id
-    public void requestSessionInvalidId() {
+    public void testGetSessionInvalidId() {
         String login = "testClient1@glue.gl";
-        Result responseLogin = TestUtils.makeLoginRequest(login, login);
+        Result auth = TestUtils.makeClientLoginRequest(login, login);
 
-        Result result = TestUtils.getSessionRequest(0, responseLogin);
+        Result result = TestUtils.callController(GET, "/v1/client/session/0", auth);
         assertNotNull(result);
         assertEquals(404, result.toScala().header().status());
     }
 
     @Test // Valid request
-    public void requestSessionOk() {
+    public void testGetSessionOk() {
         String login = "testClient1@glue.gl";
-        Result responseLogin = TestUtils.makeLoginRequest(login, login);
+        Result auth = TestUtils.makeClientLoginRequest(login, login);
 
         int id = 90700;
-        Result result = TestUtils.getSessionRequest(id, responseLogin);
+        Result result = TestUtils.callController(GET, "/v1/client/session/" + id, auth);
         ObjectNode ret = TestUtils.toJson(result);
 
         assertNotNull(result);
@@ -139,23 +140,23 @@ public class SessionControllerTest extends TransactionalTest {
     }
 
     @Test // Request with an invalid session state
-    public void requestInvalidSessionState() {
+    public void testGetSessionsByStateInvalidState() {
         String login = "testClient1@glue.gl";
-        Result responseLogin = TestUtils.makeLoginRequest(login, login);
+        Result auth = TestUtils.makeClientLoginRequest(login, login);
 
         String state = "dummystate";
-        Result result = TestUtils.getSessionStateRequest(state, responseLogin);
+        Result result = TestUtils.callController(GET, "/v1/client/me/sessions/" + state, auth);
 
         assertNull(result);
     }
 
     @Test // Request session with an valid programmed state
-    public void requestProgrammedSession() {
+    public void testGetSessionsByStateProgrammed() {
         String login = "testClient1@glue.gl";
-        Result responseLogin = TestUtils.makeLoginRequest(login, login);
+        Result auth = TestUtils.makeClientLoginRequest(login, login);
 
         String state = "programmed";
-        Result result = TestUtils.getSessionStateRequest(state, responseLogin);
+        Result result = TestUtils.callController(GET, "/v1/client/me/sessions/" + state, auth);
         ObjectNode ret = TestUtils.toJson(result);
 
         assertNotNull(result);
@@ -169,12 +170,12 @@ public class SessionControllerTest extends TransactionalTest {
     }
 
     @Test // Request session with an valid underway state (Count 0)
-    public void requestUnderwaySession() {
+    public void testGetSessionsByStateUnderway() {
         String login = "testClient1@glue.gl";
-        Result responseLogin = TestUtils.makeLoginRequest(login, login);
+        Result auth = TestUtils.makeClientLoginRequest(login, login);
 
         String state = "underway";
-        Result result = TestUtils.getSessionStateRequest(state, responseLogin);
+        Result result = TestUtils.callController(GET, "/v1/client/me/sessions/" + state, auth);
         ObjectNode ret = TestUtils.toJson(result);
 
         assertNotNull(result);
@@ -183,12 +184,12 @@ public class SessionControllerTest extends TransactionalTest {
     }
 
     @Test // Request session with closed (closed and finished) state
-    public void requestClosedSession() {
+    public void testGetSessionsByStateClosed() {
         String login = "testClient1@glue.gl";
-        Result responseLogin = TestUtils.makeLoginRequest(login, login);
+        Result auth = TestUtils.makeClientLoginRequest(login, login);
 
         String state = "closed";
-        Result result = TestUtils.getSessionStateRequest(state, responseLogin);
+        Result result = TestUtils.callController(GET, "/v1/client/me/sessions/" + state, auth);
         ObjectNode ret = TestUtils.toJson(result);
 
         assertNotNull(result);
@@ -201,16 +202,4 @@ public class SessionControllerTest extends TransactionalTest {
         }
     }
 
-    @Test // Valid request
-    public void getPoolsSize() {
-        String login = "testClient1@glue.gl";
-        Result responseLogin = TestUtils.makeLoginRequest(login, login);
-
-        Result result = TestUtils.getPoolsSizeRequest(responseLogin);
-        ObjectNode ret = TestUtils.toJson(result);
-
-        assertNotNull(result);
-        assertEquals(200, result.toScala().header().status());
-        assertEquals(1, ret.get("pools").get("90302").asInt());
-    }
 }

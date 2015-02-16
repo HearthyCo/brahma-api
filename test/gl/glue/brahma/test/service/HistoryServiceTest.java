@@ -1,12 +1,12 @@
-package gl.glue.brahma.test;
+package gl.glue.brahma.test.service;
 
 import gl.glue.brahma.model.historyarchive.HistoryArchive;
 import gl.glue.brahma.model.historyentry.HistoryEntry;
 import gl.glue.brahma.model.historyentrytype.HistoryEntryType;
-import gl.glue.brahma.model.user.Client;
 import gl.glue.brahma.model.user.User;
 import gl.glue.brahma.service.HistoryService;
 import gl.glue.brahma.service.UserService;
+import utils.TransactionalTest;
 import org.junit.Test;
 import play.libs.Json;
 
