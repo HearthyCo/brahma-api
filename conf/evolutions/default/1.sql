@@ -214,7 +214,7 @@ CREATE TABLE IF NOT EXISTS transaction (
   session_id INT                  NULL,
   amount     INT                  NOT NULL,
   state      transaction_state    NOT NULL,
-  sku        TEXT                 NOT NULL,
+  sku        TEXT                 NULL,
   timestamp  TIMESTAMP            NOT NULL,
   reason     TEXT                 NULL,
   meta       JSON                 NULL,
