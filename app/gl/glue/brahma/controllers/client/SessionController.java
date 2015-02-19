@@ -117,7 +117,7 @@ public class SessionController extends Controller {
 
 
     /**
-     * @api {get} /user/sessions/:state Sessions by state
+     * @api {get} /client/sessions/:state Sessions by state
      * @apiGroup Session
      * @apiName GetUserSessionsByState
      * @apiDescription Return all the Sessions in which the current user participates, that are on the given state.
@@ -202,19 +202,97 @@ public class SessionController extends Controller {
     }
 
     /**
-     * @api {post} /user/session New sessions
+     * @api {post} /client/session CreateSession
      *
      * @apiGroup Session
-     * @apiName NewSession
+     * @apiName CreateSession
      * @apiDescription Request new session
      *
-     * @apiParam {String}   state       The session state. One of: `programmed`, `underway` or `requested`.
+     * @apiParam {Integer}  serviceType Service type id.
+     * @apiParamExample {json} Request-Example
+     *      {
+     *          "service": 1
+     *      }
+     *
+     * @apiSuccess {Object[]} session Info about the session created.
+     * @apiSuccessExample {json} Success-Response:
+     *      HTTP/1.1 200 OK
+     *      {
+     *         "session": {
+     *             "id": 90700,
+     *             "title": "Consulta 11-02-2015",
+     *             "startDate": 1425312000000,
+     *             "endDate": null,
+     *             "state": "PROGRAMMED",
+     *             "meta": {},
+     *             "timestamp": 1418626800000,
+     *             "isNew": true
+     *         }
+     *     }
+     *
+     * @apiError StateNotFound The <code>state</code> contains a unknown value.
+     * @apiErrorExample {json} StateNotFound
+     *      HTTP/1.1 404 Not Found
+     *      {
+     *          "status": "404",
+     *          "title": "Invalid identifier"
+     *      }
+     *
+     * @apiError UserNotLoggedIn User is not logged in.
+     * @apiErrorExample {json} UserNotLoggedIn
+     *      HTTP/1.1 401 Unauthorized
+     *      {
+     *          "status": "401",
+     *          "title": "You are not logged in"
+     *      }
+     *
+     * @apiError MissingRequiredField Missing required field
+     * @apiErrorExample {json} MissingRequiredField
+     *      HTTP/1.1 400 BadRequest
+     *      {
+     *          "status": "400",
+     *          "title": "Missing required field"
+     *      }
+     *
+     * @apiVersion 0.1.0
+     */
+    @ClientAuth
+    @Transactional
+    @BodyParser.Of(BodyParser.Json.class)
+    public static Result createSession() {
+        int uid = Integer.parseInt(session("id"));
+        JsonNode json = request().body().asJson();
+
+        ObjectNode result = JsonUtils.checkRequiredFields(json, ModelSecurity.CREATE_SESSION_REQUIRED_FIELDS);
+        if (result != null) return badRequest(result);
+
+        int serviceType = json.findPath("service").asInt();
+
+        Session.State state = Session.State.REQUESTED;
+        Session session = sessionService.requestSession(uid, serviceType, state);
+
+        if (session == null) return status(404, JsonUtils.simpleError("404", "Invalid user identifier"));
+
+        ObjectNode sessionRet = (ObjectNode) Json.toJson(session);
+        sessionRet.put("isNew", true);
+
+        result = Json.newObject();
+        result.put("session", sessionRet);
+        return ok(result);
+    }
+
+    /**
+     * @api {post} /client/session BookSession
+     *
+     * @apiGroup Session
+     * @apiName Create booked Session
+     * @apiDescription Request new booked session
+     *
      * @apiParam {Integer}  serviceType Service type id.
      * @apiParam {Long}     date        Timestamp date.
      * @apiParamExample {json} Request-Example
      *      {
      *          "service": 1,
-     *          "state": "PROGRAMMED",
      *          "startDate": 1423699595548
      *      }
      *
@@ -255,7 +333,7 @@ public class SessionController extends Controller {
      *      HTTP/1.1 400 BadRequest
      *      {
      *          "status": "400",
-     *          "title": "You are not logged in"
+     *          "title": "Missing required field"
      *      }
      *
      * @apiVersion 0.1.0
@@ -263,32 +341,20 @@ public class SessionController extends Controller {
     @ClientAuth
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
-    public static Result requestSession() {
+    public static Result bookSession() {
         int uid = Integer.parseInt(session("id"));
         JsonNode json = request().body().asJson();
 
-        ObjectNode result = JsonUtils.checkRequiredFields(json, ModelSecurity.SESSION_REQUIRED_FIELDS);
+        ObjectNode result = JsonUtils.checkRequiredFields(json, ModelSecurity.BOOK_SESSION_REQUIRED_FIELDS);
         if (result != null) return badRequest(result);
 
         int serviceType = json.findPath("service").asInt();
         Date startDate = new Date(json.findPath("startDate").asLong());
+        Date now = new Date();
+        if (startDate == null || now.after(startDate)) return status(400, JsonUtils.invalidRequiredField("Date"));
 
-        Session.State state;
-        try {
-            state = Session.State.valueOf(json.findPath("state").asText());
-        } catch (IllegalArgumentException e) {
-            return status(400, JsonUtils.invalidRequiredField("Session state"));
-        }
-
-        Session session;
-        if (state == Session.State.PROGRAMMED) {
-            Date now = new Date();
-            if (startDate == null || now.after(startDate)) return status(400, JsonUtils.invalidRequiredField("Date"));
-
-            session = sessionService.requestSession(uid, serviceType, state, startDate);
-        } else {
-            session = sessionService.requestSession(uid, serviceType, state);
-        }
+        Session.State state = Session.State.PROGRAMMED;
+        Session session = sessionService.requestSession(uid, serviceType, state, startDate);
 
         if (session == null) return status(404, JsonUtils.simpleError("404", "Invalid user identifier"));
 
@@ -302,7 +368,7 @@ public class SessionController extends Controller {
 
 
     /**
-     * @api {post} /user/session/assignPool Assign session from pool
+     * @api {post} /client/session/assignPool Assign session from pool
      *
      * @apiGroup Session
      * @apiName AssignSessionFromPool

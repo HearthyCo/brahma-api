@@ -14,7 +14,7 @@ public class FakePaypalHelper extends PaypalHelper {
     protected void checkToken() {}
 
     @Override
-    public PaypalPayment createPaypalTransaction(int amount, String baseUrl) {
+    public PaypalPayment createPaypalTransaction(int amount, ObjectNode rUrls) {
         ObjectNode meta = Json.newObject();
         ObjectNode link = Json.newObject();
         link.put("href", "http://example.com/pay");

@@ -25,7 +25,8 @@ GET            /v1/client/me/balance                                            
 GET            /v1/client/me/history/:section                                       gl.glue.brahma.controllers.client.HistoryController.getHistorySection(section: String)
 
 # Sessions
-POST           /v1/client/session                                                   gl.glue.brahma.controllers.client.SessionController.requestSession()
+POST           /v1/client/session/create                                            gl.glue.brahma.controllers.client.SessionController.createSession()
+POST           /v1/client/session/book                                              gl.glue.brahma.controllers.client.SessionController.bookSession()
 GET            /v1/client/session/:session                                          gl.glue.brahma.controllers.client.SessionController.getSession(session: Integer)
 
 # Services

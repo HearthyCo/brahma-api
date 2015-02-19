@@ -124,7 +124,7 @@ public class HomeController extends Controller {
         String[] listStates = { "programmed", "underway", "closed" };
 
         states.add(EnumSet.of(Session.State.PROGRAMMED));
-        states.add(EnumSet.of(Session.State.UNDERWAY));
+        states.add(EnumSet.of(Session.State.REQUESTED, Session.State.UNDERWAY));
         states.add(EnumSet.of(Session.State.CLOSED, Session.State.FINISHED));
 
         ObjectNode sessions = Json.newObject();

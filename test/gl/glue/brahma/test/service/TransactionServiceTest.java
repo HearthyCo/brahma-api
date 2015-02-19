@@ -1,10 +1,12 @@
 package gl.glue.brahma.test.service;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import gl.glue.brahma.model.transaction.Transaction;
 import gl.glue.brahma.model.user.User;
 import gl.glue.brahma.service.TransactionService;
 import gl.glue.brahma.service.UserService;
 import org.junit.Test;
+import play.libs.Json;
 import utils.FakePaypalHelper;
 import utils.TransactionalTest;
 
@@ -31,14 +33,17 @@ public class TransactionServiceTest extends TransactionalTest {
     public void completePaypalTransaction() {
         int uid = 90000;
         int amount = 5000;
-        String baseUrl = "http://localhost:9000";
+        ObjectNode rUrls = Json.newObject();
+        rUrls.put("success", "http://localhost:9000/success");
+        rUrls.put("cancel", "http://localhost:9000/cancel");
+
         String approvalUrl = "http://example.com/pay";
 
         User user = userService.getById(uid);
         int beforeBalance = user.getBalance();
 
         transactionService.setPaypalHelper(new FakePaypalHelper());
-        Transaction transaction = transactionService.createPaypalTransaction(uid, amount, baseUrl);
+        Transaction transaction = transactionService.createPaypalTransaction(uid, amount, rUrls);
 
         assertEquals(uid, transaction.getUser().getId());
         assertEquals(amount, transaction.getAmount());

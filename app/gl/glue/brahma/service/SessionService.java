@@ -13,6 +13,8 @@ import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.model.session.SessionDao;
 import gl.glue.brahma.model.sessionuser.SessionUser;
 import gl.glue.brahma.model.sessionuser.SessionUserDao;
+import gl.glue.brahma.model.transaction.Transaction;
+import gl.glue.brahma.model.transaction.TransactionDao;
 import gl.glue.brahma.model.user.Client;
 import gl.glue.brahma.model.user.Professional;
 import gl.glue.brahma.model.user.User;
@@ -34,6 +36,7 @@ public class SessionService {
     private SessionUserDao sessionUserDao = new SessionUserDao();
     private ServiceDao serviceDao = new ServiceDao();
     private ServiceTypeDao serviceTypeDao = new ServiceTypeDao();
+    private TransactionDao transactionDao = new TransactionDao();
 
     /**
      * Create Session JSON object from object array from Session DAO
@@ -127,7 +130,7 @@ public class SessionService {
 
         switch (state) {
             case "programmed": states = EnumSet.of(Session.State.PROGRAMMED); break;
-            case "underway": states = EnumSet.of(Session.State.UNDERWAY); break;
+            case "underway": states = EnumSet.of(Session.State.REQUESTED, Session.State.UNDERWAY); break;
             case "closed": states = EnumSet.of(Session.State.CLOSED, Session.State.FINISHED); break;
             default: return null;
         }
@@ -178,11 +181,17 @@ public class SessionService {
         User user = userDao.findById(uid);
         if(user == null) return null;
 
+        // Update user balance
+        int price = service.getPrice() * -1;
+        user.setBalance(user.getBalance() + price);
 
+        // Add transaction
+        String reason = "Payment session " + title;
+        Transaction transaction = new Transaction(user, price, Transaction.State.APPROVED, null, reason);
+        transactionDao.create(transaction);
 
         Session session = new Session(service, title, startDate, state);
         sessionDao.create(session);
-
 
         SessionUser sessionUser = new SessionUser(user, session);
         sessionUserDao.create(sessionUser);

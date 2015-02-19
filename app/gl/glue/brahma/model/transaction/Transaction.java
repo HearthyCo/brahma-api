@@ -1,11 +1,7 @@
 package gl.glue.brahma.model.transaction;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.model.user.User;
@@ -14,7 +10,6 @@ import play.libs.Json;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.io.IOException;
 import java.util.Date;
 
 @NamedQueries({
@@ -46,8 +41,6 @@ import java.util.Date;
 @Entity
 public class Transaction {
 
-
-
     public enum State { INPROGRESS, APPROVED, FAILED;}
     @Id
     @SequenceGenerator(name = "transaction_id_seq", sequenceName = "transaction_id_seq", allocationSize = 1)
@@ -72,7 +65,6 @@ public class Transaction {
     @NotNull
     private State state;
 
-    @NotNull
     private String sku;
 
     @NotNull
