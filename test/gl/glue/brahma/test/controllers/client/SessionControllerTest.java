@@ -20,44 +20,29 @@ public class SessionControllerTest extends TransactionalTest {
     public void testNewSessionWithoutParams() {
         String login = "testClient1@glue.gl";
         Result auth = TestUtils.makeClientLoginRequest(login, login);
-        Result result = TestUtils.callController(POST, "/v1/client/session", auth, Json.newObject());
+        Result result = TestUtils.callController(POST, "/v1/client/session/create", auth, Json.newObject());
 
         assertEquals(400, result.toScala().header().status());
     }
 
     @Test // Request new session without autentication, must retrun 401
     public void testNewSessionUnauthenticated() {
-        FakeRequest fr = fakeRequest(POST, "/v1/client/session");
+        FakeRequest fr = fakeRequest(POST, "/v1/client/session/create");
         Result result = routeAndCall(fr, REQUEST_TIMEOUT);
         assertNotNull(result);
         assertEquals(401, result.toScala().header().status());
     }
 
-    @Test // Request new session with an invalid state (DUMMYSTATE), must return 400
-    public void testNewSessionInvalidState() {
-        String login = "testClient1@glue.gl";
-        Result auth = TestUtils.makeClientLoginRequest(login, login);
-
-        ObjectNode user = Json.newObject();
-        user.put("service", 90302);
-        user.put("state", "DUMMYSTATE");
-
-        Result result = TestUtils.callController(POST, "/v1/client/session", auth, user);
-        assertNotNull(result);
-        assertEquals(400, result.toScala().header().status());
-    }
-
     @Test // Request new session with an invalid date (programmed is before that now date), must return 400
-    public void testNewSessionInvalidDate() {
+    public void testNewBookSessionInvalidDate() {
         String login = "testClient1@glue.gl";
         Result auth = TestUtils.makeClientLoginRequest(login, login);
 
         ObjectNode user = Json.newObject();
         user.put("service", 90302);
-        user.put("state", "PROGRAMMED");
         user.put("startDate", 1423653792229L);
 
-        Result result = TestUtils.callController(POST, "/v1/client/session", auth, user);
+        Result result = TestUtils.callController(POST, "/v1/client/session/book", auth, user);
         assertNotNull(result);
         assertEquals(400, result.toScala().header().status());
     }
@@ -180,7 +165,7 @@ public class SessionControllerTest extends TransactionalTest {
 
         assertNotNull(result);
         assertEquals(200, result.toScala().header().status());
-        assertEquals(0, ret.get("sessions").size());
+        assertEquals(1, ret.get("sessions").size());
     }
 
     @Test // Request session with closed (closed and finished) state

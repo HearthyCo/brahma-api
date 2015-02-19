@@ -99,7 +99,7 @@ public class SessionServiceTest extends TransactionalTest {
         int uid = 90000;
         List<SessionUser> result = sessionService.getState(state, uid);
         assertNotNull(result);
-        assertEquals(0, result.size());
+        assertEquals(1, result.size());
     }
 
     @Test // Request session with closed (closed and finished) state
