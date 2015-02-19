@@ -141,23 +141,29 @@ public class TransactionController extends Controller {
 
         int amount = json.findPath("amount").asInt();
 
+        String baseUrl = conf.getString("cors.origin");
+        if (request().hasHeader("Referer")) {
+            try {
+                URL url = new URL(request().getHeader("Referer"));
+                baseUrl = url.getProtocol() + "://" + url.getAuthority();
+            } catch (MalformedURLException e) {
+            }
+        }
+
         ObjectNode redirectUrls;
         if(json.has("redirectUrls")) {
             redirectUrls = (ObjectNode) json.findPath("redirectUrls");
+            redirectUrls.put("success", baseUrl + redirectUrls.get("success").asText());
+            redirectUrls.put("cancel", baseUrl + redirectUrls.get("cancel").asText());
         }
         else {
-            String baseUrl = conf.getString("cors.origin") + "/#transaction/url";
+            String baseAction = "/#transaction/url";
             redirectUrls = Json.newObject();
-            if (request().hasHeader("Referer")) {
-                try {
-                    URL url = new URL(request().getHeader("Referer"));
-                    baseUrl = url.getProtocol() + "://" + url.getAuthority() + "/#transaction/url";
-                } catch (MalformedURLException e) {
-                }
-            }
-            redirectUrls.put("success", baseUrl + "/success");
-            redirectUrls.put("cancel", baseUrl + "/cancel");
+            redirectUrls.put("success", baseUrl + baseAction + "/success");
+            redirectUrls.put("cancel", baseUrl + baseAction + "/cancel");
         }
+
+        Logger.info("REDIRECT URLS " + redirectUrls + " - ");
 
         Transaction transaction;
         transaction = transactionService.createPaypalTransaction(uid, amount, redirectUrls);
