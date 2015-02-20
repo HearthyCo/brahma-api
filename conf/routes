@@ -51,8 +51,8 @@ GET            /v1/professional/me                                              
 # GET            /v1/professional/me/home                                             gl.glue.brahma.controllers.professional.HomeController.getHome()
 
 #Sessions
-#GET            /v1/professional/session/pools                                       gl.glue.brahma.controllers.professional.SessionController.getPoolsSize()
-#POST           /v1/professional/session/assignPool                                  gl.glue.brahma.controllers.professional.SessionController.assignSessionFromPool()
+GET            /v1/professional/session/pools                                       gl.glue.brahma.controllers.professional.SessionController.getPoolsSize()
+POST           /v1/professional/session/assignPool                                  gl.glue.brahma.controllers.professional.SessionController.assignSessionFromPool()
 #GET            /v1/professional/session/:session                                    gl.glue.brahma.controllers.professional.SessionController.getSession(session: Integer)
 
 # Services
