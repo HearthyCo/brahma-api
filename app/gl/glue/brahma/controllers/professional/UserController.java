@@ -1,12 +1,10 @@
 package gl.glue.brahma.controllers.professional;
 
-import actions.BasicAuth;
 import actions.ProfessionalAuth;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import gl.glue.brahma.model.user.Client;
 import gl.glue.brahma.model.user.Professional;
 import gl.glue.brahma.model.user.User;
 import gl.glue.brahma.service.UserService;
@@ -18,16 +16,14 @@ import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
 
-import javax.persistence.PersistenceException;
-
 public class UserController extends Controller {
 
     private static UserService userService = new UserService();
 
     /**
-     * @api {post} /user/login Login
+     * @api {post} /professional/login Login
      *
-     * @apiGroup User
+     * @apiGroup Professional
      * @apiName Login
      * @apiDescription Allow user (registered before) can be identified to access his private information.
      *
@@ -35,8 +31,8 @@ public class UserController extends Controller {
      * @apiParam {String} password  Password
      * @apiParamExample {json} Request-Example
      *      {
-     *          "login": "client1",
-     *          "password": "client1PasswordDummy"
+     *          "login": "professional1",
+     *          "password": "professional1PasswordDummy"
      *      }
      *
      * @apiSuccess {object} user    Contains all user fields after login
@@ -45,8 +41,8 @@ public class UserController extends Controller {
      *      {
      *          "user": {
      *              "id": 1,
-     *              "login": "client1",
-     *              "name": "Client1",
+     *              "login": "professional1",
+     *              "name": "Professional1",
      *              "surname1": "For",
      *              "surname2": "Service",
      *              "birthdate": "1987-08-06",
@@ -101,32 +97,13 @@ public class UserController extends Controller {
         return ok(result);
     }
 
-    /**
-     * @api {post} /user/logout Logout
-     *
-     * @apiGroup User
-     * @apiName Logout
-     * @apiDescription Destroy user session.
-     *
-     * @apiSuccessExample {json} Success-Response
-     *      HTTP/1.1 200 OK
-     *      {
-     *      }
-     *
-     * @apiVersion 0.1.0
-     */
-    @Transactional
-    public static Result logout() {
-        session().clear();
-        return ok(Json.newObject());
-    }
 
     /**
-     * @api {post} /user/register Register
+     * @api {post} /professional/me/update Update
      *
-     * @apiGroup User
-     * @apiName Register
-     * @apiDescription Allow new user can to register in service.
+     * @apiGroup Professional
+     * @apiName Updtae
+     * @apiDescription Allow professional user can to update fields profile.
      *
      * @apiParam {String}               email       Unique identifier for user in service.
      * @apiParam {String}               password    Password
@@ -137,13 +114,12 @@ public class UserController extends Controller {
      * @apiParam {String}               surname2    Optional. Real user second surname.
      * @apiParam {String}               avatar      Optional. Url for user avatar.
      * @apiParam {String}               nationalId  Optional. Number iof id card.
-     * @apiParam {Object}               meta        Optional. Other data still to be determined.
      * @apiParamExample {json} Request-Example
      *      {
-     *          "email": "client1@example.com",
-     *          "password": "client1PasswordDummy",
+     *          "email": "professional1@example.com",
+     *          "password": "professional1PasswordDummy",
      *          "gender": "MALE",
-     *          "name": "Client1",
+     *          "name": "Professional1",
      *          "birthdate": "1987-08-06",
      *          "surname1": "For",
      *          "surname2": "Service",
@@ -158,8 +134,8 @@ public class UserController extends Controller {
      *      {
      *          "user": {
      *              "id": 1,
-     *              "email": "client1@example.com",
-     *              "name": "Client1",
+     *              "email": "professional1@example.com",
+     *              "name": "Professional1",
      *              "surname1": "For",
      *              "surname2": "Service",
      *              "birthdate": "1987-08-06",
@@ -171,7 +147,6 @@ public class UserController extends Controller {
      *      }
      *
      * @apiError {Object} MissingRequiredField Params has not a required field.
-     * @apiError {Object} UserNameInUse Username (login field) is already in use.
      * @apiErrorExample {json} MissingRequiredField
      *      HTTP/1.1 400 BadRequest
      *      {
@@ -179,54 +154,45 @@ public class UserController extends Controller {
      *          "title": "Missing required field `field`"
      *      }
      *
-     * @apiErrorExample {json} UserNameInUse
-     *      HTTP/1.1 409 Conflict
+     * @apiError {Object} UserNotLoggedIn User is not logged in.
+     * @apiErrorExample {json} UserNotLoggedIn
+     *      HTTP/1.1 401 Unauthorized
      *      {
-     *          "status": "409",
-     *          "title": "Username already in use."
+     *          "status": "401",
+     *          "title": "You are not logged in"
      *      }
      *
      * @apiVersion 0.1.0
      */
+    @ProfessionalAuth
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
-    public static Result register() {
+    public static Result update() {
 
         JsonNode json = request().body().asJson();
-        ObjectNode result = JsonUtils.checkRequiredFields(json, ModelSecurity.USER_REQUIRED_FIELDS);
-        if (result != null) return badRequest(result);
+        json = JsonUtils.cleanFields((ObjectNode)json, ModelSecurity.USER_PROFILE_MODIFICABLE_FIELDS);
 
         // Parse the incoming data
-        Client client;
+        Professional professional;
         try {
-            json = JsonUtils.cleanFields((ObjectNode)json, ModelSecurity.USER_MODIFICABLE_FIELDS);
-            client = Json.fromJson(json, Client.class);
+            professional = Json.fromJson(json, Professional.class);
         } catch (RuntimeException e) {
             return status(400, JsonUtils.handleDeserializeException(e, "user"));
         }
 
-        // Register the user
-        User user;
-        try {
-            user = userService.register(client);
-        } catch (PersistenceException e) {
-            return status(409, JsonUtils.simpleError("409", "Email already in use."));
-        }
+        User user = userService.getById(Integer.parseInt(session("id")));
+        user.merge(professional);
 
-        // Also log him in
-        session().clear();
-        session("id", Integer.toString(user.getId()));
-
-        result = Json.newObject();
+        ObjectNode result = Json.newObject();
         result.put("user", Json.toJson(user));
 
         return ok(result);
     }
 
     /**
-     * @api {get} /user Get Me
+     * @api {get} /professional/me Get Me
      *
-     * @apiGroup User
+     * @apiGroup Professional
      * @apiName Get Me
      * @apiDescription Get the current logged in user.
      *
@@ -236,8 +202,8 @@ public class UserController extends Controller {
      *      {
      *          "user": {
      *              "id": 1,
-     *              "email": "client1@example.com",
-     *              "name": "Client1",
+     *              "email": "professional1@example.com",
+     *              "name": "Professional1",
      *              "surname1": "For",
      *              "surname2": "Service",
      *              "birthdate": "1987-08-06",
@@ -249,6 +215,14 @@ public class UserController extends Controller {
      *      }
      *
      * @apiVersion 0.1.0
+     *
+     * @apiError {Object} UserNotLoggedIn User is not logged in.
+     * @apiErrorExample {json} UserNotLoggedIn
+     *      HTTP/1.1 401 Unauthorized
+     *      {
+     *          "status": "401",
+     *          "title": "You are not logged in"
+     *      }
      */
     @ProfessionalAuth
     @Transactional
