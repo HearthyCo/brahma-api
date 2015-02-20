@@ -101,7 +101,7 @@ public class SessionService {
         sessionNode.put("users", users);
 
         ObjectNode result = Json.newObject();
-        result.put("session", sessionNode);
+        result.put("sessions", new ArrayNode(JsonNodeFactory.instance).add(sessionNode));
 
         return result;
     }

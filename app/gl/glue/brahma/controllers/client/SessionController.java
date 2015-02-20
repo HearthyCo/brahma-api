@@ -19,6 +19,7 @@ import play.mvc.Result;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class SessionController extends Controller {
 
@@ -195,9 +196,11 @@ public class SessionController extends Controller {
 
             sessions.add(sessionObject);
         }
+        List<Integer> sessionIds = sessionUsers.stream().map(o->o.getSession().getId()).collect(Collectors.toList());
 
         ObjectNode result = Json.newObject();
         result.put("sessions", sessions);
+        result.put("userSessions", Json.toJson(sessionIds));
         return ok(result);
     }
 
