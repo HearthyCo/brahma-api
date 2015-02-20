@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.model.sessionuser.SessionUser;
+import gl.glue.brahma.model.transaction.Transaction;
 import gl.glue.brahma.model.user.User;
 import gl.glue.brahma.service.SessionService;
 import gl.glue.brahma.service.TransactionService;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class HomeController extends Controller {
 
@@ -45,52 +47,88 @@ public class HomeController extends Controller {
      * @apiSuccessExample {json} Success-Response
      *      HTTP/1.1 200 OK
      *      {
-     *          "sessions": {
-     *              "programmed": [
-     *                  {
-     *                      "id": 90700,
-     *                      "title": "testSession1",
-     *                      "startDate": 1425312000000,
-     *                      "endDate": 1425312900000,
-     *                      "state": "PROGRAMMED",
-     *                      "meta": {},
-     *                      "timestamp": 1418626800000,
-     *                      "isNew": true
-     *                    }
-     *              ],
-     *              "underway": [],
-     *              "closed": [
-     *                  {
-     *                      "id": 90702,
-     *                      "title": "testSession3",
-     *                      "startDate": 1425384000000,
-     *                      "endDate": 1425208500000,
-     *                      "state": "CLOSED",
-     *                      "meta": {},
-     *                      "timestamp": 1418666400000,
-     *                      "isNew": true
-     *                  }
-     *              ]
+     *          "home": {
+     *              "sessions": {
+     *                  "programmed": [90700, 90704],
+     *                  "underway": [90712],
+     *                  "closed": [90702, 90703]
+     *              },
+     *              "transactions": [91303, 91302]
      *          },
-     *          "balance": {
-     *              amount: 1000,
-     *              transactions: [
-     *                  {
-     *                      "id": 10001,
-     *                      "amount": -1000,
-     *                      "timestamp": 1418626800000,
-     *                      "reason": "Reserva de sesión",
-     *                      "title": "testSession1"
-     *                  },
-     *                  {
-     *                      "id": 10005,
-     *                      "amount": 2000,
-     *                      "timestamp": 1418619600000,
-     *                      "reason": "Incremento de saldo",
-     *                      "title": "testSession1"
-     *                  }
-     *              ]
-     *          }
+     *          "sessions": [
+     *              {
+     *                  "id": 90700,
+     *                  "title": "testSession1",
+     *                  "startDate": 1425312000000,
+     *                  "endDate": 1425312900000,
+     *                  "state": "PROGRAMMED",
+     *                  "meta": {},
+     *                  "timestamp": 1418626800000,
+     *                  "isNew": true
+     *              },
+     *              {
+     *                  "id": 90704,
+     *                  "title": "testSession5",
+     *                  "startDate": 1425571200000,
+     *                  "endDate": 1426176900000,
+     *                  "state": "PROGRAMMED",
+     *                  "meta": {},
+     *                  "timestamp": 1418626800000,
+     *                  "isNew": true
+     *              },
+     *              {
+     *                  "id": 90712,
+     *                  "title": "testPool1",
+     *                  "startDate": 1423670400000,
+     *                  "endDate": 1423671300000,
+     *                  "state": "REQUESTED",
+     *                  "meta": {},
+     *                  "timestamp": 1418626800000,
+     *                  "isNew": true
+     *              },
+     *              {
+     *                  "id": 90702,
+     *                  "title": "testSession3",
+     *                  "startDate": 1425384000000,
+     *                  "endDate": 1425208500000,
+     *                  "state": "CLOSED",
+     *                  "meta": {},
+     *                  "timestamp": 1418666400000,
+     *                  "isNew": true
+     *              },
+     *              {
+     *                  "id": 90703,
+     *                  "title": "testSession4",
+     *                  "startDate": 1425474000000,
+     *                  "endDate": 1425208500000,
+     *                  "state": "FINISHED",
+     *                  "meta": {},
+     *                  "timestamp": 1418641200000,
+     *                  "isNew": true
+     *              }
+     *          ],
+     *          "transactions": [
+     *              {
+     *                  "id": 91303,
+     *                  "amount": 1000,
+     *                  "state": "APPROVED",
+     *                  "sku": "TOPUPPPL_000000090000_0000001423154296",
+     *                  "timestamp": 1418641200000,
+     *                  "reason": "Devolución sesión cancelada",
+     *                  "meta": {},
+     *                  "session": "testSession2"
+     *              },
+     *              {
+     *                  "id": 91302,
+     *                  "amount": -1000,
+     *                  "state": "APPROVED",
+     *                  "sku": "TOPUPPPL_000000090000_0000001423154295",
+     *                  "timestamp": 1418630400000,
+     *                  "reason": "Reserva de sesión",
+     *                  "meta": {},
+     *                  "session": "testSession2"
+     *              }
+     *          ]
      *      }
      *
      * @apiError {Object} UserNotLoggedIn User is not logged in.
@@ -120,20 +158,20 @@ public class HomeController extends Controller {
         User user = userService.getById(uid);
 
         // Create State Session List Array for iterate and pass DAO function a Session.State ArrayList
-        List<Set<Session.State>> states = new ArrayList<>();
         String[] listStates = { "programmed", "underway", "closed" };
-
+        List<Set<Session.State>> states = new ArrayList<>();
         states.add(EnumSet.of(Session.State.PROGRAMMED));
         states.add(EnumSet.of(Session.State.REQUESTED, Session.State.UNDERWAY));
         states.add(EnumSet.of(Session.State.CLOSED, Session.State.FINISHED));
 
-        ObjectNode sessions = Json.newObject();
+        ArrayNode sessions = new ArrayNode(JsonNodeFactory.instance);
+        ObjectNode sessionsByState = Json.newObject();
 
         // Iterate State Session List Array
         for (Set<Session.State> state : states) {
             List<SessionUser> sessionUsers = sessionService.getUserSessionsByState(uid, state);
 
-            ArrayNode sessionsState = new ArrayNode(JsonNodeFactory.instance);
+            ArrayNode thisState = new ArrayNode(JsonNodeFactory.instance);
             for(SessionUser sessionUser : sessionUsers) {
                 Session session = sessionUser.getSession();
 
@@ -144,18 +182,23 @@ public class HomeController extends Controller {
 
                 ObjectNode sessionObject = (ObjectNode) Json.toJson(session);
                 sessionObject.put("isNew", isNew);
+                sessions.add(sessionObject);
 
-                sessionsState.add(sessionObject);
+                thisState.add(session.getId());
             }
 
-            sessions.put(listStates[states.indexOf(state)], sessionsState);
+            sessionsByState.put(listStates[states.indexOf(state)], thisState);
         }
 
+        List<Transaction> transactions = transactionService.getUserTransactions(uid, MAX_RESULTS);
+        List<Integer> transactionIds = transactions.stream().map(o -> o.getId()).collect(Collectors.toList());
+
         return ok(Json.newObject()
+                .putPOJO("home", Json.newObject()
+                        .putPOJO("sessions", sessionsByState)
+                        .putPOJO("transactions", Json.toJson(transactionIds)))
                 .putPOJO("sessions", sessions)
-                .putPOJO("balance", Json.newObject()
-                        .put("balance", user.getBalance())
-                        .putPOJO("transactions", Json.toJson(transactionService.getUserTransactions(uid, MAX_RESULTS)))));
+                .putPOJO("transactions", Json.toJson(transactions)));
 
     }
 }
