@@ -21,7 +21,7 @@ POST           /v1/client/logout                                                
 GET            /v1/client/me                                                        gl.glue.brahma.controllers.client.UserController.getMe()
 GET            /v1/client/me/home                                                   gl.glue.brahma.controllers.client.HomeController.getHome()
 GET            /v1/client/me/sessions/$state<(programmed|underway|closed)\b>        gl.glue.brahma.controllers.client.SessionController.getState(state: String)
-GET            /v1/client/me/balance                                                gl.glue.brahma.controllers.client.TransactionController.getUserTransactions()
+GET            /v1/client/me/transactions                                           gl.glue.brahma.controllers.client.TransactionController.getUserTransactions()
 GET            /v1/client/me/history/:section                                       gl.glue.brahma.controllers.client.HistoryController.getHistorySection(section: String)
 
 # Sessions

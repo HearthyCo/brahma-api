@@ -18,6 +18,8 @@ import play.mvc.Result;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class TransactionController extends Controller {
 
@@ -26,18 +28,17 @@ public class TransactionController extends Controller {
     private static Config conf = ConfigFactory.load();
 
     /**
-     * @api {get} /client/me/balance Balance
+     * @api {get} /client/me/transactions Balance
      *
      * @apiGroup Client
-     * @apiName GetBalance
-     * @apiDescription Return a state of user balance in addition also return a history os transactions
+     * @apiName GetTransactions
+     * @apiDescription Return a history of transactions
      *
-     * @apiSuccess {int}         amount                  Current user balance
      * @apiSuccess {object[]}    transactions            List of all transactions of user
      * @apiSuccessExample {json} Success-Response
      *      HTTP/1.1 200 OK
      *      {
-     *          "balance": 20000000,
+     *          "userTransactions": [91300],
      *          "transactions": [
      *              {
      *                  "id": 91300,
@@ -72,10 +73,12 @@ public class TransactionController extends Controller {
     @BodyParser.Of(BodyParser.Json.class)
     public static Result getUserTransactions() {
         int uid = Integer.parseInt(session("id"));
+        List<Transaction> transactions = transactionService.getUserTransactions(uid);
+        List<Integer> transactionIds = transactions.stream().map(o -> o.getId()).collect(Collectors.toList());
 
         ObjectNode result = Json.newObject();
-        result.put("balance", userService.getById(uid).getBalance());
-        result.put("transactions", Json.toJson(transactionService.getUserTransactions(uid)));
+        result.put("userTransactions", Json.toJson(transactionIds));
+        result.put("transactions", Json.toJson(transactions));
 
         return ok(result);
     }
