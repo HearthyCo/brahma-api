@@ -2,11 +2,13 @@ package gl.glue.brahma.controllers.client;
 
 import actions.BasicAuth;
 import actions.ClientAuth;
+import actions.ProfessionalAuth;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import gl.glue.brahma.model.user.Client;
+import gl.glue.brahma.model.user.Professional;
 import gl.glue.brahma.model.user.User;
 import gl.glue.brahma.service.UserService;
 import gl.glue.brahma.util.JsonUtils;
@@ -24,11 +26,11 @@ public class UserController extends Controller {
     private static UserService userService = new UserService();
 
     /**
-     * @api {post} /user/login Login
+     * @api {post} /client/login Login
      *
-     * @apiGroup User
+     * @apiGroup Client
      * @apiName Login
-     * @apiDescription Allow user (registered before) can be identified to access his private information.
+     * @apiDescription Allow client (registered before) can be identified to access his private information.
      *
      * @apiParam {String} login     Unique identifier for user in service.
      * @apiParam {String} password  Password
@@ -102,31 +104,11 @@ public class UserController extends Controller {
     }
 
     /**
-     * @api {post} /user/logout Logout
+     * @api {post} /client/me/register Register
      *
-     * @apiGroup User
-     * @apiName Logout
-     * @apiDescription Destroy user session.
-     *
-     * @apiSuccessExample {json} Success-Response
-     *      HTTP/1.1 200 OK
-     *      {
-     *      }
-     *
-     * @apiVersion 0.1.0
-     */
-    @Transactional
-    public static Result logout() {
-        session().clear();
-        return ok(Json.newObject());
-    }
-
-    /**
-     * @api {post} /user/register Register
-     *
-     * @apiGroup User
+     * @apiGroup Client
      * @apiName Register
-     * @apiDescription Allow new user can to register in service.
+     * @apiDescription Allow client can to register in service.
      *
      * @apiParam {String}               email       Unique identifier for user in service.
      * @apiParam {String}               password    Password
@@ -225,6 +207,97 @@ public class UserController extends Controller {
     }
 
     /**
+     * @api {post} /client/me/update Update
+     *
+     * @apiGroup Client
+     * @apiName Update
+     * @apiDescription Allow client user can to update fields profile.
+     *
+     * @apiParam {String}               email       Unique identifier for user in service.
+     * @apiParam {String}               password    Password
+     * @apiParam {Enum="MALE","FEMALE"} gender      Optional. User gender.
+     * @apiParam {String}               name        Optional. Real user name.
+     * @apiParam {Date}                 birthdate   Optional. Date of user birthdate.
+     * @apiParam {String}               surname1    Optional. Real user first surname.
+     * @apiParam {String}               surname2    Optional. Real user second surname.
+     * @apiParam {String}               avatar      Optional. Url for user avatar.
+     * @apiParam {String}               nationalId  Optional. Number iof id card.
+     * @apiParamExample {json} Request-Example
+     *      {
+     *          "email": "client1@example.com",
+     *          "password": "client1PasswordDummy",
+     *          "gender": "MALE",
+     *          "name": "Client1",
+     *          "birthdate": "1987-08-06",
+     *          "surname1": "For",
+     *          "surname2": "Service",
+     *          "avatar": "http://...",
+     *          "nationalId": "12345678A",
+     *          "meta": {}
+     *      }
+     *
+     * @apiSuccess {object} user    Contains all user fields after register.
+     * @apiSuccessExample {json} Success-Response
+     *      HTTP/1.1 200 OK
+     *      {
+     *          "user": {
+     *              "id": 1,
+     *              "email": "client1@example.com",
+     *              "name": "Client1",
+     *              "surname1": "For",
+     *              "surname2": "Service",
+     *              "birthdate": "1987-08-06",
+     *              "avatar": "http://...",
+     *              "nationalId": "12345678A",
+     *              "gender": "MALE",
+     *              "meta": {}
+     *          }
+     *      }
+     *
+     * @apiError {Object} MissingRequiredField Params has not a required field.
+     * @apiErrorExample {json} MissingRequiredField
+     *      HTTP/1.1 400 BadRequest
+     *      {
+     *          "status": "400",
+     *          "title": "Missing required field `field`"
+     *      }
+     *
+     * @apiError {Object} UserNotLoggedIn User is not logged in.
+     * @apiErrorExample {json} UserNotLoggedIn
+     *      HTTP/1.1 401 Unauthorized
+     *      {
+     *          "status": "401",
+     *          "title": "You are not logged in"
+     *      }
+     *
+     * @apiVersion 0.1.0
+     */
+    @ClientAuth
+    @Transactional
+    @BodyParser.Of(BodyParser.Json.class)
+    public static Result update() {
+
+        JsonNode json = request().body().asJson();
+        json = JsonUtils.cleanFields((ObjectNode)json, ModelSecurity.USER_PROFILE_MODIFICABLE_FIELDS);
+
+        // Parse the incoming data
+        Client professional;
+        try {
+            professional = Json.fromJson(json, Client.class);
+        } catch (RuntimeException e) {
+            return status(400, JsonUtils.handleDeserializeException(e, "user"));
+        }
+
+        User user = userService.getById(Integer.parseInt(session("id")));
+        user.merge(professional);
+
+        ObjectNode result = Json.newObject();
+        result.put("user", Json.toJson(user));
+
+        return ok(result);
+    }
+
+    /**
      * @api {get} /user Get Me
      *
      * @apiGroup User
@@ -250,6 +323,15 @@ public class UserController extends Controller {
      *      }
      *
      * @apiVersion 0.1.0
+     *
+     * @apiError {Object} UserNotLoggedIn User is not logged in.
+     * @apiErrorExample {json} UserNotLoggedIn
+     *      HTTP/1.1 401 Unauthorized
+     *      {
+     *          "status": "401",
+     *          "title": "You are not logged in"
+     *      }
+     *
      */
     @ClientAuth
     @Transactional

@@ -196,6 +196,16 @@ public abstract class User {
         return fullname;
     }
 
+    public void merge(User updated) {
+        if (updated.getGender() != null) this.setGender(updated.getGender());
+        if (updated.getName() != null) this.setName(updated.getName());
+        if (updated.getBirthdate() != null) this.setBirthdate(updated.getBirthdate());
+        if (updated.getSurname1() != null) this.setSurname1(updated.getSurname1());
+        if (updated.getSurname2() != null) this.setSurname2(updated.getSurname2());
+        if (updated.getAvatar() != null) this.setAvatar(updated.getAvatar());
+        if (updated.getNationalId() != null) this.setNationalId(updated.getNationalId());
+    }
+
     public void setPassword(String password) {
         this.password = BCrypt.hashpw(password, BCrypt.gensalt());
     }
