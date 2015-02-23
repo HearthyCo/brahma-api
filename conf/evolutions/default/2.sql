@@ -37,7 +37,8 @@ INSERT INTO service_type (id, name, field_id, price, mode, poolsize) VALUES
 INSERT INTO service (id, user_id, service_type_id, earnings) VALUES
   (90400, 90005, 90300, 400),
   (90401, 90005, 90301, 900),
-  (90402, 90008, 90301, 900);
+  (90402, 90008, 90301, 900),
+  (90403, 90005, 90302, 100);
 
 INSERT INTO availability (id, user_id, repeat_start_date, repeat_end_date, schedule_start_time, schedule_end_time, repeat) VALUES
   (90500, 90005, '2014-12-01', null, '08:00:00', '13:00:00', 31),
@@ -62,7 +63,8 @@ INSERT INTO session (id, service_type_id, title, start_date, end_date, state, ti
   (90709, 90300, 'testSession10', '2015-05-12 17:00:00', '2015-05-20 17:15:00', 'CLOSED', '2014-12-15 08:00:00', '{}'),
   (90710, 90302, 'testSession11', '2015-05-22 17:00:00', '2015-05-23 17:15:00', 'PROGRAMMED', '2014-12-15 08:00:00', '{}'),
   (90711, 90302, 'testSession12', '2015-06-27 17:00:00', '2015-06-30 17:15:00', 'PROGRAMMED', '2014-12-15 08:00:00', '{}'),
-  (90712, 90302, 'testPool1', '2015-02-11 17:00:00', '2015-02-11 17:15:00', 'REQUESTED', '2014-12-15 08:00:00', '{}');
+  (90712, 90302, 'testPool1', '2015-02-11 17:00:00', '2015-02-11 17:15:00', 'REQUESTED', '2014-12-15 08:00:00', '{}'),
+  (90713, 90301, 'testPool2', '2015-02-14 18:00:00', '2015-02-14 18:18:00', 'REQUESTED', '2014-12-15 08:00:00', '{}');
 
 INSERT INTO "session_user" (id, session_id, user_id, notification_id, service_id, availability_id, meta) VALUES
   (91600, 90700, 90000, 90600, 90401, 90501, '{}'),
