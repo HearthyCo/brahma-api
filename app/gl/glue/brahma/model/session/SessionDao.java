@@ -63,6 +63,24 @@ public class SessionDao {
         return queryListSessionsState.getResultList();
     }
 
+    /**
+     * Find sessions by serviceType
+     * @param states Set of session states with valid states
+     * @param serviceTypeId Target ServiceType
+     * @param uid Target user id.
+     * @return List of SessionUser in state passed filtered by ServiceType for an user
+     */
+    public List<SessionUser> findByService(int uid, int serviceTypeId, Set<Session.State> states) {
+        String query = "Session.findByServiceSortTS";
+
+        Query queryListSessionsState = JPA.em().createNamedQuery(query, SessionUser.class)
+                .setParameter("states", states)
+                .setParameter("serviceTypeId", serviceTypeId)
+                .setParameter("uid", uid);
+
+        return queryListSessionsState.getResultList();
+    }
+
 
     /**
      * Find the number of sessions in the specified state for a given user.

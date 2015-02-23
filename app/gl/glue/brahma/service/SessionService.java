@@ -125,7 +125,7 @@ public class SessionService {
      * @return Object array list with sessions with state passed
      */
     @Transactional
-    public List<SessionUser> getState(String state, int uid) {
+     public List<SessionUser> getState(String state, int uid) {
         Set<Session.State> states;
 
         switch (state) {
@@ -138,7 +138,6 @@ public class SessionService {
         return sessionDao.findByState(states, uid);
     }
 
-
     /**
      * Return Sessions by user to show in home screen
      * @param uid User Login to search in DAO functions
@@ -149,6 +148,17 @@ public class SessionService {
         return sessionDao.findByState(state, uid, MAX_RESULTS);
     }
 
+    /**
+     * Return Sessions by user filtered to show in home screen
+     * @param uid User Login to search in DAO functions
+     * @return ObjectNode with all sessions grouped by state.
+     */
+    @Transactional
+    public List<SessionUser> getUserSessionsByService(int uid, int serviceTypeId, Set<Session.State> states) {
+        ServiceType serviceType = serviceTypeDao.findById(serviceTypeId);
+        if (serviceType == null) return null;
+        return sessionDao.findByService(uid, serviceTypeId, states);
+    }
 
     /**
      * Creates a session

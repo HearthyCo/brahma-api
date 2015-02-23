@@ -1,11 +1,12 @@
 package gl.glue.brahma.controllers.professional;
 
-
-import actions.ClientAuth;
 import actions.ProfessionalAuth;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import gl.glue.brahma.model.session.Session;
+import gl.glue.brahma.model.sessionuser.SessionUser;
 import gl.glue.brahma.service.SessionService;
 import gl.glue.brahma.util.JsonUtils;
 import play.db.jpa.Transactional;
@@ -13,6 +14,11 @@ import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
+
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class SessionController extends Controller {
 
@@ -92,6 +98,78 @@ public class SessionController extends Controller {
         ObjectNode res = Json.newObject();
         res.put("session", Json.toJson(session));
         return ok(res);
+    }
+
+    /**
+     * @api {post} /professional/sessions/assigned/ Return assigned sessions
+     *
+     * @apiGroup Session
+     * @apiName GetAssignedSessions
+     * @apiDescription Return assigned sessions of current user.
+     *
+     * @apiParam {Integer} serviceTypeId Service type id.
+     *
+     * @apiSuccess {Object} session Info about the assigned session.
+     * @apiSuccessExample {json} Success-Response:
+     *      HTTP/1.1 200 OK
+     *      {
+     *          "sessions": [
+     *              {
+     *                  "id": 90712,
+     *                  "title": "testPool1",
+     *                  "startDate": 1423670400000,
+     *                  "endDate": 1423671300000,
+     *                  "state": "UNDERWAY",
+     *                  "meta": { },
+     *                  "timestamp": 1418626800000
+     *              }
+     *          ],
+     *          "userSessions": [
+     *              90712
+     *          ]
+     *      }
+     *
+     * @apiError TargetNotFound No suitable sessions have been found in serviceTypeId passed
+     * @apiErrorExample {json} TargetNotFound
+     *      HTTP/1.1 404 Not Found
+     *      {
+     *          "status": "404",
+     *          "title": "Invalid identifier"
+     *      }
+     *
+     * @apiError UserNotLoggedIn User is not logged in.
+     * @apiErrorExample {json} UserNotLoggedIn
+     *      HTTP/1.1 401 Unauthorized
+     *      {
+     *          "status": "401",
+     *          "title": "You are not logged in"
+     *      }
+     *
+     *
+     * @apiVersion 0.1.0
+     */
+    @ProfessionalAuth
+    @Transactional
+    @BodyParser.Of(BodyParser.Json.class)
+    public static Result getAssignedSessions(int serviceTypeId) {
+        int uid = Integer.parseInt(session("id"));
+
+        Set<Session.State> states = EnumSet.of(Session.State.UNDERWAY, Session.State.CLOSED);
+        List<SessionUser> sessionUsers = sessionService.getUserSessionsByService(uid, serviceTypeId, states);
+
+        if (sessionUsers == null) return status(404, JsonUtils.simpleError("404", "Invalid identifier"));
+
+        ArrayNode sessions = new ArrayNode(JsonNodeFactory.instance);
+        for(SessionUser sessionUser : sessionUsers) {
+            ObjectNode sessionObject = (ObjectNode) Json.toJson(sessionUser.getSession());
+            sessions.add(sessionObject);
+        }
+        List<Integer> sessionIds = sessionUsers.stream().map(o->o.getSession().getId()).collect(Collectors.toList());
+
+        ObjectNode result = Json.newObject();
+        result.put("sessions", sessions);
+        result.put("userSessions", Json.toJson(sessionIds));
+        return ok(result);
     }
 
 

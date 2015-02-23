@@ -67,7 +67,19 @@ import java.util.Date;
                         "where session.state = :state " +
                         "and session.serviceType.id = :type " +
                         "order by session.startDate asc"
+        ),
+        @NamedQuery(
+                name = "Session.findByServiceSortTS",
+                query = "select sessionUser " +
+                        "from SessionUser sessionUser " +
+                        "left join fetch sessionUser.session session " +
+                        "left join fetch sessionUser.service service " +
+                        "where session.state in :states " +
+                        "and sessionUser.user.id = :uid " +
+                        "and service.serviceType.id = :serviceTypeId " +
+                        "order by session.timestamp desc"
         )
+
 
 })
 @Entity
