@@ -14,6 +14,12 @@ import javax.validation.constraints.NotNull;
                         "from Service service " +
                         "where service.provider.id = :uid " +
                         "and service.serviceType.id = :type"
+        ),
+        @NamedQuery(
+                name = "Service.getServiceOfUser",
+                query = "select service " +
+                        "from Service service " +
+                        "where service.provider.id = :uid "
         )
 
 })
