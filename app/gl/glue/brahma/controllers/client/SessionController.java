@@ -1,6 +1,5 @@
 package gl.glue.brahma.controllers.client;
 
-import actions.BasicAuth;
 import actions.ClientAuth;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -8,7 +7,11 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.model.sessionuser.SessionUser;
+import gl.glue.brahma.model.user.Client;
+import gl.glue.brahma.model.user.Professional;
+import gl.glue.brahma.model.user.User;
 import gl.glue.brahma.service.SessionService;
+import gl.glue.brahma.service.UserService;
 import gl.glue.brahma.util.JsonUtils;
 import gl.glue.brahma.util.ModelSecurity;
 import play.db.jpa.Transactional;
@@ -17,6 +20,7 @@ import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,6 +28,7 @@ import java.util.stream.Collectors;
 public class SessionController extends Controller {
 
     private static SessionService sessionService = new SessionService();
+    private static UserService userService = new UserService();
 
     /**
      * @api {get} /session/:sessionId Session
@@ -108,12 +113,34 @@ public class SessionController extends Controller {
     @BodyParser.Of(BodyParser.Json.class)
     public static Result getSession(int id) {
         int uid = Integer.parseInt(session("id"));
+        Session session = sessionService.getById(id, uid);
+        if (session == null) return status(404, JsonUtils.simpleError("404", "Invalid identifier"));
 
-        // Get session with id param
-        ObjectNode result = sessionService.getSession(id, uid);
-        if (result == null) return status(404, JsonUtils.simpleError("404", "Invalid identifier"));
+        List<SessionUser> sessionUsers = sessionService.getSessionUsers(id);
+        List<Integer> participants = new ArrayList<>();
+        List<SessionUser> visibleSessionUsers = new ArrayList<>();
+        List<User> visibleUsers = new ArrayList<>();
 
-        return ok(result);
+        User user = userService.getById(uid);
+
+        for (SessionUser sessionUser: sessionUsers) {
+            User u = sessionUser.getUser();
+            if (u.getId() == uid) {
+                sessionUser.setViewedDate(new Date());
+            }
+            if (!(u instanceof Client) || user instanceof Professional || u.getId() == uid) {
+                participants.add(sessionUser.getId());
+                visibleSessionUsers.add(sessionUser);
+                visibleUsers.add(u);
+            }
+        }
+
+        ObjectNode ret = Json.newObject();
+        ret.put("sessions", new ArrayNode(JsonNodeFactory.instance).add(Json.toJson(session)));
+        ret.put("users", Json.toJson(visibleUsers));
+        ret.put("sessionusers", Json.toJson(visibleSessionUsers));
+        ret.put("participants", Json.newObject().putPOJO(Integer.toString(id), Json.toJson(participants)));
+        return ok(ret);
     }
 
 

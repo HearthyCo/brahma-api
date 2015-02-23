@@ -17,4 +17,8 @@ public class Admin extends User {
         this.adminLevel = adminLevel;
     }
 
+    @Override
+    public String getType() {
+        return "admin";
+    }
 }

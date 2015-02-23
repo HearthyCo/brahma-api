@@ -21,4 +21,9 @@ public class Client extends User {
     public void setTutor(Tutor tutor) {
         this.tutor = tutor;
     }
+
+    @Override
+    public String getType() {
+        return "client";
+    }
 }

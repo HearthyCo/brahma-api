@@ -1,14 +1,11 @@
 package gl.glue.brahma.controllers.client;
 
-import actions.BasicAuth;
 import actions.ClientAuth;
-import actions.ProfessionalAuth;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import gl.glue.brahma.model.user.Client;
-import gl.glue.brahma.model.user.Professional;
 import gl.glue.brahma.model.user.User;
 import gl.glue.brahma.service.UserService;
 import gl.glue.brahma.util.JsonUtils;
@@ -240,7 +237,7 @@ public class UserController extends Controller {
      * @apiSuccessExample {json} Success-Response
      *      HTTP/1.1 200 OK
      *      {
-     *          "user": {
+     *          "users": [{
      *              "id": 1,
      *              "email": "client1@example.com",
      *              "name": "Client1",
@@ -251,7 +248,7 @@ public class UserController extends Controller {
      *              "nationalId": "12345678A",
      *              "gender": "MALE",
      *              "meta": {}
-     *          }
+     *          }]
      *      }
      *
      * @apiError {Object} MissingRequiredField Params has not a required field.
@@ -292,7 +289,7 @@ public class UserController extends Controller {
         user.merge(professional);
 
         ObjectNode result = Json.newObject();
-        result.put("user", Json.toJson(user));
+        result.put("users", new ArrayNode(JsonNodeFactory.instance).add(Json.toJson(user)));
 
         return ok(result);
     }

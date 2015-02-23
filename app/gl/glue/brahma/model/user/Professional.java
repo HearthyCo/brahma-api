@@ -22,4 +22,9 @@ public class Professional extends User {
     public void setManager(Coordinator manager) {
         this.manager = manager;
     }
+
+    @Override
+    public String getType() {
+        return "professional";
+    }
 }

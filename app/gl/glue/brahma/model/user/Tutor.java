@@ -17,4 +17,8 @@ public class Tutor extends User {
         return clients;
     }
 
+    @Override
+    public String getType() {
+        return "tutor";
+    }
 }

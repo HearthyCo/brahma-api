@@ -40,6 +40,16 @@ public class SessionDao {
 
 
     /**
+     * Finds the session with the given id.
+     * @param id The id of the session.
+     * @return The session if it exists, or null otherwise.
+     */
+    public Session findById(int id) {
+        return JPA.em().find(Session.class, id);
+    }
+
+
+    /**
      * Search in database all sessions with state passed
      * @param states States allowed to search
      * @param uid User login to filter query

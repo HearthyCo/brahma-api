@@ -20,4 +20,8 @@ public class Coordinator extends User {
         return professionals;
     }
 
+    @Override
+    public String getType() {
+        return "coordinator";
+    }
 }

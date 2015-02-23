@@ -217,4 +217,6 @@ public abstract class User {
         return BCrypt.checkpw(password, this.password);
     }
 
+    public abstract String getType();
+
 }

@@ -42,7 +42,7 @@ public class SessionServiceTest extends TransactionalTest {
         ObjectNode ret = (ObjectNode) Json.toJson(result);
         assertEquals(Session.State.REQUESTED, Session.State.valueOf(ret.get("state").asText()));
 
-        Session session = sessionService.getById(uid, ret.get("id").asInt());
+        Session session = sessionService.getById(ret.get("id").asInt(), uid);
         assertNotNull(session);
     }
 
