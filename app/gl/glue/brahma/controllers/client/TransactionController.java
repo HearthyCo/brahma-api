@@ -2,14 +2,14 @@ package gl.glue.brahma.controllers.client;
 
 import actions.ClientAuth;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import gl.glue.brahma.model.transaction.Transaction;
 import gl.glue.brahma.service.TransactionService;
-import gl.glue.brahma.service.UserService;
 import gl.glue.brahma.util.JsonUtils;
-import play.Logger;
 import play.db.jpa.Transactional;
 import play.libs.Json;
 import play.mvc.BodyParser;
@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 
 public class TransactionController extends Controller {
 
-    private static UserService userService = new UserService();
     private static TransactionService transactionService = new TransactionService();
     private static Config conf = ConfigFactory.load();
 
@@ -96,12 +95,12 @@ public class TransactionController extends Controller {
      *          "amount": "1000"
      *      }
      *
-     * @apiSuccess {object}      transaction    The newly created Paypal transaction
+     * @apiSuccess {object}      transactions   The newly created Paypal transaction
      * @apiSuccess {string}      redirect       The external URL to complete the payment
      * @apiSuccessExample {json} Success-Response
      *      HTTP/1.1 200 OK
      *      {
-     *          "transaction": {
+     *          "transactions": [{
      *              "id": 5,
      *              "amount": 1000,
      *              "state": "INPROGRESS",
@@ -109,7 +108,7 @@ public class TransactionController extends Controller {
      *              "timestamp": 1423499949564,
      *              "reason": "Topup your account",
      *              "meta": {}
-     *          },
+     *          }],
      *          "redirect": "https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_express-checkout&token=EC-8DJ03018CJ419243D"
      *      }
      *
@@ -166,14 +165,12 @@ public class TransactionController extends Controller {
             redirectUrls.put("cancel", baseUrl + baseAction + "/cancel");
         }
 
-        Logger.info("REDIRECT URLS " + redirectUrls + " - ");
-
         Transaction transaction;
         transaction = transactionService.createPaypalTransaction(uid, amount, redirectUrls);
 
         // Put the transaction in the response
         result = Json.newObject();
-        result.put("transaction", Json.toJson(transaction));
+        result.put("transactions", new ArrayNode(JsonNodeFactory.instance).add(Json.toJson(transaction)));
 
         // Copy the paypal approval URL to the redirect field
         String redir = transaction.getMeta().get("paypal").get("links").get(1).get("href").asText();
@@ -200,12 +197,12 @@ public class TransactionController extends Controller {
      *          "token": "EC-0HH25056CY103791W"
      *      }
      *
-     * @apiSuccess {object}      transaction    The completed Paypal transaction
-     * @apiSuccess {int}         balance        The updated user balance after the transaction
+     * @apiSuccess {object}      transactions   The completed Paypal transaction
+     * @apiSuccess {int}         users          The updated user balance after the transaction
      * @apiSuccessExample {json} Success-Response
      *      HTTP/1.1 200 OK
      *      {
-     *          "transaction": {
+     *          "transactions": [{
      *              "id": 5,
      *              "amount": 1000,
      *              "state": "APPROVED",
@@ -213,8 +210,19 @@ public class TransactionController extends Controller {
      *              "timestamp": 1423499949564,
      *              "reason": "Topup your account",
      *              "meta": {}
-     *          },
-     *          "balance": 1000
+     *          }],
+     *          "users": [{
+     *              "id": 1,
+     *              "email": "client1@example.com",
+     *              "name": "Client1",
+     *              "surname1": "For",
+     *              "surname2": "Service",
+     *              "birthdate": "1987-08-06",
+     *              "avatar": "http://...",
+     *              "nationalId": "12345678A",
+     *              "gender": "MALE",
+     *              "meta": {}
+     *          }]
      *      }
      *
      * @apiError {Object} UserNotLoggedIn User is not logged in.
@@ -264,10 +272,8 @@ public class TransactionController extends Controller {
 
         // Get session with login
         result = Json.newObject();
-        result.put("transaction", Json.toJson(transaction));
-        result.put("balance", transaction.getUser().getBalance());
-
-        Logger.info("RESULT " + result);
+        result.put("transactions", new ArrayNode(JsonNodeFactory.instance).add(Json.toJson(transaction)));
+        result.put("users", new ArrayNode(JsonNodeFactory.instance).add(Json.toJson(transaction.getUser())));
 
         return ok(result);
     }

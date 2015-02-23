@@ -2,11 +2,15 @@ package gl.glue.brahma.model.sessionuser;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import gl.glue.brahma.model.availability.Availability;
 import gl.glue.brahma.model.notification.Notification;
 import gl.glue.brahma.model.service.Service;
 import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.model.user.User;
+import gl.glue.brahma.util.serializers.SessionToIdSerializer;
+import gl.glue.brahma.util.serializers.UserToIdSerializer;
 import play.libs.Json;
 
 import javax.persistence.*;
@@ -24,13 +28,15 @@ public class SessionUser {
     @ManyToOne
     @JoinColumn(name = "user_id")
     @NotNull
-    @JsonIgnore
+    //@JsonIgnore
+    @JsonSerialize(using = UserToIdSerializer.class)
     private User user;
 
     @ManyToOne
     @JoinColumn(name = "session_id")
     @NotNull
-    @JsonIgnore
+    //@JsonIgnore
+    @JsonSerialize(using = SessionToIdSerializer.class)
     private Session session;
 
     @JoinColumn(name = "viewed_date")

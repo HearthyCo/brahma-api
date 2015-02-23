@@ -39,7 +39,7 @@ public class UserController extends Controller {
      * @apiSuccessExample {json} Success-Response
      *      HTTP/1.1 200 OK
      *      {
-     *          "user": {
+     *          "users": [{
      *              "id": 1,
      *              "login": "professional1",
      *              "name": "Professional1",
@@ -50,7 +50,7 @@ public class UserController extends Controller {
      *              "nationalId": "12345678A",
      *              "gender": "MALE",
      *              "meta": {}
-     *          }
+     *          }]
      *      }
      *
      * @apiError {Object} MissingRequiredField Params has not a required field.
@@ -92,7 +92,7 @@ public class UserController extends Controller {
         session("id", Integer.toString(user.getId()));
 
         result = Json.newObject();
-        result.put("user", Json.toJson(user));
+        result.put("users", new ArrayNode(JsonNodeFactory.instance).add(Json.toJson(user)));
 
         return ok(result);
     }
@@ -132,7 +132,7 @@ public class UserController extends Controller {
      * @apiSuccessExample {json} Success-Response
      *      HTTP/1.1 200 OK
      *      {
-     *          "user": {
+     *          "users": [{
      *              "id": 1,
      *              "email": "professional1@example.com",
      *              "name": "Professional1",
@@ -143,7 +143,7 @@ public class UserController extends Controller {
      *              "nationalId": "12345678A",
      *              "gender": "MALE",
      *              "meta": {}
-     *          }
+     *          }]
      *      }
      *
      * @apiError {Object} MissingRequiredField Params has not a required field.
@@ -184,7 +184,7 @@ public class UserController extends Controller {
         user.merge(professional);
 
         ObjectNode result = Json.newObject();
-        result.put("user", Json.toJson(user));
+        result.put("users", new ArrayNode(JsonNodeFactory.instance).add(Json.toJson(user)));
 
         return ok(result);
     }
@@ -200,7 +200,7 @@ public class UserController extends Controller {
      * @apiSuccessExample {json} Success-Response
      *      HTTP/1.1 200 OK
      *      {
-     *          "user": {
+     *          "users": [{
      *              "id": 1,
      *              "email": "professional1@example.com",
      *              "name": "Professional1",
@@ -211,7 +211,7 @@ public class UserController extends Controller {
      *              "nationalId": "12345678A",
      *              "gender": "MALE",
      *              "meta": {}
-     *          }
+     *          }]
      *      }
      *
      * @apiVersion 0.1.0
@@ -234,7 +234,7 @@ public class UserController extends Controller {
         ObjectNode result = Json.newObject();
         ArrayNode users = new ArrayNode(JsonNodeFactory.instance);
         users.add(Json.toJson(user));
-        result.put("user", users);
+        result.put("users", users);
 
         return ok(result);
     }
