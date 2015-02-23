@@ -4,12 +4,16 @@ import actions.BasicAuth;
 import actions.ClientAuth;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import gl.glue.brahma.model.historyentry.HistoryEntry;
 import gl.glue.brahma.service.HistoryService;
 import play.db.jpa.Transactional;
 import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class HistoryController extends Controller {
 
@@ -24,11 +28,12 @@ public class HistoryController extends Controller {
      *
      * @apiParam {String} type Target history entry type
      *
-     * @apiSuccess {object[]}    history                 Contains a list of entries for the specified section
+     * @apiSuccess {object[]}    historyentries          Contains a list of entries for the specified section
      * @apiSuccessExample {json} Success-Response
      *      HTTP/1.1 200 OK
      *      {
-     *          "history": [
+     *          "allergies": [91100],
+     *          "historyentries": [
      *              {
      *                  "id": 91100,
      *                  "title": "Lactosa",
@@ -59,10 +64,12 @@ public class HistoryController extends Controller {
     public static Result getHistorySection(String section) {
         int uid = Integer.parseInt(session("id"));
 
-        JsonNode entries = Json.toJson(historyService.getHistorySection(uid, section));
+        List<HistoryEntry> historyentries = historyService.getHistorySection(uid, section);
+        List<Integer> ids = historyentries.stream().map(o -> o.getId()).collect(Collectors.toList());
 
         ObjectNode result = Json.newObject();
-        result.put("history", entries);
+        result.put("historyentries", Json.toJson(historyentries));
+        result.put(section, Json.toJson(ids));
 
         return ok(result);
     }
