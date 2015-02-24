@@ -121,7 +121,7 @@ public class SessionControllerTest extends TransactionalTest {
 
         assertNotNull(result);
         assertEquals(200, result.toScala().header().status());
-        assertEquals(id, ret.get("session").get("id").asInt());
+        assertEquals(id, ret.get("sessions").get(0).get("id").asInt());
     }
 
     @Test // Request with an invalid session state

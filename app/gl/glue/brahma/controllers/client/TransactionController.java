@@ -8,7 +8,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import gl.glue.brahma.model.transaction.Transaction;
+import gl.glue.brahma.model.user.User;
 import gl.glue.brahma.service.TransactionService;
+import gl.glue.brahma.service.UserService;
 import gl.glue.brahma.util.JsonUtils;
 import play.db.jpa.Transactional;
 import play.libs.Json;
@@ -24,6 +26,7 @@ import java.util.stream.Collectors;
 public class TransactionController extends Controller {
 
     private static TransactionService transactionService = new TransactionService();
+    private static UserService userService = new UserService();
     private static Config conf = ConfigFactory.load();
 
     /**
@@ -72,12 +75,14 @@ public class TransactionController extends Controller {
     @BodyParser.Of(BodyParser.Json.class)
     public static Result getUserTransactions() {
         int uid = Integer.parseInt(session("id"));
+        User user = userService.getById(uid);
         List<Transaction> transactions = transactionService.getUserTransactions(uid);
         List<Integer> transactionIds = transactions.stream().map(o -> o.getId()).collect(Collectors.toList());
 
         ObjectNode result = Json.newObject();
         result.put("userTransactions", Json.toJson(transactionIds));
         result.put("transactions", Json.toJson(transactions));
+        result.put("users", new ArrayNode(JsonNodeFactory.instance).add(Json.toJson(user)));
 
         return ok(result);
     }

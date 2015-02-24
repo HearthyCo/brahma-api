@@ -16,7 +16,7 @@ public class TransactionControllerTest extends TransactionalTest {
 
     @Test // Request balance without user authentication
     public void testGetTransactionsUnauthenticated() {
-        FakeRequest fr = fakeRequest(GET, "/v1/client/me/balance");
+        FakeRequest fr = fakeRequest(GET, "/v1/client/me/transactions");
         Result result = routeAndCall(fr, REQUEST_TIMEOUT);
         assertNotNull(result);
         assertEquals(result.toScala().header().status(), 401);
@@ -27,14 +27,14 @@ public class TransactionControllerTest extends TransactionalTest {
         String login = "testClient1@glue.gl";
         Result auth = TestUtils.makeClientLoginRequest(login, login);
 
-        Result result = TestUtils.callController(GET, "/v1/client/me/balance", auth);
+        Result result = TestUtils.callController(GET, "/v1/client/me/transactions", auth);
 
         assertNotNull(result);
         assertEquals(200, result.toScala().header().status());
 
         ObjectNode ret = TestUtils.toJson(result);
 
-        assertEquals(ret.get("balance").asInt(), 20000000);
+        assertEquals(ret.get("users").get(0).get("balance").asInt(), 20000000);
 
         assertEquals(ret.get("transactions").size(), 4);
 
@@ -43,6 +43,6 @@ public class TransactionControllerTest extends TransactionalTest {
             sum += transaction.get("amount").asInt();
         }
 
-        assertEquals(ret.get("balance").asInt(), sum);
+        assertEquals(ret.get("users").get(0).get("balance").asInt(), sum);
     }
 }
