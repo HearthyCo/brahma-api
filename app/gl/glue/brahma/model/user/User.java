@@ -204,6 +204,7 @@ public abstract class User {
         if (updated.getSurname2() != null) this.setSurname2(updated.getSurname2());
         if (updated.getAvatar() != null) this.setAvatar(updated.getAvatar());
         if (updated.getNationalId() != null) this.setNationalId(updated.getNationalId());
+        if (updated.getMeta() != null) this.setMeta(updated.getMeta()); // TODO: We have to properly merge these
     }
 
     public void setPassword(String password) {
