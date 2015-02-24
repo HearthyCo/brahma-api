@@ -92,7 +92,7 @@ public class UserController extends Controller {
 
         session().clear();
         session("id", Integer.toString(user.getId()));
-        session("role", user.getClass().getSimpleName());
+        session("role", user.getType());
 
         result = Json.newObject();
         result.put("users", new ArrayNode(JsonNodeFactory.instance).add(Json.toJson(user)));
@@ -195,7 +195,7 @@ public class UserController extends Controller {
         // Also log him in
         session().clear();
         session("id", Integer.toString(user.getId()));
-        session("role", user.getClass().getSimpleName());
+        session("role", user.getType());
 
         result = Json.newObject();
         result.put("users", new ArrayNode(JsonNodeFactory.instance).add(Json.toJson(user)));
