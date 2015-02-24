@@ -46,29 +46,21 @@ public class SessionServiceTest extends TransactionalTest {
         assertNotNull(session);
     }
 
-    @Test // Request with invalid user Authentication. User "testClient2" is not an user for session 90700
-    public void requestSessionWithInvalidAuthentication() {
-        int session = 90700;
-        int uid = 90001;
-        ObjectNode result = sessionService.getSession(session, uid);
-        assertNull(result);
-    }
-
     @Test // Request with an non-existent session id
     public void requestSessionInvalidId() {
         int session = 0;
         int uid = 90000;
-        ObjectNode result = sessionService.getSession(session, uid);
-        assertNull(result);
+        List<SessionUser> sessionUsers = sessionService.getSessionUsers(session);
+        assertNull(sessionUsers);
     }
 
     @Test // Valid request
     public void requestSessionOk() {
         int session = 90700;
         int uid = 90000;
-        ObjectNode result = sessionService.getSession(session, uid);
-        assertNotNull(result);
-        assertEquals(session, result.get("session").get("id").asInt());
+        List<SessionUser> sessionUsers = sessionService.getSessionUsers(session);
+        assertNotNull(sessionUsers);
+        assertEquals(session, sessionUsers.get(0).getSession().getId());
     }
 
     @Test // Request with an invalid session state
