@@ -23,8 +23,8 @@ public class UserControllerTest extends TransactionalTest {
         assertTrue(TestUtils.hasCookies(result));
         ObjectNode ret = TestUtils.toJson(result);
 
-        assertTrue(ret.has("user"));
-        assertEquals(login.toLowerCase(), ret.get("user").get("email").asText());
+        assertTrue(ret.has("users"));
+        assertEquals(login.toLowerCase(), ret.get("users").get(0).get("email").asText());
     }
 
     @Test
@@ -40,8 +40,8 @@ public class UserControllerTest extends TransactionalTest {
         assertEquals(200, result.toScala().header().status());
         assertTrue(TestUtils.hasCookies(result));
         ObjectNode ret = TestUtils.toJson(result);
-        assertTrue(ret.has("user"));
-        assertEquals(login.toLowerCase(), ret.get("user").get("email").asText());
+        assertTrue(ret.has("users"));
+        assertEquals(login.toLowerCase(), ret.get("users").get(0).get("email").asText());
     }
 
     @Test
@@ -82,8 +82,8 @@ public class UserControllerTest extends TransactionalTest {
         assertEquals(200, result.toScala().header().status());
 
         ObjectNode ret = TestUtils.toJson(result);
-        assertNotEquals(email, ret.get("user").get("email").asText());
-        assertEquals(login.toLowerCase(), ret.get("user").get("email").asText());
+        assertNotEquals(email, ret.get("users").get(0).get("email").asText());
+        assertEquals(login.toLowerCase(), ret.get("users").get(0).get("email").asText());
     }
 
     @Test
@@ -102,7 +102,7 @@ public class UserControllerTest extends TransactionalTest {
         assertEquals(200, result.toScala().header().status());
 
         ObjectNode ret = TestUtils.toJson(result);
-        assertEquals(surname1, ret.get("user").get("surname1").asText());
-        assertEquals(surname2, ret.get("user").get("surname2").asText());
+        assertEquals(surname1, ret.get("users").get(0).get("surname1").asText());
+        assertEquals(surname2, ret.get("users").get(0).get("surname2").asText());
     }
 }

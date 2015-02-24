@@ -198,7 +198,8 @@ public class HomeController extends Controller {
                         .putPOJO("sessions", sessionsByState)
                         .putPOJO("transactions", Json.toJson(transactionIds)))
                 .putPOJO("sessions", sessions)
-                .putPOJO("transactions", Json.toJson(transactions)));
+                .putPOJO("transactions", Json.toJson(transactions))
+                .putPOJO("users", new ArrayNode(JsonNodeFactory.instance).add(Json.toJson(user))));
 
     }
 }

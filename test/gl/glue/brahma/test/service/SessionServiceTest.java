@@ -51,7 +51,7 @@ public class SessionServiceTest extends TransactionalTest {
         int session = 0;
         int uid = 90000;
         List<SessionUser> sessionUsers = sessionService.getSessionUsers(session);
-        assertNull(sessionUsers);
+        assertEquals(0, sessionUsers.size());
     }
 
     @Test // Valid request
@@ -59,7 +59,7 @@ public class SessionServiceTest extends TransactionalTest {
         int session = 90700;
         int uid = 90000;
         List<SessionUser> sessionUsers = sessionService.getSessionUsers(session);
-        assertNotNull(sessionUsers);
+        assertNotEquals(0, sessionUsers.size());
         assertEquals(session, sessionUsers.get(0).getSession().getId());
     }
 
@@ -176,10 +176,10 @@ public class SessionServiceTest extends TransactionalTest {
     public void getPoolsSize() {
         Map<Integer, Integer> pools = sessionService.getPoolsSize();
         assertNotNull(pools);
-        assertEquals(1, pools.size());
-        Map.Entry<Integer, Integer> first = pools.entrySet().iterator().next();
-        assertEquals(90302, first.getKey().intValue());
-        assertEquals(1, first.getValue().intValue());
+        assertEquals(2, pools.size());
+        assertTrue(pools.containsKey(90301));
+        assertTrue(pools.containsKey(90302));
+        assertEquals(1, pools.get(90302).intValue());
     }
 
 }
