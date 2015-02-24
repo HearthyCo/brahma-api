@@ -14,6 +14,16 @@ public class ServiceService {
     private ServiceDao serviceDao = new ServiceDao();
 
     /**
+     * Searches ServiceTypes by id.
+     * @param sid The field id to filter by.
+     * @return A list of ServiceTypes of the given field.
+     */
+    @Transactional
+    public ServiceType findByTypeId(int sid) {
+        return serviceTypeDao.findById(sid);
+    }
+
+    /**
      * Searches ServiceTypes by field.
      * @param fid The field id to filter by.
      * @return A list of ServiceTypes of the given field.

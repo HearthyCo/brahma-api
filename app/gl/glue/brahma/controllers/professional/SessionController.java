@@ -5,8 +5,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import gl.glue.brahma.model.servicetype.ServiceType;
 import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.model.sessionuser.SessionUser;
+import gl.glue.brahma.service.ServiceService;
 import gl.glue.brahma.service.SessionService;
 import gl.glue.brahma.util.JsonUtils;
 import play.db.jpa.Transactional;
@@ -24,6 +26,7 @@ import java.util.stream.Collectors;
 public class SessionController extends Controller {
 
     private static SessionService sessionService = new SessionService();
+    private static ServiceService serviceService = new ServiceService();
 
     /**
      * @api {post} /client/session/assignPool Assign session from pool
@@ -167,14 +170,23 @@ public class SessionController extends Controller {
         }
 
         List<Integer> sessionIds = sessionUsers.stream().map(o->o.getSession().getId()).collect(Collectors.toList());
+
         Map<Integer, Integer> poolsSize = sessionService.getPoolsSize();
         int queue = poolsSize.containsKey(serviceTypeId) ? poolsSize.get(serviceTypeId) : 0;
 
-        ObjectNode result = Json.newObject();
-        result.put("sessions", sessions);
-        result.put("waiting", queue);
-        result.put("userSessions", Json.toJson(sessionIds));
-        return ok(result);
+        ArrayNode serviceTypes = new ArrayNode(JsonNodeFactory.instance);
+        ServiceType serviceType = serviceService.findByTypeId(serviceTypeId);
+        ObjectNode serviceTypeObject = (ObjectNode) Json.toJson(serviceType);
+        serviceTypeObject.put("waiting", queue);
+        serviceTypes.add(serviceTypeObject);
+
+        ObjectNode sessionIdsObject = Json.newObject();
+        sessionIdsObject.put(Integer.toString(serviceTypeId), Json.toJson(sessionIds));
+
+        return ok(Json.newObject()
+                .putPOJO("serviceSessions", sessionIdsObject)
+                .putPOJO("sessions", sessions)
+                .putPOJO("servicetypes", serviceTypes));
     }
 
 

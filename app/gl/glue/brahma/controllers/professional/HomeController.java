@@ -1,6 +1,7 @@
 package gl.glue.brahma.controllers.professional;
 
 import actions.ProfessionalAuth;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -77,40 +78,38 @@ public class HomeController extends Controller {
 
         ArrayNode sessions = new ArrayNode(JsonNodeFactory.instance);
         ArrayNode serviceTypes = new ArrayNode(JsonNodeFactory.instance);
-        ArrayNode sessionsByServiceType = new ArrayNode(JsonNodeFactory.instance);
+        ObjectNode sessionsByServiceType = Json.newObject();
+
+        Map<Integer, Integer> poolsSize = sessionService.getPoolsSize();
 
         // Iterate State Session List Array
         for (Service service : services) {
             ServiceType serviceType = service.getServiceType();
-            serviceTypes.add(Json.toJson(serviceType));
-
+            ObjectNode serviceTypeObject = (ObjectNode) Json.toJson(serviceType);
             int serviceTypeId = serviceType.getId();
+
+            int queue = poolsSize.containsKey(serviceTypeId) ? poolsSize.get(serviceTypeId) : 0;
+            serviceTypeObject.put("waiting", queue);
+
+            serviceTypes.add(serviceTypeObject);
+
             List<SessionUser> sessionUsers = sessionService.getUserSessionsByService(uid, serviceTypeId, states);
 
-            ObjectNode thisService = Json.newObject();
             ArrayNode sessionsThisService = new ArrayNode(JsonNodeFactory.instance);
             for(SessionUser sessionUser : sessionUsers) {
                 Session session = sessionUser.getSession();
 
                 sessions.add(Json.toJson(session));
                 sessionsThisService.add(session.getId());
-
             }
 
-            Map<Integer, Integer> poolsSize = sessionService.getPoolsSize();
-            int queue = poolsSize.containsKey(serviceTypeId) ? poolsSize.get(serviceTypeId) : 0;
-
-            thisService.put("serviceType", serviceType.getId());
-            thisService.put("waiting", queue);
-            thisService.put("sessions", sessionsThisService);
-
-            sessionsByServiceType.add(thisService);
+            sessionsByServiceType.put(Integer.toString(serviceTypeId), sessionsThisService);
         }
 
         return ok(Json.newObject()
                 .putPOJO("home", Json.newObject()
-                        .putPOJO("services", sessionsByServiceType))
+                        .putPOJO("serviceTypeSessions", sessionsByServiceType))
                 .putPOJO("sessions", sessions)
-                .putPOJO("serviceTypes", serviceTypes));
+                .putPOJO("servicetypes", serviceTypes));
     }
 }
