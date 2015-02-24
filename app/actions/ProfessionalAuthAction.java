@@ -16,7 +16,7 @@ public class ProfessionalAuthAction extends Action.Simple {
 
         // Check if professional
         String role = ctx.session().get("role");
-        if(role != null && !role.equals("Professional")) {
+        if(role == null || !role.equals("professional")) {
             return F.Promise.pure(status(403, JsonUtils.simpleError("403", "Unauthorized")));
         }
 

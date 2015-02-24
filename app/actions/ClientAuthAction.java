@@ -16,7 +16,7 @@ public class ClientAuthAction extends Action.Simple {
 
         // Check if client
         String role = ctx.session().get("role");
-        if(role != null && !role.equals("Client")) {
+        if(role == null || !role.equals("client")) {
             return F.Promise.pure(status(403, JsonUtils.simpleError("403", "Unauthorized")));
         }
 
