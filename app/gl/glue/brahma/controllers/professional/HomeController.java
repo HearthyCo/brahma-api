@@ -79,8 +79,6 @@ public class HomeController extends Controller {
         ArrayNode serviceTypes = new ArrayNode(JsonNodeFactory.instance);
         ArrayNode sessionsByServiceType = new ArrayNode(JsonNodeFactory.instance);
 
-        Map<Integer, Integer> poolsSize = sessionService.getPoolsSize();
-        Logger.info("POOL " + poolsSize);
         // Iterate State Session List Array
         for (Service service : services) {
             ServiceType serviceType = service.getServiceType();
@@ -99,7 +97,9 @@ public class HomeController extends Controller {
 
             }
 
+            Map<Integer, Integer> poolsSize = sessionService.getPoolsSize();
             int queue = poolsSize.containsKey(serviceTypeId) ? poolsSize.get(serviceTypeId) : 0;
+
             thisService.put("serviceType", serviceType.getId());
             thisService.put("waiting", queue);
             thisService.put("sessions", sessionsThisService);

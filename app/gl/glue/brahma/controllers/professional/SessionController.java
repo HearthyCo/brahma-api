@@ -17,6 +17,7 @@ import play.mvc.Result;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -164,10 +165,14 @@ public class SessionController extends Controller {
             ObjectNode sessionObject = (ObjectNode) Json.toJson(sessionUser.getSession());
             sessions.add(sessionObject);
         }
+
         List<Integer> sessionIds = sessionUsers.stream().map(o->o.getSession().getId()).collect(Collectors.toList());
+        Map<Integer, Integer> poolsSize = sessionService.getPoolsSize();
+        int queue = poolsSize.containsKey(serviceTypeId) ? poolsSize.get(serviceTypeId) : 0;
 
         ObjectNode result = Json.newObject();
         result.put("sessions", sessions);
+        result.put("waiting", queue);
         result.put("userSessions", Json.toJson(sessionIds));
         return ok(result);
     }
