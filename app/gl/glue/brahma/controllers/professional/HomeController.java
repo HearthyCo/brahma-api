@@ -93,7 +93,7 @@ public class HomeController extends Controller {
 
             serviceTypes.add(serviceTypeObject);
 
-            List<SessionUser> sessionUsers = sessionService.getUserSessionsByService(uid, serviceTypeId, states);
+            List<SessionUser> sessionUsers = sessionService.getUserSessionsByService(uid, states, serviceTypeId);
 
             ArrayNode sessionsThisService = new ArrayNode(JsonNodeFactory.instance);
             for(SessionUser sessionUser : sessionUsers) {

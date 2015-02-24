@@ -31,7 +31,7 @@ POST           /v1/client/session/book                                          
 GET            /v1/client/session/:session                                          gl.glue.brahma.controllers.client.SessionController.getSession(session: Integer)
 
 # Services
-GET            /v1/client/services                                                  gl.glue.brahma.controllers.common.ServiceController.getServices(id: F.Option[Integer])
+GET            /v1/client/services                                                  gl.glue.brahma.controllers.common.ServiceController.getServices()
 
 # Transactions
 POST           /v1/client/transaction                                               gl.glue.brahma.controllers.client.TransactionController.createPaypalTransaction()
@@ -53,11 +53,12 @@ GET            /v1/professional/me/home                                         
 #Sessions
 POST           /v1/professional/session/assignPool                                  gl.glue.brahma.controllers.professional.SessionController.assignSessionFromPool()
 GET            /v1/professional/session/pools                                       gl.glue.brahma.controllers.professional.SessionController.getPoolsSize()
-GET            /v1/professional/sessions/assigned/:serviceType                      gl.glue.brahma.controllers.professional.SessionController.getAssignedSessions(serviceType: Integer)
+GET            /v1/professional/sessions/assigned                                   gl.glue.brahma.controllers.professional.SessionController.getAssignedSessions()
+GET            /v1/professional/sessions/assigned/:serviceType                      gl.glue.brahma.controllers.professional.SessionController.getServiceAssignedSessions(serviceType: Integer)
 #GET            /v1/professional/session/:session                                    gl.glue.brahma.controllers.professional.SessionController.getSession(session: Integer)
 
 # Services
-GET            /v1/professional/services                                            gl.glue.brahma.controllers.common.ServiceController.getServices(id: F.Option[Integer])
+GET            /v1/professional/services                                            gl.glue.brahma.controllers.common.ServiceController.getServices()
 
 # Transactions
 GET            /v1/professional/transaction/:id                                     gl.glue.brahma.controllers.common.TransactionController.getTransaction(id: Integer)

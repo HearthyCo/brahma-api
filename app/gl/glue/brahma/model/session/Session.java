@@ -69,7 +69,7 @@ import java.util.Date;
                         "order by session.startDate asc"
         ),
         @NamedQuery(
-                name = "Session.findByServiceSortTS",
+                name = "Session.findByServiceIdSortTS",
                 query = "select sessionUser " +
                         "from SessionUser sessionUser " +
                         "left join fetch sessionUser.session session " +
@@ -77,6 +77,15 @@ import java.util.Date;
                         "where session.state in :states " +
                         "and sessionUser.user.id = :uid " +
                         "and service.serviceType.id = :serviceTypeId " +
+                        "order by session.timestamp desc"
+        ),
+        @NamedQuery(
+                name = "Session.findByServiceSortTS",
+                query = "select sessionUser " +
+                        "from SessionUser sessionUser " +
+                        "left join fetch sessionUser.session session " +
+                        "where session.state in :states " +
+                        "and sessionUser.user.id = :uid " +
                         "order by session.timestamp desc"
         )
 

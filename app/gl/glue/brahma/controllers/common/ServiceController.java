@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import gl.glue.brahma.model.servicetype.ServiceType;
+import gl.glue.brahma.model.transaction.Transaction;
 import gl.glue.brahma.service.ServiceService;
+import play.Logger;
 import play.db.jpa.Transactional;
 import play.libs.F;
 import play.libs.Json;
@@ -14,6 +16,7 @@ import play.mvc.Controller;
 import play.mvc.Result;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ServiceController extends Controller {
 
@@ -26,8 +29,6 @@ public class ServiceController extends Controller {
      * @apiName GetService
      * @apiDescription Returns a list of ServiceTypes available, optionally filtering them by field.
      *     Also available for professionals.
-     *
-     * @apiParam {Integer}   fid Field id {Optional}
      *
      * @apiSuccess {object}     List of ServiceTypes, keyed by field.
      * @apiSuccessExample {json} Success-Response:
@@ -66,29 +67,11 @@ public class ServiceController extends Controller {
     @BasicAuth
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
-    public static Result getServices(final F.Option<Integer> fid) {
-        List<ServiceType> serviceTypes;
-
-        if (fid.isDefined()) {
-            serviceTypes = serviceService.getServiceTypesByField(fid.get());
-        } else {
-            serviceTypes = serviceService.getAllServiceTypes();
-        }
-
-        ObjectNode services = Json.newObject();
-        for(ServiceType serviceType : serviceTypes) {
-            String field = serviceType.getField().getName().toLowerCase();
-            ArrayNode service = services.has(field) ? (ArrayNode) services.get(field) : new ArrayNode(JsonNodeFactory.instance);
-
-            ObjectNode srv = (ObjectNode) Json.toJson(serviceType);
-
-            service.add(srv);
-            services.put(field, service);
-        }
-
-        ObjectNode result = Json.newObject();
-        result.put("services", services);
-
-        return ok(result);
+    public static Result getServices() {
+        List<ServiceType> services = serviceService.getAllServiceTypes();
+        List<Integer> servicesIds = services.stream().map(o -> o.getId()).collect(Collectors.toList());
+        return ok(Json.newObject()
+                .putPOJO("allServiceTypes", servicesIds)
+                .putPOJO("servicetypes", Json.toJson(services)));
     }
 }

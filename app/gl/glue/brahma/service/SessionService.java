@@ -106,10 +106,15 @@ public class SessionService {
      * @return ObjectNode with all sessions grouped by state.
      */
     @Transactional
-    public List<SessionUser> getUserSessionsByService(int uid, int serviceTypeId, Set<Session.State> states) {
+    public List<SessionUser> getUserSessionsByService(int uid, Set<Session.State> states, int serviceTypeId) {
         ServiceType serviceType = serviceTypeDao.findById(serviceTypeId);
         if (serviceType == null) return null;
-        return sessionDao.findByService(uid, serviceTypeId, states);
+        return sessionDao.findByService(uid, states, serviceTypeId);
+    }
+
+    @Transactional
+    public List<SessionUser> getUserSessionsByService(int uid, Set<Session.State> states) {
+        return sessionDao.findByService(uid, states);
     }
 
     /**

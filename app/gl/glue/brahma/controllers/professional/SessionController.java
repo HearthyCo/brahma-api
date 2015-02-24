@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import gl.glue.brahma.model.service.Service;
 import gl.glue.brahma.model.servicetype.ServiceType;
 import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.model.sessionuser.SessionUser;
@@ -12,6 +13,7 @@ import gl.glue.brahma.service.ServiceService;
 import gl.glue.brahma.service.SessionService;
 import gl.glue.brahma.util.JsonUtils;
 import play.db.jpa.Transactional;
+import play.libs.F;
 import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
@@ -104,6 +106,52 @@ public class SessionController extends Controller {
         return ok(res);
     }
 
+    @ProfessionalAuth
+    @Transactional
+    @BodyParser.Of(BodyParser.Json.class)
+    public static Result getAssignedSessions() {
+        int uid = Integer.parseInt(session("id"));
+
+        // Create State Session List Array for iterate and pass DAO function a Session.State ArrayList
+        List<Service> services = serviceService.getServicesOfUser(uid);
+        Set<Session.State> states = EnumSet.of(Session.State.UNDERWAY, Session.State.CLOSED);
+
+        ArrayNode sessions = new ArrayNode(JsonNodeFactory.instance);
+        ArrayNode serviceTypes = new ArrayNode(JsonNodeFactory.instance);
+        ObjectNode sessionsByServiceType = Json.newObject();
+
+        Map<Integer, Integer> poolsSize = sessionService.getPoolsSize();
+
+        // Iterate State Session List Array
+        for (Service service : services) {
+            ServiceType serviceType = service.getServiceType();
+            ObjectNode serviceTypeObject = (ObjectNode) Json.toJson(serviceType);
+            int serviceTypeId = serviceType.getId();
+
+            int queue = poolsSize.containsKey(serviceTypeId) ? poolsSize.get(serviceTypeId) : 0;
+            serviceTypeObject.put("waiting", queue);
+
+            serviceTypes.add(serviceTypeObject);
+
+            List<SessionUser> sessionUsers = sessionService.getUserSessionsByService(uid, states, serviceTypeId);
+
+            ArrayNode sessionsThisService = new ArrayNode(JsonNodeFactory.instance);
+            for(SessionUser sessionUser : sessionUsers) {
+                Session session = sessionUser.getSession();
+
+                sessions.add(Json.toJson(session));
+                sessionsThisService.add(session.getId());
+            }
+
+            sessionsByServiceType.put(Integer.toString(serviceTypeId), sessionsThisService);
+        }
+
+        return ok(Json.newObject()
+                .putPOJO("serviceTypeSessions", sessionsByServiceType)
+                .putPOJO("sessions", sessions)
+                .putPOJO("servicetypes", serviceTypes));
+    }
+
     /**
      * @api {post} /professional/sessions/assigned/ Return assigned sessions
      *
@@ -155,21 +203,21 @@ public class SessionController extends Controller {
     @ProfessionalAuth
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
-    public static Result getAssignedSessions(int serviceTypeId) {
+    public static Result getServiceAssignedSessions(int serviceTypeId) {
         int uid = Integer.parseInt(session("id"));
 
         Set<Session.State> states = EnumSet.of(Session.State.UNDERWAY, Session.State.CLOSED);
-        List<SessionUser> sessionUsers = sessionService.getUserSessionsByService(uid, serviceTypeId, states);
+        List<SessionUser> sessionUsers = sessionService.getUserSessionsByService(uid, states, serviceTypeId);
 
         if (sessionUsers == null) return status(404, JsonUtils.simpleError("404", "Invalid identifier"));
 
         ArrayNode sessions = new ArrayNode(JsonNodeFactory.instance);
-        for(SessionUser sessionUser : sessionUsers) {
+        for (SessionUser sessionUser : sessionUsers) {
             ObjectNode sessionObject = (ObjectNode) Json.toJson(sessionUser.getSession());
             sessions.add(sessionObject);
         }
 
-        List<Integer> sessionIds = sessionUsers.stream().map(o->o.getSession().getId()).collect(Collectors.toList());
+        List<Integer> sessionIds = sessionUsers.stream().map(o -> o.getSession().getId()).collect(Collectors.toList());
 
         Map<Integer, Integer> poolsSize = sessionService.getPoolsSize();
         int queue = poolsSize.containsKey(serviceTypeId) ? poolsSize.get(serviceTypeId) : 0;

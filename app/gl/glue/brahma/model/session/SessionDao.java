@@ -80,12 +80,22 @@ public class SessionDao {
      * @param uid Target user id.
      * @return List of SessionUser in state passed filtered by ServiceType for an user
      */
-    public List<SessionUser> findByService(int uid, int serviceTypeId, Set<Session.State> states) {
-        String query = "Session.findByServiceSortTS";
+    public List<SessionUser> findByService(int uid, Set<Session.State> states, int serviceTypeId) {
+        String query = "Session.findByServiceIdSortTS";
 
         Query queryListSessionsState = JPA.em().createNamedQuery(query, SessionUser.class)
                 .setParameter("states", states)
                 .setParameter("serviceTypeId", serviceTypeId)
+                .setParameter("uid", uid);
+
+        return queryListSessionsState.getResultList();
+    }
+
+    public List<SessionUser> findByService(int uid, Set<Session.State> states) {
+        String query = "Session.findByServiceSortTS";
+
+        Query queryListSessionsState = JPA.em().createNamedQuery(query, SessionUser.class)
+                .setParameter("states", states)
                 .setParameter("uid", uid);
 
         return queryListSessionsState.getResultList();
