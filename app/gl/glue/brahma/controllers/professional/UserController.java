@@ -171,7 +171,7 @@ public class UserController extends Controller {
     public static Result update() {
 
         JsonNode json = request().body().asJson();
-        json = JsonUtils.cleanFields((ObjectNode)json, ModelSecurity.USER_PROFILE_MODIFICABLE_FIELDS);
+        json = JsonUtils.cleanFields((ObjectNode)json, ModelSecurity.USER_PROFILE_MODIFIABLE_FIELDS);
 
         // Parse the incoming data
         Professional professional;

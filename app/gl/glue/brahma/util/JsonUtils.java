@@ -114,7 +114,7 @@ public class JsonUtils {
     /**
      * Similar to {@link #cleanFields(ObjectNode, TreeMap)}, but receiving the allowed fields list as multiple parameters.
      * @param json The JSON object to clean. It will be modified in place.
-     * @param allowed The list of allowed fields, specified as "path.to.leaf".
+     * @param allowed The list of allowed fields, specified as "path.to.leaf". You can use * as a wildcard.
      * @return The same JSON object after cleaning it.
      */
     public static ObjectNode cleanFields(ObjectNode json, String... allowed) {
@@ -126,7 +126,7 @@ public class JsonUtils {
     /**
      * Similar to {@link #cleanFields(ObjectNode, TreeMap)}, but receiving the allowed fields list as a list of strings.
      * @param json The JSON object to clean. It will be modified in place.
-     * @param allowed The list of allowed fields, specified as "path.to.leaf".
+     * @param allowed The list of allowed fields, specified as "path.to.leaf". You can use * as a wildcard.
      * @return The same JSON object after cleaning it.
      */
     public static ObjectNode cleanFields(ObjectNode json, List<String> allowed) {
@@ -146,6 +146,7 @@ public class JsonUtils {
         json.fields().forEachRemaining(i -> {
             String key = i.getKey();
             TreeMap<String> submap = allowed.get(key);
+            if (submap == null) submap = allowed.get("*");
             if (submap != null) {
                 if (i.getValue().isObject()) {
                     json.replace(key, cleanFields((ObjectNode)i.getValue(), submap));
