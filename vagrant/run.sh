@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #Defaults
-containers="postgres"
+containers="postgres rabbitmq redis"
 
 if [[ "x$1" != "x" ]]; then
   containers=$1

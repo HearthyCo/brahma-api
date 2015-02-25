@@ -21,6 +21,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.network :forwarded_port, guest: 9200, host: 9200
   # postgres
   config.vm.network :forwarded_port, guest: 5432, host: 5432
+  # rabbitmq
+  config.vm.network :forwarded_port, guest: 5672, host: 5672
+  config.vm.network :forwarded_port, guest: 15672, host: 15672
+  # redis
+  config.vm.network :forwarded_port, guest: 6379, host: 6379
   # activator
   config.vm.network :forwarded_port, guest: 8889, host: 8889
 

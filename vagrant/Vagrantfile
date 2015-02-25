@@ -14,7 +14,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     v.vm.provider "docker" do |d|
       d.name = "postgres"
       d.image = "library/postgres"
-      d.volumes = ["/data:/var/lib/postgresql/data"]
+      d.volumes = ["/var/docker/postgres/data:/var/lib/postgresql/data"]
       d.ports = ["5432:5432"]
       d.env = {
         POSTGRES_USER: "brahma",
@@ -24,6 +24,29 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       d.vagrant_vagrantfile = "./proxy.Vagrantfile"
     end
     v.vm.synced_folder "docker-entrypoint-initdb.d", "/docker-entrypoint-initdb.d"
+  end
+
+  config.vm.define "rabbitmq" do |v|
+    v.vm.provider "docker" do |d|
+      d.name = "rabbitmq"
+      d.image = "library/rabbitmq"
+      d.volumes = ["/var/docker/rabbitmq/data/mnesia:/var/lib/rabbitmq/mnesia"]
+      d.ports = ["5672:5672","15672:15672"]
+      d.env = {
+        RABBITMQ_NODENAME: "brahma"
+      }
+      d.vagrant_vagrantfile = "./proxy.Vagrantfile"
+    end
+  end
+
+  config.vm.define "redis" do |v|
+    v.vm.provider "docker" do |d|
+      d.name = "redis"
+      d.image = "library/redis"
+      d.volumes = ["/var/docker/redis/data:/data"]
+      d.ports = ["6379:6379"]
+      d.vagrant_vagrantfile = "./proxy.Vagrantfile"
+    end
   end
 
   config.vm.define "activator" do |v|
