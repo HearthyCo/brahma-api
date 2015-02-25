@@ -94,62 +94,14 @@ public class SessionController extends Controller {
         if (!json.has("serviceType")) {
             return badRequest(JsonUtils.missingRequiredField("serviceType"));
         }
-        int type = json.get("serviceType").asInt();
+        int serviceTypeId = json.get("serviceType").asInt();
 
-        Session session = sessionService.assignSessionFromPool(uid, type);
+        Session session = sessionService.assignSessionFromPool(uid, serviceTypeId);
         if (session == null) {
             return notFound(JsonUtils.simpleError("404", "Couldn't assign any session"));
         }
 
-        ObjectNode res = Json.newObject();
-        res.put("session", Json.toJson(session));
-        return ok(res);
-    }
-
-    @ProfessionalAuth
-    @Transactional
-    @BodyParser.Of(BodyParser.Json.class)
-    public static Result getAssignedSessions() {
-        int uid = Integer.parseInt(session("id"));
-
-        // Create State Session List Array for iterate and pass DAO function a Session.State ArrayList
-        List<Service> services = serviceService.getServicesOfUser(uid);
-        Set<Session.State> states = EnumSet.of(Session.State.UNDERWAY, Session.State.CLOSED);
-
-        ArrayNode sessions = new ArrayNode(JsonNodeFactory.instance);
-        ArrayNode serviceTypes = new ArrayNode(JsonNodeFactory.instance);
-        ObjectNode sessionsByServiceType = Json.newObject();
-
-        Map<Integer, Integer> poolsSize = sessionService.getPoolsSize();
-
-        // Iterate State Session List Array
-        for (Service service : services) {
-            ServiceType serviceType = service.getServiceType();
-            ObjectNode serviceTypeObject = (ObjectNode) Json.toJson(serviceType);
-            int serviceTypeId = serviceType.getId();
-
-            int queue = poolsSize.containsKey(serviceTypeId) ? poolsSize.get(serviceTypeId) : 0;
-            serviceTypeObject.put("waiting", queue);
-
-            serviceTypes.add(serviceTypeObject);
-
-            List<SessionUser> sessionUsers = sessionService.getUserSessionsByService(uid, states, serviceTypeId);
-
-            ArrayNode sessionsThisService = new ArrayNode(JsonNodeFactory.instance);
-            for(SessionUser sessionUser : sessionUsers) {
-                Session session = sessionUser.getSession();
-
-                sessions.add(Json.toJson(session));
-                sessionsThisService.add(session.getId());
-            }
-
-            sessionsByServiceType.put(Integer.toString(serviceTypeId), sessionsThisService);
-        }
-
-        return ok(Json.newObject()
-                .putPOJO("serviceTypeSessions", sessionsByServiceType)
-                .putPOJO("sessions", sessions)
-                .putPOJO("servicetypes", serviceTypes));
+        return getAssignedSessions();
     }
 
     /**
@@ -203,36 +155,45 @@ public class SessionController extends Controller {
     @ProfessionalAuth
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
-    public static Result getServiceAssignedSessions(int serviceTypeId) {
+    public static Result getAssignedSessions() {
         int uid = Integer.parseInt(session("id"));
 
+        // Create State Session List Array for iterate and pass DAO function a Session.State ArrayList
+        List<Service> services = serviceService.getServicesOfUser(uid);
         Set<Session.State> states = EnumSet.of(Session.State.UNDERWAY, Session.State.CLOSED);
-        List<SessionUser> sessionUsers = sessionService.getUserSessionsByService(uid, states, serviceTypeId);
-
-        if (sessionUsers == null) return status(404, JsonUtils.simpleError("404", "Invalid identifier"));
 
         ArrayNode sessions = new ArrayNode(JsonNodeFactory.instance);
-        for (SessionUser sessionUser : sessionUsers) {
-            ObjectNode sessionObject = (ObjectNode) Json.toJson(sessionUser.getSession());
-            sessions.add(sessionObject);
-        }
-
-        List<Integer> sessionIds = sessionUsers.stream().map(o -> o.getSession().getId()).collect(Collectors.toList());
+        ArrayNode serviceTypes = new ArrayNode(JsonNodeFactory.instance);
+        ObjectNode sessionsByServiceType = Json.newObject();
 
         Map<Integer, Integer> poolsSize = sessionService.getPoolsSize();
-        int queue = poolsSize.containsKey(serviceTypeId) ? poolsSize.get(serviceTypeId) : 0;
 
-        ArrayNode serviceTypes = new ArrayNode(JsonNodeFactory.instance);
-        ServiceType serviceType = serviceService.findByTypeId(serviceTypeId);
-        ObjectNode serviceTypeObject = (ObjectNode) Json.toJson(serviceType);
-        serviceTypeObject.put("waiting", queue);
-        serviceTypes.add(serviceTypeObject);
+        // Iterate State Session List Array
+        for (Service service : services) {
+            ServiceType serviceType = service.getServiceType();
+            ObjectNode serviceTypeObject = (ObjectNode) Json.toJson(serviceType);
+            int serviceTypeId = serviceType.getId();
 
-        ObjectNode sessionIdsObject = Json.newObject();
-        sessionIdsObject.put(Integer.toString(serviceTypeId), Json.toJson(sessionIds));
+            int queue = poolsSize.containsKey(serviceTypeId) ? poolsSize.get(serviceTypeId) : 0;
+            serviceTypeObject.put("waiting", queue);
+
+            serviceTypes.add(serviceTypeObject);
+
+            List<SessionUser> sessionUsers = sessionService.getUserSessionsByService(uid, states, serviceTypeId);
+
+            ArrayNode sessionsThisService = new ArrayNode(JsonNodeFactory.instance);
+            for(SessionUser sessionUser : sessionUsers) {
+                Session session = sessionUser.getSession();
+
+                sessions.add(Json.toJson(session));
+                sessionsThisService.add(session.getId());
+            }
+
+            sessionsByServiceType.put(Integer.toString(serviceTypeId), sessionsThisService);
+        }
 
         return ok(Json.newObject()
-                .putPOJO("serviceSessions", sessionIdsObject)
+                .putPOJO("serviceTypeSessions", sessionsByServiceType)
                 .putPOJO("sessions", sessions)
                 .putPOJO("servicetypes", serviceTypes));
     }
