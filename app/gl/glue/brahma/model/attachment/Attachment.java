@@ -6,6 +6,7 @@ import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.model.user.User;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Entity
 public class Attachment {
@@ -30,12 +31,19 @@ public class Attachment {
     @JsonIgnore
     private User user;
 
-    private String path;
+    @NotNull
+    private String url;
 
+    @NotNull
+    private String filename;
+
+    @NotNull
+    private int size;
 
     public int getId() {
         return id;
     }
+
 
     public HistoryEntry getHistoryEntry() {
         return historyEntry;
@@ -61,13 +69,30 @@ public class Attachment {
         this.user = user;
     }
 
-    public String getPath() {
-        return path;
+    public String getUrl() {
+        return url;
     }
 
-    public void setPath(String path) {
-        this.path = path;
+    public void setUrl(String url) {
+        this.url = url;
     }
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
+    }
+
 
 
     @Override

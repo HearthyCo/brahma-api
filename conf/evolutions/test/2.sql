@@ -73,7 +73,6 @@ INSERT INTO "session_user" (id, session_id, user_id, notification_id, service_id
   (91603, 90701, 90008, null, 90402, 90502, '{}'),
   (91604, 90702, 90000, null, 90401, 90501, '{}'),
   (91605, 90703, 90000, null, 90402, 90502, '{}'),
-
   (91606, 90704, 90000, null, 90401, 90501, '{}'),
   (91607, 90704, 90008, null, 90401, 90501, '{}'),
   (91608, 90704, 90001, null, 90401, 90501, '{}'),
@@ -85,7 +84,6 @@ INSERT INTO "session_user" (id, session_id, user_id, notification_id, service_id
   (91614, 90709, 90008, null, 90401, 90501, '{}'),
   (91615, 90710, 90009, null, 90401, 90501, '{}'),
   (91616, 90711, 90001, null, 90401, 90501, '{}'),
-
   (91617, 90712, 90000, null, null, null, '{}');
 
 
@@ -107,9 +105,9 @@ INSERT INTO history_entry (id, owner_user_id, editor_user_id, history_entry_type
   (91101, 90000, 90005, 'allergies', 'Gluten', '2014-12-15 08:30:00', false, 'Indigestión aguda.', '{"rating": 3}'),
   (91102, 90000, 90005, 'treatments', 'Caminar', '2014-12-15 08:30:00', false, 'Camina una hora al día', '{}');
 
-INSERT INTO attachment (id, history_entry_id, session_id, user_id, path) VALUES
-  (91200, 91102, null, 90005, 'infographic.pdf'),
-  (91201, null, 90700, 90000, 'xray.jpg');
+INSERT INTO attachment (id, history_entry_id, session_id, user_id, url, filename, size) VALUES
+  (91200, 91102, null, 90005, 'http://i.imgur.com/MmOMZ.jpg', 'got real.jpg', 26328),
+  (91201, null, 90700, 90000, 'http://i.imgur.com/wwqMF.jpg', 'leaf.jpg', 145943);
 
 INSERT INTO transaction (id, user_id, session_id, amount, state, sku, timestamp, reason) VALUES
   (91300, 90000, null, 20001000, 'APPROVED', 'TOPUPPPL_000000090000_0000001423154291', '2014-12-15 06:00:00', 'Incremento de saldo'),
