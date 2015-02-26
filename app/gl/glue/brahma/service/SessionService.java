@@ -112,13 +112,8 @@ public class SessionService {
         return sessionDao.findByService(uid, states, serviceTypeId);
     }
 
-    @Transactional
-    public List<SessionUser> getUserSessionsByService(int uid, Set<Session.State> states) {
-        return sessionDao.findByService(uid, states);
-    }
-
     /**
-     * Creates a session
+     * Creates a new requested session
      * @param uid           User Login to create session
      * @param serviceType   Service type id to search in DAO functions
      * @param state         Session state
@@ -131,7 +126,7 @@ public class SessionService {
 
 
     /**
-     * Creates a session
+     * Creates a new programmed session
      * @param uid           User Login to create session
      * @param serviceType   Service type id to search in DAO functions
      * @param state         Session state
