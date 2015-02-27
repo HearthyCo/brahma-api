@@ -39,10 +39,10 @@ public class HomeControllerTest extends TransactionalTest {
         ObjectNode ret = TestUtils.toJson(result);
 
         // Sessions
-        JsonNode services = ret.get("home").get("services");
+        JsonNode services = ret.get("servicetypes");
         JsonNode sessions = ret.get("sessions");
 
         assertEquals(3, services.size());
-        assertEquals(0, sessions.size());
+        assertEquals(1, sessions.size());
     }
 }

@@ -1,17 +1,21 @@
 package gl.glue.brahma.test.controllers.professional;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.collect.FluentIterable;
+
 import org.junit.Test;
+import play.Logger;
 import play.libs.Json;
-import play.mvc.Http;
-import play.test.FakeRequest;
 import utils.TransactionalTest;
 
 import play.mvc.Result;
 import utils.TestUtils;
 
+import java.util.List;
+
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static play.test.Helpers.*;
 
 public class SessionControllerTest extends TransactionalTest {
@@ -103,5 +107,29 @@ public class SessionControllerTest extends TransactionalTest {
         assertNotNull(result);
         assertEquals(200, result.toScala().header().status());
         assertEquals(1, ret.get("pools").get("90302").asInt());
+    }
+
+    @Test
+    public void testAppendChatOk() {
+        String login = "testProfessional1@glue.gl";
+        Result auth = TestUtils.makeProfessionalLoginRequest(login, login);
+
+        int id = 90714;
+        String message = "Hola pisicola";
+        String messageString = "{ \"message\": \"" + message + "\" }";
+
+        ObjectNode messageObject = Json.newObject();
+        messageObject.put("sessionId", 90714);
+        messageObject.put("message", messageString);
+
+        Result resultAppend = TestUtils.callController(POST, "/v1/professional/session/chat/append", auth, messageObject);
+        ObjectNode retAppend = TestUtils.toJson(resultAppend);
+
+        Logger.info("APPEND " + retAppend);
+
+        ArrayNode chatMessageList = (ArrayNode) retAppend.get("chat").get(String.valueOf(id));
+        for(JsonNode chatMessage : chatMessageList) {
+            assertEquals(message, chatMessage.get("message").asText());
+        }
     }
 }

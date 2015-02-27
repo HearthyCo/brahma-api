@@ -1,6 +1,7 @@
 package gl.glue.brahma.test.controllers.client;
 
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import utils.TransactionalTest;
 import org.junit.Test;
@@ -33,10 +34,9 @@ public class ServiceControllerTest extends TransactionalTest {
         assertEquals(200, result.toScala().header().status());
 
         ObjectNode ret = TestUtils.toJson(result);
-        ObjectNode services = (ObjectNode) ret.get("services");
+        ArrayNode services = (ArrayNode) ret.get("servicetypes");
 
-        assertEquals(1, services.size());
-        assertEquals(3, services.get("general").size());
+        assertEquals(3, services.size());
 
     }
 }
