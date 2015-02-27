@@ -59,7 +59,7 @@ public class AttachmentService {
         userMetadata.put("sessionId", Integer.toString(sessionId));
 
         // Upload
-        //S3Plugin.putFile(key, file, userMetadata); // TODO: Uncomment me when adding AWS keys
+        S3Plugin.putFile(key, file, userMetadata);
 
         // Finally add to DB
         Attachment attachment = new Attachment();

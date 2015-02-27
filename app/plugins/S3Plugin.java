@@ -5,11 +5,17 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import org.apache.tika.Tika;
 import play.Application;
+import play.Logger;
 import play.Plugin;
 
+import javax.activation.MimetypesFileTypeMap;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Map;
 
 public class S3Plugin extends Plugin {
@@ -51,7 +57,15 @@ public class S3Plugin extends Plugin {
 
     public static void putFile(String key, File file, Map<String, String> userMetadata) {
         PutObjectRequest putObjectRequest = new PutObjectRequest(s3Bucket, key, file);
-        putObjectRequest.getMetadata().setUserMetadata(userMetadata);
+        ObjectMetadata meta = putObjectRequest.getMetadata();
+        if (meta == null) {
+            meta = new ObjectMetadata();
+            putObjectRequest.setMetadata(meta);
+        }
+        meta.setUserMetadata(userMetadata);
+        try {
+            meta.setContentType(new Tika().detect(file));
+        } catch (IOException e) {}
         putObjectRequest.withCannedAcl(CannedAccessControlList.PublicRead); // public for all
         amazonS3.putObject(putObjectRequest);
     }
