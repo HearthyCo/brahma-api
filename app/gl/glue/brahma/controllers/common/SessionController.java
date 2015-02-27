@@ -1,6 +1,8 @@
 package gl.glue.brahma.controllers.common;
 
 import actions.BasicAuth;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import gl.glue.brahma.model.attachment.Attachment;
 import gl.glue.brahma.service.AttachmentService;
 import gl.glue.brahma.util.JsonUtils;
@@ -40,7 +42,8 @@ public class SessionController extends Controller {
         // TODO: Send push notification
         System.out.println("URL: " + attachment.getUrl() + " (" + attachment.getFilename() + ")");
 
-        return ok(Json.newObject());
+        return ok(Json.newObject()
+                .putPOJO("attachments", new ArrayNode(JsonNodeFactory.instance).add(Json.toJson(attachment))));
     }
 
 }
