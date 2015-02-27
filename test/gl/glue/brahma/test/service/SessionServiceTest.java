@@ -1,9 +1,14 @@
 package gl.glue.brahma.test.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.model.sessionuser.SessionUser;
 import gl.glue.brahma.service.SessionService;
+import play.Logger;
+import utils.FakePaypalHelper;
+import utils.FakeRedisHelper;
 import utils.TransactionalTest;
 import org.junit.Test;
 import play.db.jpa.JPA;
@@ -91,7 +96,7 @@ public class SessionServiceTest extends TransactionalTest {
         int uid = 90000;
         List<SessionUser> result = sessionService.getState(state, uid);
         assertNotNull(result);
-        assertEquals(1, result.size());
+        assertEquals(3, result.size());
     }
 
     @Test // Request session with closed (closed and finished) state
@@ -137,7 +142,7 @@ public class SessionServiceTest extends TransactionalTest {
 
         state = EnumSet.of(Session.State.UNDERWAY);
         sessionsUser = sessionService.getUserSessionsByState(uid, state);
-        assertEquals(0, sessionsUser.size());
+        assertEquals(1, sessionsUser.size());
 
         state = EnumSet.of(Session.State.CLOSED, Session.State.FINISHED);
         sessionsUser = sessionService.getUserSessionsByState(uid, state);
@@ -180,6 +185,19 @@ public class SessionServiceTest extends TransactionalTest {
         assertTrue(pools.containsKey(90301));
         assertTrue(pools.containsKey(90302));
         assertEquals(1, pools.get(90302).intValue());
+    }
+
+    @Test
+    public void appendChatMessageOK() {
+        FakeRedisHelper fakeRedisHelper = new FakeRedisHelper();
+        sessionService.setRedisHelper(fakeRedisHelper);
+        int id = 90714;
+        String message = "{ \"message\": \"Hola pisicola\" }";
+        ArrayNode chatMessages = sessionService.appendChatMessage(id, message);
+        for(JsonNode chatMessage : chatMessages) {
+            assertEquals(Json.parse(message), chatMessage);
+        }
+        fakeRedisHelper.clearAll();
     }
 
 }

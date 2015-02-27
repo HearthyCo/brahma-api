@@ -19,8 +19,10 @@ import gl.glue.brahma.model.user.Client;
 import gl.glue.brahma.model.user.Professional;
 import gl.glue.brahma.model.user.User;
 import gl.glue.brahma.model.user.UserDao;
+import gl.glue.brahma.util.RedisHelper;
 import play.db.jpa.Transactional;
 import play.libs.Json;
+import redis.clients.jedis.Jedis;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -37,6 +39,9 @@ public class SessionService {
     private ServiceDao serviceDao = new ServiceDao();
     private ServiceTypeDao serviceTypeDao = new ServiceTypeDao();
     private TransactionDao transactionDao = new TransactionDao();
+    private RedisHelper redisHelper = new RedisHelper();
+
+    public void setRedisHelper(RedisHelper redisHelper) { this.redisHelper = redisHelper; }
 
     /**
      * Create Session JSON object from object array from Session DAO
@@ -112,13 +117,8 @@ public class SessionService {
         return sessionDao.findByService(uid, states, serviceTypeId);
     }
 
-    @Transactional
-    public List<SessionUser> getUserSessionsByService(int uid, Set<Session.State> states) {
-        return sessionDao.findByService(uid, states);
-    }
-
     /**
-     * Creates a session
+     * Creates a new requested session
      * @param uid           User Login to create session
      * @param serviceType   Service type id to search in DAO functions
      * @param state         Session state
@@ -131,7 +131,7 @@ public class SessionService {
 
 
     /**
-     * Creates a session
+     * Creates a new programmed session
      * @param uid           User Login to create session
      * @param serviceType   Service type id to search in DAO functions
      * @param state         Session state
@@ -206,6 +206,46 @@ public class SessionService {
 
         session.setState(Session.State.UNDERWAY);
         return session;
+    }
+
+    /**
+     * Append a message in session
+     * @param sessionId Target session to append message.
+     * @param message Message for append
+     * @return List of all messages for target session
+     */
+    @Transactional
+    public ArrayNode appendChatMessage(int sessionId, String message) {
+        Jedis redis = redisHelper.getResource();
+        String key = redisHelper.generateKey(sessionId);
+
+        redis.rpush(key, message);
+
+        return getChatMessages(sessionId);
+    }
+
+    /**
+     * Get all messages in session
+     * @param sessionId Target session to append message.
+     * @return List of all messages for target session
+     */
+    @Transactional
+    public ArrayNode getChatMessages(int sessionId) {
+        Jedis redis = redisHelper.getResource();
+        String key = redisHelper.generateKey(sessionId);
+        int size = redis.llen(key).intValue();
+
+        List<String> redisMessages = redis.lrange(key, 0, size);
+        ArrayNode messages = new ArrayNode(JsonNodeFactory.instance);
+        for (String redisMessage : redisMessages) {
+            try {
+                messages.add(Json.parse(redisMessage));
+            } catch(RuntimeException e) {
+                // prevent parse errors
+            }
+        }
+
+        return messages;
     }
 
 }

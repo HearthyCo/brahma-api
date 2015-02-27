@@ -165,7 +165,7 @@ public class SessionControllerTest extends TransactionalTest {
 
         assertNotNull(result);
         assertEquals(200, result.toScala().header().status());
-        assertEquals(1, ret.get("sessions").size());
+        assertEquals(3, ret.get("sessions").size());
     }
 
     @Test // Request session with closed (closed and finished) state

@@ -64,7 +64,8 @@ INSERT INTO session (id, service_type_id, title, start_date, end_date, state, ti
   (90710, 90302, 'testSession11', '2015-05-22 17:00:00', '2015-05-23 17:15:00', 'PROGRAMMED', '2014-12-15 08:00:00', '{}'),
   (90711, 90302, 'testSession12', '2015-06-27 17:00:00', '2015-06-30 17:15:00', 'PROGRAMMED', '2014-12-15 08:00:00', '{}'),
   (90712, 90302, 'testPool1', '2015-02-11 17:00:00', '2015-02-11 17:15:00', 'REQUESTED', '2014-12-15 08:00:00', '{}'),
-  (90713, 90301, 'testPool2', '2015-02-14 18:00:00', '2015-02-14 18:18:00', 'REQUESTED', '2014-12-15 08:00:00', '{}');
+  (90713, 90301, 'testPool2', '2015-02-14 18:00:00', '2015-02-14 18:18:00', 'REQUESTED', '2014-12-15 08:00:00', '{}'),
+  (90714, 90302, 'testPool3', '2015-02-14 18:00:00', '2015-02-14 18:18:00', 'UNDERWAY', '2014-12-15 08:00:00', '{}');
 
 INSERT INTO "session_user" (id, session_id, user_id, notification_id, service_id, availability_id, meta) VALUES
   (91600, 90700, 90000, 90600, 90401, 90501, '{}'),
@@ -85,8 +86,10 @@ INSERT INTO "session_user" (id, session_id, user_id, notification_id, service_id
   (91614, 90709, 90008, null, 90401, 90501, '{}'),
   (91615, 90710, 90009, null, 90401, 90501, '{}'),
   (91616, 90711, 90001, null, 90401, 90501, '{}'),
-
-  (91617, 90712, 90000, null, null, null, '{}');
+  (91617, 90712, 90000, null, null, null, '{}'),
+  (91618, 90713, 90000, null, null, null, '{}'),
+  (91619, 90714, 90000, null, 90403, null, '{}'),
+  (91620, 90714, 90005, null, 90403, null, '{}');
 
 
 INSERT INTO session_log (id, session_id, user_id, timestamp, action) VALUES

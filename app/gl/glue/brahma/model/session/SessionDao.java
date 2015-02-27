@@ -91,17 +91,6 @@ public class SessionDao {
         return queryListSessionsState.getResultList();
     }
 
-    public List<SessionUser> findByService(int uid, Set<Session.State> states) {
-        String query = "Session.findByServiceSortTS";
-
-        Query queryListSessionsState = JPA.em().createNamedQuery(query, SessionUser.class)
-                .setParameter("states", states)
-                .setParameter("uid", uid);
-
-        return queryListSessionsState.getResultList();
-    }
-
-
     /**
      * Find the number of sessions in the specified state for a given user.
      * @param states States to include in the count.

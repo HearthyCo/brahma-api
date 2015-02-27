@@ -4,11 +4,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 
 import com.typesafe.config.ConfigFactory;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
+import org.junit.*;
 
-import org.junit.BeforeClass;
 import play.db.jpa.JPA;
 import play.db.jpa.JPAPlugin;
 import play.test.FakeApplication;
