@@ -8,13 +8,11 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.service.SessionService;
 import gl.glue.brahma.util.JsonUtils;
-import gl.glue.brahma.util.RedisHelper;
 import play.db.jpa.Transactional;
 import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
-import redis.clients.jedis.Jedis;
 
 import java.util.List;
 
@@ -87,26 +85,10 @@ public class SessionController extends Controller {
         Session session = sessionService.getById(sessionId);
         if (session == null) return status(404, JsonUtils.simpleError("404", "Invalid identifier"));
 
-        RedisHelper redisHelper = new RedisHelper();
-        Jedis redis = redisHelper.getResource();
-        String key = redisHelper.generateKey(sessionId);
-        int size = redis.llen(key).intValue();
-
-        List<String> redisMessages = redis.lrange(key, 0, size);
-        ArrayNode messages = new ArrayNode(JsonNodeFactory.instance);
-        for (String redisMessage : redisMessages) {
-            try {
-                messages.add(Json.parse(redisMessage));
-            } catch(RuntimeException e) {
-                // prevent parse errors
-            }
-        }
-
-        redis.set("test", "ok");
-
+        ArrayNode redisMessages = sessionService.getChatMessages(sessionId);
         return ok(Json.newObject()
                 .putPOJO("chat", Json.newObject()
-                        .putPOJO(String.valueOf(session.getId()), messages))
+                        .putPOJO(String.valueOf(session.getId()), redisMessages))
                 .putPOJO("sessions", new ArrayNode(JsonNodeFactory.instance).add(Json.toJson(session))));
     }
 
@@ -196,26 +178,10 @@ public class SessionController extends Controller {
         Session session = sessionService.getById(sessionId);
         if (session == null) return status(404, JsonUtils.simpleError("404", "Invalid identifier"));
 
-        RedisHelper redisHelper = new RedisHelper();
-        Jedis redis = redisHelper.getResource();
-        String key = redisHelper.generateKey(sessionId);
-
-        redis.rpush(key, message);
-
-        int size = redis.llen(key).intValue();
-        List<String> redisMessages = redis.lrange(key, 0, size);
-        ArrayNode messages = new ArrayNode(JsonNodeFactory.instance);
-        for (String redisMessage : redisMessages) {
-            try {
-                messages.add(Json.parse(redisMessage));
-            } catch(RuntimeException e) {
-                // prevent parse errors
-            }
-        }
-
+        ArrayNode redisMessages = sessionService.appendChatMessage(sessionId, message);
         return ok(Json.newObject()
                 .putPOJO("chat", Json.newObject()
-                        .putPOJO(String.valueOf(session.getId()), messages))
+                        .putPOJO(String.valueOf(session.getId()), redisMessages))
                 .putPOJO("sessions", new ArrayNode(JsonNodeFactory.instance).add(Json.toJson(session))));
     }
 }

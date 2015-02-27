@@ -18,22 +18,17 @@ public class RedisHelper {
     }
 
     public RedisHelper() {
-        if(pool == null) {
-            pool = new JedisPool(
-                    new JedisPoolConfig(),
-                    conf.getString("redis.host"),
-                    Integer.valueOf(conf.getString("redis.port")),
-                    Integer.valueOf(conf.getString("redis.timeout")),
-                    null,
-                    Integer.valueOf(conf.getString("redis.database")));
-        }
+        initRedis();
+    }
 
-        Logger.info("INIT REDIS " + conf.getString("redis.database"));
+    public void initRedis() {
+        if(pool == null) {
+            pool = new JedisPool(new JedisPoolConfig(), conf.getString("redis.host"));
+        }
     }
 
     public Jedis getResource() {
         if(pool == null) return null;
-
         return pool.getResource();
     }
 
