@@ -314,7 +314,9 @@ CREATE TABLE IF NOT EXISTS attachment (
   history_entry_id INT    NULL,
   session_id       INT    NULL,
   user_id          INT    NULL,
-  path             TEXT   NULL,
+  url              TEXT   NOT NULL,
+  filename         TEXT   NOT NULL,
+  size             INT    NOT NULL,
   PRIMARY KEY (id),
   CONSTRAINT fk_attachment_history_entry1
   FOREIGN KEY (history_entry_id)

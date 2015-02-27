@@ -1,8 +1,6 @@
 package gl.glue.brahma.model.historyentry;
 
 import play.db.jpa.JPA;
-import play.db.jpa.Transactional;
-import javax.persistence.NoResultException;
 import java.util.List;
 
 public class HistoryEntryDao {
@@ -12,7 +10,6 @@ public class HistoryEntryDao {
      * @param id HistoryEntry ID
      * @return The specified HistoryEntry, or null if not found
      */
-    @Transactional
     public HistoryEntry findById(int id) {
         return JPA.em().find(HistoryEntry.class, id);
     }
@@ -22,7 +19,6 @@ public class HistoryEntryDao {
      * @param uid Target user ID
      * @return List of HistoryEntry matching the criteria
      */
-    @Transactional
     public List<HistoryEntry> findByUser(int uid) {
         return JPA.em().createNamedQuery("HistoryEntry.findByUser", HistoryEntry.class)
                 .setParameter("uid", uid)
@@ -35,7 +31,6 @@ public class HistoryEntryDao {
      * @param type Type of HistoryEntry to search for
      * @return List of HistoryEntry matching the criteria
      */
-    @Transactional
     public List<HistoryEntry> findByUserAndType(int uid, String type) {
         return JPA.em().createNamedQuery("HistoryEntry.findByUserAndType", HistoryEntry.class)
                 .setParameter("uid", uid)
@@ -47,7 +42,6 @@ public class HistoryEntryDao {
      * Saves a new HistoryEntry and makes it managed.
      * @param entry The new entry
      */
-    @Transactional
     public void create(HistoryEntry entry) {
         JPA.em().persist(entry);
     }
@@ -57,7 +51,6 @@ public class HistoryEntryDao {
      * @param entry The new entry
      * @return A managed copy of the received entry
      */
-    @Transactional
     public HistoryEntry update(HistoryEntry entry) {
         return JPA.em().merge(entry);
     }
