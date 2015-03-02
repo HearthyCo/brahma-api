@@ -1,1 +1,2 @@
 1500:plugins.S3Plugin
+1600:plugins.AmqpPlugin

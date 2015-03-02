@@ -19,5 +19,6 @@ libraryDependencies ++= Seq(
   "com.paypal.sdk" % "rest-api-sdk" % "1.1.0",
   "redis.clients" % "jedis" % "2.6.0",
   "com.amazonaws" % "aws-java-sdk" % "1.9.22",
-  "org.apache.tika" % "tika-core" % "1.7"
+  "org.apache.tika" % "tika-core" % "1.7",
+  "com.rabbitmq" % "amqp-client" % "3.4.4"
 )
