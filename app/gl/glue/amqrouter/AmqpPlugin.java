@@ -1,11 +1,11 @@
-package plugins;
+package gl.glue.amqrouter;
 
 import com.rabbitmq.client.*;
 import com.typesafe.config.ConfigFactory;
+import gl.glue.brahma.controllers.amq.MessageController;
 import play.Application;
 import play.Plugin;
 
-import java.io.IOException;
 import java.util.List;
 
 
@@ -24,9 +24,16 @@ public class AmqpPlugin extends Plugin {
 
     @Override
     public void onStart() {
-        String uri = ConfigFactory.load().getString("rabbitmq.uri");
-        exchange = ConfigFactory.load().getString("rabbitmq.exchange");
-        List<String> bindings = ConfigFactory.load().getStringList("rabbitmq.bindings");
+        String router = ConfigFactory.load().getString("amq.router");
+        String uri = ConfigFactory.load().getString("amq.uri");
+        exchange = ConfigFactory.load().getString("amq.exchange");
+        List<String> bindings = ConfigFactory.load().getStringList("amq.bindings");
+
+        try {
+            Class.forName(router); // Calls its static initialization
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("Router class not found.", e);
+        }
 
         ConnectionFactory factory = new ConnectionFactory();
         try {
@@ -46,14 +53,14 @@ public class AmqpPlugin extends Plugin {
                 while (!exiting) {
                     try {
                         QueueingConsumer.Delivery delivery = consumer.nextDelivery();
-                        String message = new String(delivery.getBody());
-                        String routingKey = delivery.getEnvelope().getRoutingKey();
-                        handleMessage(routingKey, message);
+                        Router.route(delivery);
                     } catch (InterruptedException e) { }
                 }
             };
             consumerThread = new Thread(r);
             consumerThread.start();
+
+            Router.on("JOIN").routeTo(MessageController::echoBack);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -61,6 +68,7 @@ public class AmqpPlugin extends Plugin {
 
     @Override
     public void onStop(){
+        Router.clear();
         try {
             exiting = true;
             consumerThread.interrupt();
@@ -74,23 +82,18 @@ public class AmqpPlugin extends Plugin {
 
     @Override
     public boolean enabled() {
-        return (application.configuration().keys().contains("rabbitmq.uri") &&
-                application.configuration().keys().contains("rabbitmq.exchange") &&
-                application.configuration().keys().contains("rabbitmq.bindings"));
+        return (application.configuration().keys().contains("amq.router") &&
+                application.configuration().keys().contains("amq.uri") &&
+                application.configuration().keys().contains("amq.exchange") &&
+                application.configuration().keys().contains("amq.bindings"));
     }
 
-    public void sendMessage(String routingKey, String message) {
-        AMQP.BasicProperties props = new AMQP.BasicProperties();
-        try {
-            channel.basicPublish(exchange, routingKey, props, message.getBytes());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    Channel getChannel() {
+        return channel;
     }
 
-    private void handleMessage(String routingKey, String message) {
-        System.out.println(" [x] Received '" + routingKey + "':'" + message + "'");
-        if (!routingKey.equals("repeat")) sendMessage("repeat", message); // TODO: this is just a demo
+    String getExchange() {
+        return exchange;
     }
 
 }
