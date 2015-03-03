@@ -1,9 +1,9 @@
 package gl.glue.brahma.controllers.amq;
 
 import com.rabbitmq.client.QueueingConsumer;
-import gl.glue.amqrouter.AmqController;
+import gl.glue.play.amqp.Controller;
 
-public class MessageController extends AmqController {
+public class MessageController extends Controller {
 
     public static void doNothing(QueueingConsumer.Delivery delivery) {
         String key = delivery.getEnvelope().getRoutingKey();
