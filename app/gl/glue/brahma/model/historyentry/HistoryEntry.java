@@ -18,6 +18,7 @@ import java.util.Date;
                 name="HistoryEntry.findByUser",
                 query="select he " +
                         "from HistoryEntry he " +
+                        "join fetch he.type " +
                         "where he.owner.id = :uid " +
                         "and he.removed = false"
         ),

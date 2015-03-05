@@ -57,8 +57,8 @@ GET            /v1/professional/session/pools                                   
 GET            /v1/professional/sessions/assigned                                   gl.glue.brahma.controllers.professional.SessionController.getAssignedSessions()
 
 POST           /v1/professional/session/chat/append                                 gl.glue.brahma.controllers.common.SessionController.appendChatMessage()
-GET            /v1/professional/session/chat/history/:session                       gl.glue.brahma.controllers.common.SessionController.getChatHistory(session: Integer)
-#GET            /v1/professional/session/:session                                   gl.glue.brahma.controllers.professional.SessionController.getSession(session: Integer)
+GET            /v1/professional/session/:session/chat/history                       gl.glue.brahma.controllers.common.SessionController.getChatHistory(session: Integer)
+GET            /v1/professional/session/:session                                   gl.glue.brahma.controllers.professional.SessionController.getSession(session: Integer)
 POST           /v1/professional/session/:session/attach                             gl.glue.brahma.controllers.common.SessionController.uploadAttachment(session: Integer)
 
 # Services

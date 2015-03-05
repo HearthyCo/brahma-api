@@ -5,30 +5,30 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import gl.glue.brahma.model.historyentry.HistoryEntry;
 import gl.glue.brahma.model.service.Service;
 import gl.glue.brahma.model.servicetype.ServiceType;
 import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.model.sessionuser.SessionUser;
+import gl.glue.brahma.model.user.User;
+import gl.glue.brahma.service.HistoryService;
 import gl.glue.brahma.service.ServiceService;
 import gl.glue.brahma.service.SessionService;
 import gl.glue.brahma.util.JsonUtils;
 import play.db.jpa.Transactional;
-import play.libs.F;
 import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
 
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class SessionController extends Controller {
 
     private static SessionService sessionService = new SessionService();
     private static ServiceService serviceService = new ServiceService();
+    private static HistoryService historyService = new HistoryService();
 
     /**
      * @api {post} /client/session/assignPool Assign session from pool
@@ -232,5 +232,121 @@ public class SessionController extends Controller {
         ObjectNode ret = Json.newObject();
         ret.put("pools", Json.toJson(sessionService.getPoolsSize()));
         return ok(ret);
+    }
+
+    /**
+     * @api {get} /session/:sessionId Session
+     * @apiGroup Session
+     * @apiName GetSession
+     * @apiDescription Collect info on a session and its participants.
+     *
+     * @apiParam {Integer} id Session unique ID.
+     *
+     * @apiSuccess {Object} session Info about the specified session.
+     * @apiSuccess {Object} session.users Info about the participants on the session.
+     * @apiSuccess {Object} session.users.me Info about the current user.
+     * @apiSuccess {Object[]} session.users.professionals Info about other professionals in the session.
+     * @apiSuccess {Object[]} session.users.clients Info about other clients in the session (for professionals only).
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *         "session": {
+     *             "id": 90700,
+     *             "title": "testSession1",
+     *             "startDate": 1425312000000,
+     *             "endDate": 1425312900000,
+     *             "state": "PROGRAMMED",
+     *             "meta": {},
+     *             "timestamp": 1418626800000,
+     *             "users": {
+     *                 "me": {
+     *                     "id": 90000,
+     *                     "login": "testClient1",
+     *                     "name": "Test",
+     *                     "surname1": "Client",
+     *                     "surname2": "User1",
+     *                     "birthdate": "1987-12-24",
+     *                     "avatar": null,
+     *                     "nationalId": "12345678Z",
+     *                     "gender": "FEMALE",
+     *                     "meta": {},
+     *                     "sessionMeta": {},
+     *                     "report": null
+     *                 },
+     *                 "professionals": [
+     *                     {
+     *                         "id": 90005,
+     *                         "login": "testProfessional1",
+     *                         "name": "Test",
+     *                         "surname1": "Professional",
+     *                         "surname2": "User1",
+     *                         "birthdate": "1969-12-31",
+     *                         "avatar": "http://comps.canstockphoto.com/can-stock-photo_csp6253298.jpg",
+     *                         "nationalId": "99999999Z",
+     *                         "gender": "MALE",
+     *                         "meta": {},
+     *                         "sessionMeta": {},
+     *                         "service": "Field1"
+     *                     }
+     *                 ]
+     *             }
+     *         }
+     *     }
+     *
+     * @apiError SessionNotFound The <code>id</code> of the Session was not found.
+     * @apiErrorExample {json} SessionNotFound
+     *      HTTP/1.1 404 Not Found
+     *      {
+     *          "status": "404",
+     *          "title": "Invalid identifier"
+     *      }
+     *
+     * @apiError UserNotLoggedIn User is not logged in.
+     * @apiErrorExample {json} UserNotLoggedIn
+     *      HTTP/1.1 401 Unauthorized
+     *      {
+     *          "status": "401",
+     *          "title": "You are not logged in"
+     *      }
+     *
+     * @apiVersion 0.1.0
+     */
+    @ProfessionalAuth
+    @Transactional
+    @BodyParser.Of(BodyParser.Json.class)
+    public static Result getSession(int id) {
+        int uid = Integer.parseInt(session("id"));
+        Session session = sessionService.getById(id, uid);
+        if (session == null) return status(404, JsonUtils.simpleError("404", "Invalid identifier"));
+
+        List<SessionUser> sessionUsers = sessionService.getSessionUsers(id);
+        List<Integer> participants = new ArrayList<>();
+        List<User> users = new ArrayList<>();
+        List<HistoryEntry> historyEntries = new ArrayList<>();
+        ObjectNode userHistoryEntries = Json.newObject();
+
+        for (SessionUser sessionUser: sessionUsers) {
+            User u = sessionUser.getUser();
+            if (u.getId() == uid) {
+                sessionUser.setViewedDate(new Date());
+            }
+            participants.add(sessionUser.getId());
+            users.add(u);
+            if (u.getType().equals("client")) {
+                List<HistoryEntry> userHistory = historyService.getHistory(u.getId());
+                List<Integer> userHistoryIds = userHistory.stream().map(o -> o.getId()).collect(Collectors.toList());
+                historyEntries.addAll(userHistory);
+                userHistoryEntries.put(Integer.toString(u.getId()), Json.toJson(userHistoryIds));
+            }
+        }
+
+        return ok(Json.newObject()
+            .putPOJO("sessions", new ArrayNode(JsonNodeFactory.instance).add(Json.toJson(session)))
+            .putPOJO("users", Json.toJson(users))
+            .putPOJO("sessionusers", Json.toJson(sessionUsers))
+            .putPOJO("participants", Json.newObject().putPOJO(Integer.toString(id), Json.toJson(participants)))
+            .putPOJO("historyentries", Json.toJson(historyEntries))
+            .putPOJO("userHistoryEntries", userHistoryEntries));
     }
 }

@@ -121,14 +121,12 @@ public class SessionController extends Controller {
         List<SessionUser> visibleSessionUsers = new ArrayList<>();
         List<User> visibleUsers = new ArrayList<>();
 
-        User user = userService.getById(uid);
-
         for (SessionUser sessionUser: sessionUsers) {
             User u = sessionUser.getUser();
             if (u.getId() == uid) {
                 sessionUser.setViewedDate(new Date());
             }
-            if (!(u instanceof Client) || user instanceof Professional || u.getId() == uid) {
+            if (!(u instanceof Client) || u.getId() == uid) {
                 participants.add(sessionUser.getId());
                 visibleSessionUsers.add(sessionUser);
                 visibleUsers.add(u);
