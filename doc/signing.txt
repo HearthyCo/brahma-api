@@ -1,0 +1,23 @@
+Autenticación basada en firma para chat
+---------------------------------------
+
+Para cada campo que se deba autenticar, se añade un campo de firma:
+    data:
+      sessions: [1, 10, 100]
+      _sessions_sign: "SIGNATURE"
+
+La firma se divide en dos partes:
+    - Una cadena base64 de 44 caracteres con la firma criptográfica
+    - Un unix timestamp con milisegundos del instante en que se firmó
+
+Para calcular la firma, se procede del siguiente modo:
+    - Se pasa a cadena el valor del campo a firmar (stringify, sin espaciado)
+    - Se guarda la fecha del instante actual, en el formato antes indicado
+    - Se calcula la función HMAC_SHA256 utilizando:
+        - key: El secreto compartido entre los servidores
+        - msg: timestamp + campo
+    - Se obtiene el resultado en Base64, y se concatena el mismo timestamp
+
+Para verificarla, se procede del mismo modo, utilizando la fecha proporcionada
+en lugar de la actual. Si el resultado coincide con el proporcionado, el dato
+es válido.

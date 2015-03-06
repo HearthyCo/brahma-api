@@ -14,6 +14,7 @@ import gl.glue.brahma.service.SessionService;
 import gl.glue.brahma.service.UserService;
 import gl.glue.brahma.util.JsonUtils;
 import gl.glue.brahma.util.ModelSecurity;
+import gl.glue.brahma.util.SignatureHelper;
 import play.db.jpa.Transactional;
 import play.libs.Json;
 import play.mvc.BodyParser;
@@ -306,6 +307,7 @@ public class SessionController extends Controller {
 
         result = Json.newObject();
         result.put("session", sessionRet);
+        SignatureHelper.addSignatures(result, uid);
         return ok(result);
     }
 
@@ -391,6 +393,7 @@ public class SessionController extends Controller {
 
         result = Json.newObject();
         result.put("session", sessionRet);
+        SignatureHelper.addSignatures(result, uid);
         return ok(result);
     }
 }

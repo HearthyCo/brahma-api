@@ -15,6 +15,7 @@ import gl.glue.brahma.service.HistoryService;
 import gl.glue.brahma.service.ServiceService;
 import gl.glue.brahma.service.SessionService;
 import gl.glue.brahma.util.JsonUtils;
+import gl.glue.brahma.util.SignatureHelper;
 import play.db.jpa.Transactional;
 import play.libs.Json;
 import play.mvc.BodyParser;
@@ -192,10 +193,12 @@ public class SessionController extends Controller {
             sessionsByServiceType.put(Integer.toString(serviceTypeId), sessionsThisService);
         }
 
-        return ok(Json.newObject()
+        ObjectNode result = Json.newObject()
                 .putPOJO("serviceTypeSessions", sessionsByServiceType)
                 .putPOJO("sessions", sessions)
-                .putPOJO("servicetypes", serviceTypes));
+                .putPOJO("servicetypes", serviceTypes);
+        SignatureHelper.addSignatures(result, uid);
+        return ok(result);
     }
 
 

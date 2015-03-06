@@ -18,6 +18,13 @@ import java.util.Date;
                         "and sessionUser.user.id = :uid"
         ),
         @NamedQuery(
+                name = "Session.findIdsByUser",
+                query = "select sessionUser.session.id " +
+                        "from SessionUser sessionUser " +
+                        "where sessionUser.user.id = :uid " +
+                        "order by sessionUser.session.id asc"
+        ),
+        @NamedQuery(
                 name = "Session.findByStateSortStart",
                 query = "select sessionUser " +
                         "from SessionUser sessionUser " +

@@ -161,4 +161,10 @@ public class SessionDao {
         }
     }
 
+    public List<Integer> findIdsByUser(int uid) {
+        return JPA.em().createNamedQuery("Session.findIdsByUser", Integer.class)
+                .setParameter("uid", uid)
+                .getResultList();
+    }
+
 }

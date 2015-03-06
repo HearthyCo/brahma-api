@@ -96,6 +96,16 @@ public class SessionService {
     }
 
     /**
+     * Return a list of session ids for the given user.
+     * @param uid The target user ID
+     * @return ObjectNode with all sessions grouped by state.
+     */
+    @Transactional
+    public List<Integer> getUserSessionIds(int uid) {
+        return sessionDao.findIdsByUser(uid);
+    }
+
+    /**
      * Return Sessions by user to show in home screen
      * @param uid User Login to search in DAO functions
      * @return ObjectNode with all sessions grouped by state.

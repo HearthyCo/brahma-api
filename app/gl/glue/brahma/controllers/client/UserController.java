@@ -10,6 +10,7 @@ import gl.glue.brahma.model.user.User;
 import gl.glue.brahma.service.UserService;
 import gl.glue.brahma.util.JsonUtils;
 import gl.glue.brahma.util.ModelSecurity;
+import gl.glue.brahma.util.SignatureHelper;
 import play.db.jpa.Transactional;
 import play.libs.Json;
 import play.mvc.BodyParser;
@@ -96,7 +97,7 @@ public class UserController extends Controller {
 
         result = Json.newObject();
         result.put("users", new ArrayNode(JsonNodeFactory.instance).add(Json.toJson(user)));
-
+        SignatureHelper.addSignatures(result, user.getId());
         return ok(result);
     }
 
@@ -199,7 +200,7 @@ public class UserController extends Controller {
 
         result = Json.newObject();
         result.put("users", new ArrayNode(JsonNodeFactory.instance).add(Json.toJson(user)));
-
+        SignatureHelper.addSignatures(result, user.getId());
         return ok(result);
     }
 
@@ -339,7 +340,7 @@ public class UserController extends Controller {
 
         ObjectNode result = Json.newObject();
         result.put("users", new ArrayNode(JsonNodeFactory.instance).add(Json.toJson(user)));
-
+        SignatureHelper.addSignatures(result, user.getId());
         return ok(result);
     }
 
