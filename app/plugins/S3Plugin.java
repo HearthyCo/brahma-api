@@ -55,7 +55,7 @@ public class S3Plugin extends Plugin {
         return "https://s3.amazonaws.com/" + s3Bucket + "/" + key;
     }
 
-    public static void putFile(String key, File file, Map<String, String> userMetadata) {
+    public static PutObjectRequest putFile(String key, File file, Map<String, String> userMetadata) {
         PutObjectRequest putObjectRequest = new PutObjectRequest(s3Bucket, key, file);
         ObjectMetadata meta = putObjectRequest.getMetadata();
         if (meta == null) {
@@ -68,6 +68,8 @@ public class S3Plugin extends Plugin {
         } catch (IOException e) {}
         putObjectRequest.withCannedAcl(CannedAccessControlList.PublicRead); // public for all
         amazonS3.putObject(putObjectRequest);
+
+        return  putObjectRequest;
     }
 
 }

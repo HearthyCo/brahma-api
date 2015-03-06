@@ -317,6 +317,7 @@ CREATE TABLE IF NOT EXISTS attachment (
   url              TEXT   NOT NULL,
   filename         TEXT   NOT NULL,
   size             INT    NOT NULL,
+  mime             TEXT   NULL,
   PRIMARY KEY (id),
   CONSTRAINT fk_attachment_history_entry1
   FOREIGN KEY (history_entry_id)

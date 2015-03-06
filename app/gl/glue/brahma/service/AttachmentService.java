@@ -1,5 +1,6 @@
 package gl.glue.brahma.service;
 
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import gl.glue.brahma.model.attachment.Attachment;
 import gl.glue.brahma.model.attachment.AttachmentDao;
 import gl.glue.brahma.model.session.Session;
@@ -59,7 +60,7 @@ public class AttachmentService {
         userMetadata.put("sessionId", Integer.toString(sessionId));
 
         // Upload
-        S3Plugin.putFile(key, file, userMetadata);
+        PutObjectRequest putObjectRequest = S3Plugin.putFile(key, file, userMetadata);
 
         // Finally add to DB
         Attachment attachment = new Attachment();
@@ -68,6 +69,7 @@ public class AttachmentService {
         attachment.setUrl(S3Plugin.key2url(key));
         attachment.setFilename(filename);
         attachment.setSize((int) file.length());
+        attachment.setMime(putObjectRequest.getMetadata().getContentType());
         attachmentDao.create(attachment);
 
         return attachment;

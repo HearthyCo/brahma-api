@@ -187,7 +187,6 @@ public class SessionController extends Controller {
                         .putPOJO(String.valueOf(session.getId()), redisMessages))
                 .putPOJO("sessions", new ArrayNode(JsonNodeFactory.instance).add(Json.toJson(session))));
     }
-
     @BasicAuth
     @Transactional
     public static Result uploadAttachment(int sessionId) {

@@ -40,6 +40,8 @@ public class Attachment {
     @NotNull
     private int size;
 
+    private String mime;
+
     public int getId() {
         return id;
     }
@@ -91,6 +93,14 @@ public class Attachment {
 
     public void setSize(int size) {
         this.size = size;
+    }
+
+    public String getMime() {
+        return mime;
+    }
+
+    public void setMime(String mime) {
+        this.mime = mime;
     }
 
 
