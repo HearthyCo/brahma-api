@@ -1,13 +1,17 @@
 package gl.glue.brahma.service;
 
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import gl.glue.brahma.model.attachment.Attachment;
 import gl.glue.brahma.model.attachment.AttachmentDao;
 import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.model.session.SessionDao;
 import gl.glue.brahma.model.user.User;
 import gl.glue.brahma.model.user.UserDao;
+import gl.glue.play.amqp.Controller;
 import play.db.jpa.Transactional;
+import play.libs.Json;
 import plugins.S3Plugin;
 
 import java.io.File;
@@ -71,6 +75,23 @@ public class AttachmentService {
         attachment.setSize((int) file.length());
         attachment.setMime(putObjectRequest.getMetadata().getContentType());
         attachmentDao.create(attachment);
+
+        // And send AMQP notification
+        Controller.sendMessage("chat.attachment",
+            new ArrayNode(JsonNodeFactory.instance)
+                .addPOJO(Json.newObject()
+                    .put("id", "play.attachment." + attachment.getId())
+                    .put("type", "attachment")
+                    .put("session", sessionId)
+                    .put("author", userId)
+                    .putPOJO("data", Json.newObject()
+                        .put("message", attachment.getFilename())
+                        .put("href", attachment.getUrl())
+                        .put("type", attachment.getMime())
+                        .put("size", attachment.getSize())
+                    )
+                )
+            .toString());
 
         return attachment;
     }

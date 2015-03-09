@@ -23,7 +23,7 @@ public class Controller {
      * @param routingKey The routing key for the message.
      * @param message The message body.
      */
-    protected static void sendMessage(String routingKey, String message) {
+    public static void sendMessage(String routingKey, String message) {
         AMQP.BasicProperties props = new AMQP.BasicProperties();
         try {
             plugin.getChannel().basicPublish(plugin.getExchange(), routingKey, props, message.getBytes());

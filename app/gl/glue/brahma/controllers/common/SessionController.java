@@ -208,9 +208,6 @@ public class SessionController extends Controller {
             return status(404, JsonUtils.simpleError("404", "Invalid identifier"));
         }
 
-        // TODO: Send push notification
-        System.out.println("URL: " + attachment.getUrl() + " (" + attachment.getFilename() + ")");
-
         return ok(Json.newObject()
                 .putPOJO("attachments", new ArrayNode(JsonNodeFactory.instance).add(Json.toJson(attachment))));
     }
