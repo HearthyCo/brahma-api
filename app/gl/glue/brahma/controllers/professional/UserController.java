@@ -32,30 +32,47 @@ public class UserController extends Controller {
      * @apiParam {String} password  Password
      * @apiParamExample {json} Request-Example
      *      {
-     *          "login": "professional1",
-     *          "password": "professional1PasswordDummy"
+     *          "login": "testProfessional1@glue.gl",
+     *          "password": "testProfessional1@glue.gl"
      *      }
      *
-     * @apiSuccess {object} user    Contains all user fields after login
+     * @apiSuccess {Array}  user    Contains all user fields after login
+     * @apiSuccess {Array}  sign    Contains all signed user content index (sessions, id)
      * @apiSuccessExample {json} Success-Response
      *      HTTP/1.1 200 OK
      *      {
-     *          "users": [{
-     *              "id": 1,
-     *              "login": "professional1",
-     *              "name": "Professional1",
-     *              "surname1": "For",
-     *              "surname2": "Service",
-     *              "birthdate": "1987-08-06",
-     *              "avatar": "http://...",
-     *              "nationalId": "12345678A",
-     *              "gender": "MALE",
-     *              "meta": {}
-     *          }]
+     *          "users": [
+     *              {
+     *                  "id": 90005,
+     *                  "login": null,
+     *                  "email": "testprofessional1@glue.gl",
+     *                  "name": "Test",
+     *                  "surname1": "Professional",
+     *                  "surname2": "User1",
+     *                  "birthdate": "1969-12-31",
+     *                  "avatar": "http://...",
+     *                  "nationalId": "12345678A",
+     *                  "gender": "MALE",
+     *                  "balance": 2300,
+     *                  "meta": {},
+     *                  "type": "professional"
+     *              }
+     *          ],
+     *          "sign": [
+     *              {
+     *                  "id": "sessions",
+     *                  "signature": "jBFTvM5669uJ9eLbN8CUhyAUTmgkjUpXn1GLXqOtR5Q=1425987517615",
+     *                  "value": [ 90700, 90712 ]
+     *              },
+     *              {
+     *                  "id": "userId",
+     *                  "signature": "oG8urM4fQFc4ma2fJ58TtAC/lO9CUwDa73goXytm1NA=1425987517619",
+     *                  "value": 90005
+     *              }
+     *          ]
      *      }
      *
-     * @apiError {Object} MissingRequiredField Params has not a required field.
-     * @apiError {Object} InvalidParams Username (login field) or password is wrong.
+     * @apiError {Object} MissingRequiredField  Params has not a required field.
      * @apiErrorExample {json} MissingRequiredField
      *      HTTP/1.1 400 BadRequest
      *      {
@@ -63,11 +80,20 @@ public class UserController extends Controller {
      *          "title": "Missing required field `field`"
      *      }
      *
+     * @apiError {Object} InvalidParams Username (login field) or password is wrong.
      * @apiErrorExample {json} InvalidParams
-     *      HTTP/1.1 401 Unauthorized
+     *      HTTP/1.1 401 InvalidParams
      *      {
      *          "status": "401",
      *          "title": "Invalid username or password."
+     *      }
+     *
+     * @apiError {Object} Unauthorized  Unauthorized type user
+     * @apiErrorExample {json} Unauthorized
+     *      HTTP/1.1 403 Unauthorized
+     *      {
+     *          "status": "403",
+     *          "title": "Unauthorized."
      *      }
      *
      * @apiVersion 0.1.0
@@ -104,7 +130,7 @@ public class UserController extends Controller {
      * @api {post} /professional/me/update Update
      *
      * @apiGroup Professional
-     * @apiName Updtae
+     * @apiName Update
      * @apiDescription Allow professional user can to update fields profile.
      *
      * @apiParam {String}               email       Unique identifier for user in service.
@@ -116,6 +142,7 @@ public class UserController extends Controller {
      * @apiParam {String}               surname2    Optional. Real user second surname.
      * @apiParam {String}               avatar      Optional. Url for user avatar.
      * @apiParam {String}               nationalId  Optional. Number iof id card.
+     * @apiParam {String}               meta        Optional. Number iof id card.
      * @apiParamExample {json} Request-Example
      *      {
      *          "email": "professional1@example.com",
@@ -130,7 +157,7 @@ public class UserController extends Controller {
      *          "meta": {}
      *      }
      *
-     * @apiSuccess {object} user    Contains all user fields after register.
+     * @apiSuccess {Array} users    Contains all user fields after update.
      * @apiSuccessExample {json} Success-Response
      *      HTTP/1.1 200 OK
      *      {
@@ -240,5 +267,4 @@ public class UserController extends Controller {
         SignatureHelper.addSignatures(result, user.getId());
         return ok(result);
     }
-
 }
