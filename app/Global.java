@@ -18,8 +18,11 @@ public class Global extends GlobalSettings {
         public Promise<Result> call(Http.Context ctx) throws java.lang.Throwable {
             Config conf = ConfigFactory.load();
             Http.Response response = ctx.response();
-            response.setHeader("Access-Control-Allow-Origin", conf.getString("cors.origin"));
-            response.setHeader("Access-Control-Allow-Credentials", "true");
+            String origin = ctx.request().getHeader("Origin");
+            if (conf.getStringList("cors.origins").contains(origin)) {
+                response.setHeader("Access-Control-Allow-Origin", origin);
+                response.setHeader("Access-Control-Allow-Credentials", "true");
+            }
             Promise<Result> result = this.delegate.call(ctx);
             return result;
         }

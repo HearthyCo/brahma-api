@@ -90,12 +90,17 @@ public class Application extends Controller {
 
     public static Result preflight(String all) {
         Config conf = ConfigFactory.load();
-        response().setHeader("Access-Control-Allow-Origin", conf.getString("cors.origin"));
-        response().setHeader("Allow", "*");
-        response().setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS");
-        response().setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Referer, User-Agent");
-        response().setHeader("Access-Control-Allow-Credentials", "true");
-        response().setHeader("Access-Control-Max-Age", "86400");
-        return ok();
+        String origin = request().getHeader("Origin");
+        if (conf.getStringList("cors.origins").contains(origin)) {
+            response().setHeader("Access-Control-Allow-Origin", origin);
+            response().setHeader("Allow", "*");
+            response().setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS");
+            response().setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Referer, User-Agent");
+            response().setHeader("Access-Control-Allow-Credentials", "true");
+            response().setHeader("Access-Control-Max-Age", "86400");
+            return ok();
+        } else {
+            return unauthorized();
+        }
     }
 }

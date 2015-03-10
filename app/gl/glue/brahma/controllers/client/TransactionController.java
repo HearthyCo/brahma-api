@@ -148,7 +148,7 @@ public class TransactionController extends Controller {
 
         int amount = json.findPath("amount").asInt();
 
-        String baseUrl = conf.getString("cors.origin");
+        String baseUrl = conf.getStringList("cors.origins").get(0); // Just a sane default...
         if (request().hasHeader("Referer")) {
             try {
                 URL url = new URL(request().getHeader("Referer"));
