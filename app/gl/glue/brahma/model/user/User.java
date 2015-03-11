@@ -3,6 +3,7 @@ package gl.glue.brahma.model.user;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
+import gl.glue.brahma.util.JsonUtils;
 import org.mindrot.jbcrypt.BCrypt;
 import play.libs.Json;
 
@@ -47,14 +48,12 @@ public abstract class User {
     @JsonIgnore
     private boolean canLogin = true;
 
-    @NotNull
     private String name;
 
     private String surname1;
 
     private String surname2;
 
-    @NotNull
     @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
     private Date birthdate;
 
@@ -63,8 +62,11 @@ public abstract class User {
     private String nationalId;
 
     @Enumerated(EnumType.STRING)
-    @NotNull
+    @NotNull // Fake to prevent typing bug
     private Gender gender;
+
+    @NotNull
+    private boolean confirmed = false;
 
     @NotNull
     private int balance = 0;
@@ -163,6 +165,14 @@ public abstract class User {
         this.gender = gender;
     }
 
+    public boolean isConfirmed() {
+        return confirmed;
+    }
+
+    public void setConfirmed(boolean confirmed) {
+        this.confirmed = confirmed;
+    }
+
     public int getBalance() { return this.balance; }
 
     public void setBalance(int balance) { this.balance = balance; }
@@ -187,6 +197,10 @@ public abstract class User {
         this.meta = meta == null ? "{}" : meta.toString();
     }
 
+    public void mergeMeta(JsonNode update) {
+        setMeta(JsonUtils.merge(getMeta(), update));
+    }
+
     @Override
     public String toString() {
         String fullname = name + " " + surname1;
@@ -204,7 +218,7 @@ public abstract class User {
         if (updated.getSurname2() != null) this.setSurname2(updated.getSurname2());
         if (updated.getAvatar() != null) this.setAvatar(updated.getAvatar());
         if (updated.getNationalId() != null) this.setNationalId(updated.getNationalId());
-        if (updated.getMeta() != null) this.setMeta(updated.getMeta()); // TODO: We have to properly merge these
+        if (updated.getMeta() != null) this.mergeMeta(updated.getMeta());
     }
 
     public void setPassword(String password) {

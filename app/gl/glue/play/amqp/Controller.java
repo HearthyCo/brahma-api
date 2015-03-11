@@ -24,6 +24,7 @@ public class Controller {
      * @param message The message body.
      */
     public static void sendMessage(String routingKey, String message) {
+        if (plugin == null) return; // Fail silently if plugin is not loaded.
         AMQP.BasicProperties props = new AMQP.BasicProperties();
         try {
             plugin.getChannel().basicPublish(plugin.getExchange(), routingKey, props, message.getBytes());

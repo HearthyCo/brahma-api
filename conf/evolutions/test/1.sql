@@ -56,6 +56,7 @@ CREATE TABLE IF NOT EXISTS "user" (
   avatar                     TEXT      NULL,
   national_id                TEXT      NULL,
   gender                     gender    NULL,
+  confirmed                  BOOLEAN   NOT NULL,
   balance                    INT       NOT NULL,
   online_limit               TIMESTAMP NULL,
   admin_level                INT       NULL DEFAULT 0,
