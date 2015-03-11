@@ -204,4 +204,27 @@ public class JsonUtils {
 
     }
 
+    /**
+     * Merges two JsonNode objects, updating the first one with the values in the second one.
+     * It merges recursively all the inner objects if present on both arguments. On type mismatch,
+     * values get replaced instead. Fields missing on the updates will get preserved.
+     * @param defaults
+     * @param updates
+     * @return
+     */
+    public static JsonNode merge(JsonNode defaults, JsonNode updates) {
+
+        // If we're merging something that isn't an Object, just grab the updates, nothing to merge.
+        if (!(defaults instanceof ObjectNode) || !(updates instanceof ObjectNode)) return updates;
+
+        // Recursive merge two objects.
+        Iterator<String> fieldNames = updates.fieldNames();
+        while (fieldNames.hasNext()) {
+            String fieldName = fieldNames.next();
+            ((ObjectNode) defaults).put(fieldName, merge(defaults.get(fieldName), updates.get(fieldName)));
+            // The put is idempotent for inner objects, and needed for all other cases.
+        }
+
+        return defaults;
+    }
 }

@@ -185,6 +185,9 @@ public class UserController extends Controller {
             return status(400, JsonUtils.handleDeserializeException(e, "user"));
         }
 
+        // Quick checks
+        if (client.getGender() == null) client.setGender(User.Gender.OTHER); // TODO: Better value here?
+
         // Register the user
         User user;
         try {
