@@ -3,7 +3,9 @@ package gl.glue.brahma.model.user;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import gl.glue.brahma.util.JsonUtils;
+import gl.glue.brahma.util.serializers.UserMetaCleanerSerializer;
 import org.mindrot.jbcrypt.BCrypt;
 import play.libs.Json;
 
@@ -185,6 +187,7 @@ public abstract class User {
         this.onlineLimit = onlineLimit;
     }
 
+    @JsonSerialize(using = UserMetaCleanerSerializer.class)
     public JsonNode getMeta() {
         if (metaParsed == null) {
             metaParsed = meta == null ? Json.newObject() : Json.parse(meta);

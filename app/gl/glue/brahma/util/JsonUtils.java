@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.POJONode;
 import play.api.libs.iteratee.Enumerator;
 import play.libs.Json;
 import play.mvc.Result;
@@ -112,24 +113,24 @@ public class JsonUtils {
 
 
     /**
-     * Similar to {@link #cleanFields(ObjectNode, TreeMap)}, but receiving the allowed fields list as multiple parameters.
+     * Similar to {@link #cleanFields(T, TreeMap)}, but receiving the allowed fields list as multiple parameters.
      * @param json The JSON object to clean. It will be modified in place.
      * @param allowed The list of allowed fields, specified as "path.to.leaf". You can use * as a wildcard.
      * @return The same JSON object after cleaning it.
      */
-    public static ObjectNode cleanFields(ObjectNode json, String... allowed) {
+    public static <T extends JsonNode> T cleanFields(T json, String... allowed) {
         TreeMap<String> map = new TreeMap<>();
         for (String s: allowed) map.add(s.split("\\."));
         return cleanFields(json, map);
     }
 
     /**
-     * Similar to {@link #cleanFields(ObjectNode, TreeMap)}, but receiving the allowed fields list as a list of strings.
+     * Similar to {@link #cleanFields(T, TreeMap)}, but receiving the allowed fields list as a list of strings.
      * @param json The JSON object to clean. It will be modified in place.
      * @param allowed The list of allowed fields, specified as "path.to.leaf". You can use * as a wildcard.
      * @return The same JSON object after cleaning it.
      */
-    public static ObjectNode cleanFields(ObjectNode json, List<String> allowed) {
+    public static <T extends JsonNode> T cleanFields(T json, List<String> allowed) {
         TreeMap<String> map = new TreeMap<>();
         allowed.forEach(s -> map.add(s.split("\\.")));
         return cleanFields(json, map);
@@ -141,21 +142,21 @@ public class JsonUtils {
      * @param allowed The list of allowed fields.
      * @return The same JSON object after cleaning it.
      */
-    public static ObjectNode cleanFields(ObjectNode json, TreeMap<String> allowed) {
-        List<String> remove = new ArrayList<>();
-        json.fields().forEachRemaining(i -> {
-            String key = i.getKey();
+    public static <T extends JsonNode> T cleanFields(T json, TreeMap<String> allowed) {
+        Iterator<Map.Entry<String, JsonNode>> fields = json.fields();
+        while (fields.hasNext()) {
+            Map.Entry<String, JsonNode> field = fields.next();
+            String key = field.getKey();
             TreeMap<String> submap = allowed.get(key);
             if (submap == null) submap = allowed.get("*");
             if (submap != null) {
-                if (i.getValue().isObject()) {
-                    json.replace(key, cleanFields((ObjectNode)i.getValue(), submap));
+                if (field.getValue().isObject() || field.getValue().isPojo()) {
+                    field.setValue(cleanFields(field.getValue(), submap));
                 }
             } else {
-                remove.add(key);
+                fields.remove();
             }
-        });
-        remove.forEach(i -> json.remove(i));
+        }
         return json;
     }
 
