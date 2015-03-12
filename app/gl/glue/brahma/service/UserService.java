@@ -26,7 +26,6 @@ public class UserService {
     public User register(User user) {
         user.setEmail(user.getEmail().toLowerCase());
         // Email confirmation
-        user.setConfirmed(false);
         user.mergeMeta(Json.newObject()
                 .putPOJO("confirm", Json.newObject()
                         .putPOJO("mail", Json.newObject()

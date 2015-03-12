@@ -14,7 +14,8 @@ SET search_path TO brahma, PUBLIC;
 
 -- Enums --
 
-CREATE TYPE user_type AS ENUM ('PROFESSIONAL', 'CLIENT', 'TUTOR', 'COORDINATOR');
+CREATE TYPE user_type AS ENUM ('PROFESSIONAL', 'CLIENT', 'TUTOR', 'COORDINATOR', 'ADMIN');
+CREATE TYPE user_state AS ENUM ('UNCONFIRMED', 'CONFIRMED', 'DELEGATED', 'BANNED', 'REMOVED');
 CREATE TYPE gender AS ENUM ('MALE', 'FEMALE', 'OTHER');
 CREATE TYPE service_mode AS ENUM ('ASYNC', 'VIDEO');
 CREATE TYPE session_action AS ENUM ('ACCEPT', 'JOIN', 'CLOSE', 'FINISH', 'REJECT', 'AWAY', 'ABORT');
@@ -39,28 +40,27 @@ CREATE TABLE IF NOT EXISTS institution (
 );
 
 CREATE TABLE IF NOT EXISTS "user" (
-  id                         SERIAL    NOT NULL,
-  type                       user_type NOT NULL,
-  manager_user_id            INT       NULL,
-  tutor_user_id              INT       NULL,
-  collective_collective_id   INT       NULL,
-  institution_institution_id INT       NULL,
-  login                      TEXT      NULL,
-  password                   TEXT      NULL,
-  can_login                  BOOLEAN   NOT NULL,
-  email                      TEXT      NOT NULL,
-  name                       TEXT      NULL,
-  surname1                   TEXT      NULL,
-  surname2                   TEXT      NULL,
-  birthdate                  DATE      NULL,
-  avatar                     TEXT      NULL,
-  national_id                TEXT      NULL,
-  gender                     gender    NULL,
-  confirmed                  BOOLEAN   NOT NULL,
-  balance                    INT       NOT NULL,
-  online_limit               TIMESTAMP NULL,
-  admin_level                INT       NULL DEFAULT 0,
-  meta                       JSON      NULL,
+  id                          SERIAL      NOT NULL,
+  type                        user_type   NOT NULL,
+  manager_user_id             INT         NULL,
+  tutor_user_id               INT         NULL,
+  collective_collective_id    INT         NULL,
+  institution_institution_id  INT         NULL,
+  login                       TEXT        NULL,
+  password                    TEXT        NULL,
+  state                       user_state  NOT NULL DEFAULT 'UNCONFIRMED',
+  email                       TEXT        NOT NULL,
+  name                        TEXT        NULL,
+  surname1                    TEXT        NULL,
+  surname2                    TEXT        NULL,
+  birthdate                   DATE        NULL,
+  avatar                      TEXT        NULL,
+  national_id                 TEXT        NULL,
+  gender                      gender      NULL,
+  balance                     INT         NOT NULL,
+  online_limit                TIMESTAMP   NULL,
+  admin_level                 INT         NULL DEFAULT 0,
+  meta                        JSON        NULL,
   PRIMARY KEY (id),
   CONSTRAINT fk_user_user1
   FOREIGN KEY (manager_user_id)
