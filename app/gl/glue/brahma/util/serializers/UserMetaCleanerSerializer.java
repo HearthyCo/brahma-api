@@ -20,7 +20,7 @@ public class UserMetaCleanerSerializer extends JsonSerializer<JsonNode> {
             throws IOException {
         ObjectNode myMeta = Json.newObject();
         myMeta.put("meta", (ObjectNode) meta.deepCopy());
-        JsonUtils.cleanFields(myMeta, ModelSecurity.USER_MODIFICABLE_FIELDS);
+        JsonUtils.cleanFields(myMeta, ModelSecurity.USER_MODIFIABLE_FIELDS);
         jsonGenerator.writeTree(myMeta.get("meta"));
     }
 }
