@@ -18,6 +18,9 @@ GET            /assets/*file                                                    
 POST           /v1/client                                                           gl.glue.brahma.controllers.client.UserController.register()
 POST           /v1/client/login                                                     gl.glue.brahma.controllers.client.UserController.login()
 POST           /v1/client/logout                                                    gl.glue.brahma.controllers.common.UserController.logout()
+POST           /v1/client/recover                                                   gl.glue.brahma.controllers.common.UserController.requestPasswordChange()
+POST           /v1/client/recover/confirm                                           gl.glue.brahma.controllers.common.UserController.confirmPasswordChange()
+POST           /v1/client/me/confirm                                                gl.glue.brahma.controllers.common.UserController.confirmMail()
 POST           /v1/client/me/update                                                 gl.glue.brahma.controllers.client.UserController.update()
 GET            /v1/client/me                                                        gl.glue.brahma.controllers.client.UserController.getMe()
 GET            /v1/client/me/home                                                   gl.glue.brahma.controllers.client.HomeController.getHome()
@@ -47,6 +50,9 @@ POST           /v1/client/transaction/execute                                   
 #Me
 POST           /v1/professional/login                                               gl.glue.brahma.controllers.professional.UserController.login()
 POST           /v1/professional/logout                                              gl.glue.brahma.controllers.common.UserController.logout()
+POST           /v1/professional/recover                                             gl.glue.brahma.controllers.common.UserController.requestPasswordChange()
+POST           /v1/professional/recover/confirm                                     gl.glue.brahma.controllers.common.UserController.confirmPasswordChange()
+POST           /v1/professional/me/confirm                                          gl.glue.brahma.controllers.common.UserController.confirmMail()
 POST           /v1/professional/me/update                                           gl.glue.brahma.controllers.professional.UserController.update()
 GET            /v1/professional/me                                                  gl.glue.brahma.controllers.professional.UserController.getMe()
 GET            /v1/professional/me/home                                             gl.glue.brahma.controllers.professional.HomeController.getHome()
@@ -58,7 +64,7 @@ GET            /v1/professional/sessions/assigned                               
 
 POST           /v1/professional/session/chat/append                                 gl.glue.brahma.controllers.common.SessionController.appendChatMessage()
 GET            /v1/professional/session/:session/chat/history                       gl.glue.brahma.controllers.common.SessionController.getChatHistory(session: Integer)
-GET            /v1/professional/session/:session                                   gl.glue.brahma.controllers.professional.SessionController.getSession(session: Integer)
+GET            /v1/professional/session/:session                                    gl.glue.brahma.controllers.professional.SessionController.getSession(session: Integer)
 POST           /v1/professional/session/:session/attach                             gl.glue.brahma.controllers.common.SessionController.uploadAttachment(session: Integer)
 
 # Services
