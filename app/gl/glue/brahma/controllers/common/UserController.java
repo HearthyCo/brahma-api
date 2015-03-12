@@ -36,16 +36,14 @@ public class UserController extends Controller {
         return ok(Json.newObject());
     }
 
-    @BasicAuth
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
     public static Result confirmMail() {
         JsonNode json = request().body().asJson();
-        ObjectNode result = JsonUtils.checkRequiredFields(json, "hash");
+        ObjectNode result = JsonUtils.checkRequiredFields(json, "userId", "hash");
         if (result != null) return badRequest(result);
 
-        int uid = Integer.parseInt(session("id"));
-        if (userService.confirmMail(uid, json.get("hash").asText())) {
+        if (userService.confirmMail(json.get("userId").asInt(), json.get("hash").asText())) {
             return ok(Json.newObject());
         } else {
             return status(403, JsonUtils.simpleError("403", "Hash validation failed."));
@@ -71,13 +69,13 @@ public class UserController extends Controller {
     @BodyParser.Of(BodyParser.Json.class)
     public static Result confirmPasswordChange() {
         JsonNode json = request().body().asJson();
-        ObjectNode result = JsonUtils.checkRequiredFields(json, "email", "hash", "newPassword");
+        ObjectNode result = JsonUtils.checkRequiredFields(json, "userId", "hash", "newPassword");
         if (result != null) return badRequest(result);
 
-        String email = json.get("email").asText();
+        int uid = json.get("userId").asInt();
         String hash = json.get("hash").asText();
         String newPassword = json.get("newPassword").asText();
-        if (userService.confirmPasswordChange(email, hash, newPassword)) {
+        if (userService.confirmPasswordChange(uid, hash, newPassword)) {
             // Should this also perform a login?
             return ok(Json.newObject());
         } else {

@@ -72,8 +72,8 @@ public class UserService {
     }
 
     @Transactional
-    public boolean confirmPasswordChange(String email, String hash, String newPassword) {
-        User user = userDao.findByEmail(email);
+    public boolean confirmPasswordChange(int uid, String hash, String newPassword) {
+        User user = userDao.findById(uid);
         JsonNode meta = user.getMeta();
         JsonNode passConfirm = meta.path("confirm").path("password");
         if (passConfirm.isMissingNode()) return false;
