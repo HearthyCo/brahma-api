@@ -25,7 +25,7 @@ public class SessionServiceTest extends TransactionalTest {
 
     @Test // Request with invalid user Authentication. User uid = 1 is an invalid user
     public void requestNewSessionWithInvalidAuthentication() {
-        int uid = 1;
+        int uid = 2135121346;
         int serviceType = 90302;
         Session result = sessionService.requestSession(uid, serviceType, Session.State.REQUESTED);
         assertNull(result);
