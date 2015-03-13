@@ -15,7 +15,7 @@ public class UserService {
     @Transactional
     public User login(String email, String password) {
         User user = userDao.findByEmail(email);
-        if (user != null && user.canLogin() && user.authenticate(password)) {
+        if (user != null && user.authenticate(password)) {
             return user;
         } else {
             return null;

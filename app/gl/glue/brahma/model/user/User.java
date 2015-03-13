@@ -239,7 +239,7 @@ public abstract class User {
     }
 
     public boolean authenticate(String password) {
-        if (!canLogin() || password == null) {
+        if (password == null) {
             return false;
         }
         return BCrypt.checkpw(password, this.password);
