@@ -51,7 +51,7 @@ public class UserService {
         if (user.isConfirmed() || mailConfirm.isMissingNode()) return false;
         if (System.currentTimeMillis() > mailConfirm.get("expires").asLong()) return false;
         if (!mailConfirm.get("hash").asText().equals(hash)) return false;
-        user.setConfirmed(true);
+        user.setState(User.State.CONFIRMED);
         // If adding another welcome mail, send it from here, like this:
         // Mailer.send(user, REGISTER_COMPLETE_MAIL);
         return true;
