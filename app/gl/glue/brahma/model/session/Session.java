@@ -2,7 +2,9 @@ package gl.glue.brahma.model.session;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import gl.glue.brahma.model.servicetype.ServiceType;
+import gl.glue.brahma.util.serializers.ServiceTypeToIdSerializer;
 import play.libs.Json;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -103,7 +105,8 @@ public class Session {
     @ManyToOne
     @JoinColumn(name = "service_type_id")
     @NotNull
-    @JsonIgnore
+    //@JsonIgnore
+    @JsonSerialize(using = ServiceTypeToIdSerializer.class)
     private ServiceType serviceType;
 
     @NotNull

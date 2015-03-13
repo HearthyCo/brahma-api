@@ -15,6 +15,7 @@ public class Mailer {
     public static void send(User user, MailTemplate template) {
         ObjectNode payload = Json.newObject();
         payload.put("user", Json.toJson(user));
+        ((ObjectNode)payload.get("user")).put("meta", user.getMeta()); // Skip meta fields erasure
         payload.put("type", template.toString());
         Controller.sendMessage("mail." + template, payload.toString());
     }

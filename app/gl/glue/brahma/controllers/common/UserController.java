@@ -3,6 +3,7 @@ package gl.glue.brahma.controllers.common;
 import actions.BasicAuth;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import gl.glue.brahma.model.user.User;
 import gl.glue.brahma.service.UserService;
@@ -13,9 +14,6 @@ import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
-
-import java.util.EnumSet;
-import java.util.Set;
 
 public class UserController extends Controller {
 
@@ -122,4 +120,50 @@ public class UserController extends Controller {
         return ok(result);
     }
 
+    @Transactional
+    @BodyParser.Of(BodyParser.Json.class)
+    public static Result confirmMail() {
+        JsonNode json = request().body().asJson();
+        ObjectNode result = JsonUtils.checkRequiredFields(json, "userId", "hash");
+        if (result != null) return badRequest(result);
+
+        if (userService.confirmMail(json.get("userId").asInt(), json.get("hash").asText())) {
+            return ok(Json.newObject());
+        } else {
+            return status(403, JsonUtils.simpleError("403", "Hash validation failed."));
+        }
+    }
+
+    @Transactional
+    @BodyParser.Of(BodyParser.Json.class)
+    public static Result requestPasswordChange() {
+        JsonNode json = request().body().asJson();
+        ObjectNode result = JsonUtils.checkRequiredFields(json, "email");
+        if (result != null) return badRequest(result);
+
+        User user = userService.requestPasswordChange(json.get("email").asText());
+        if (user != null) {
+            return ok(Json.newObject());
+        } else {
+            return status(404, JsonUtils.simpleError("404", "User not found."));
+        }
+    }
+
+    @Transactional
+    @BodyParser.Of(BodyParser.Json.class)
+    public static Result confirmPasswordChange() {
+        JsonNode json = request().body().asJson();
+        ObjectNode result = JsonUtils.checkRequiredFields(json, "userId", "hash", "newPassword");
+        if (result != null) return badRequest(result);
+
+        int uid = json.get("userId").asInt();
+        String hash = json.get("hash").asText();
+        String newPassword = json.get("newPassword").asText();
+        if (userService.confirmPasswordChange(uid, hash, newPassword)) {
+            // Should this also perform a login?
+            return ok(Json.newObject());
+        } else {
+            return status(403, JsonUtils.simpleError("403", "Hash validation failed."));
+        }
+    }
 }
