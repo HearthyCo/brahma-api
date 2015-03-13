@@ -19,6 +19,9 @@ public class TestUtils {
 
     private static final int REQUEST_TIMEOUT = 1000;
 
+    public static Result makeAdminLoginRequest(String login, String pass) {
+        return makeLoginRequest(login, pass, "admin");
+    }
     public static Result makeClientLoginRequest(String login, String pass) {
         return makeLoginRequest(login, pass, "client");
     }

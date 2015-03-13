@@ -8,6 +8,9 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 public class RedisHelper {
 
     private static Config conf = null;
@@ -23,7 +26,24 @@ public class RedisHelper {
 
     public void initRedis() {
         if(pool == null) {
-            pool = new JedisPool(new JedisPoolConfig(), conf.getString("redis.host"));
+            // Defaults
+            String host = "localhost";
+            int port = 6379;
+
+            URL url = null;
+            try {
+                String uri = conf.getString("redis.uri").replace("tcp", "http");
+                url = new URL(uri);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+
+            if (url != null) {
+                host = url.getHost();
+                port = url.getPort();
+            }
+
+            pool = new JedisPool(new JedisPoolConfig(), host, port);
         }
     }
 

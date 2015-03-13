@@ -15,7 +15,7 @@ public class UserService {
     @Transactional
     public User login(String email, String password) {
         User user = userDao.findByEmail(email);
-        if (user != null && user.canLogin() && user.authenticate(password)) {
+        if (user != null && user.authenticate(password)) {
             return user;
         } else {
             return null;
@@ -26,7 +26,6 @@ public class UserService {
     public User register(User user) {
         user.setEmail(user.getEmail().toLowerCase());
         // Email confirmation
-        user.setConfirmed(false);
         user.mergeMeta(Json.newObject()
                 .putPOJO("confirm", Json.newObject()
                         .putPOJO("mail", Json.newObject()

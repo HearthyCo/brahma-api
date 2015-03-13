@@ -11,8 +11,9 @@ import play.libs.Json;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @NamedQueries({
 
@@ -32,7 +33,7 @@ import java.util.Date;
 public abstract class User {
 
     public enum Gender {MALE, FEMALE, OTHER}
-
+    public enum State {UNCONFIRMED, CONFIRMED, DELEGATED, BANNED, DELETED}
 
     @Id
     @SequenceGenerator(name = "user_id_seq", sequenceName = "user_id_seq", allocationSize = 1)
@@ -45,10 +46,6 @@ public abstract class User {
 
     @NotNull
     private String email;
-
-    @NotNull
-    @JsonIgnore
-    private boolean canLogin = true;
 
     private String name;
 
@@ -67,8 +64,9 @@ public abstract class User {
     @NotNull // Fake to prevent typing bug
     private Gender gender;
 
+    @Enumerated(EnumType.STRING)
     @NotNull
-    private boolean confirmed = false;
+    private State state = State.UNCONFIRMED;
 
     @NotNull
     private int balance = 0;
@@ -104,11 +102,7 @@ public abstract class User {
     }
 
     public boolean canLogin() {
-        return canLogin;
-    }
-
-    public void setCanLogin(boolean canLogin) {
-        this.canLogin = canLogin;
+        return (this.state == State.UNCONFIRMED || this.state == State.CONFIRMED);
     }
 
     public String getName() {
@@ -167,12 +161,20 @@ public abstract class User {
         this.gender = gender;
     }
 
-    public boolean isConfirmed() {
-        return confirmed;
+    public boolean isConfirmed() { return this.state == State.CONFIRMED; }
+
+    public boolean isBanned() {
+        return this.state == State.BANNED;
     }
 
-    public void setConfirmed(boolean confirmed) {
-        this.confirmed = confirmed;
+    public boolean isLocked() { return (this.state == State.BANNED || this.state == State.DELETED); }
+
+    public void setState(State state) {
+        this.state = state;
+    }
+
+    public State getState() {
+        return state;
     }
 
     public int getBalance() { return this.balance; }
@@ -213,15 +215,23 @@ public abstract class User {
         return fullname;
     }
 
-    public void merge(User updated) {
-        if (updated.getGender() != null) this.setGender(updated.getGender());
-        if (updated.getName() != null) this.setName(updated.getName());
-        if (updated.getBirthdate() != null) this.setBirthdate(updated.getBirthdate());
-        if (updated.getSurname1() != null) this.setSurname1(updated.getSurname1());
-        if (updated.getSurname2() != null) this.setSurname2(updated.getSurname2());
-        if (updated.getAvatar() != null) this.setAvatar(updated.getAvatar());
-        if (updated.getNationalId() != null) this.setNationalId(updated.getNationalId());
-        if (updated.getMeta() != null) this.mergeMeta(updated.getMeta());
+    public void merge(User updated, List<String> fields) {
+        if (!fields.isEmpty()) {
+            for (String field : fields) {
+                switch (field) {
+                    case "login": this.setLogin(updated.getLogin());  break;
+                    case "email": this.setEmail(updated.getEmail());  break;
+                    case "gender": this.setGender(updated.getGender()); break;
+                    case "name": this.setName(updated.getName()); break;
+                    case "birthdate":  this.setBirthdate(updated.getBirthdate()); break;
+                    case "surname1": this.setSurname1(updated.getSurname1()); break;
+                    case "surname2": this.setSurname2(updated.getSurname2()); break;
+                    case "avatar": this.setAvatar(updated.getAvatar()); break;
+                    case "nationalId": this.setNationalId(updated.getNationalId()); break;
+                    case "meta": this.mergeMeta(updated.getMeta()); break;
+                }
+            }
+        }
     }
 
     public void setPassword(String password) {
@@ -229,7 +239,7 @@ public abstract class User {
     }
 
     public boolean authenticate(String password) {
-        if (!canLogin || password == null) {
+        if (password == null) {
             return false;
         }
         return BCrypt.checkpw(password, this.password);

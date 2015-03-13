@@ -1,4 +1,4 @@
-package gl.glue.brahma.test.controllers.professional;
+package gl.glue.brahma.test.controllers.admin;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.Test;
@@ -9,6 +9,7 @@ import utils.TestUtils;
 import utils.TransactionalTest;
 
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 import static play.test.Helpers.*;
 
 public class UserControllerTest extends TransactionalTest {
@@ -17,8 +18,9 @@ public class UserControllerTest extends TransactionalTest {
 
     @Test
     public void testLoginOk() {
-        String login = "testProfessional1@glue.gl";
-        Result result = TestUtils.makeProfessionalLoginRequest(login, login);
+        String login = "testAdmin1@glue.gl";
+        String password = "testClient1@glue.gl";
+        Result result = TestUtils.makeAdminLoginRequest(login, password);
         assertEquals(200, result.toScala().header().status());
         assertTrue(TestUtils.hasCookies(result));
         ObjectNode ret = TestUtils.toJson(result);
@@ -29,12 +31,13 @@ public class UserControllerTest extends TransactionalTest {
 
     @Test
     public void testLoginIgnoresExtraFields() {
-        String login = "testProfessional1@glue.gl";
+        String login = "testAdmin1@glue.gl";
+        String password = "testClient1@glue.gl";
         ObjectNode user = Json.newObject();
         user.put("email", login);
-        user.put("password", login);
+        user.put("password", password);
         user.put("balance", 1000);
-        FakeRequest fr = fakeRequest(POST, "/v1/professional/login").withJsonBody(user);
+        FakeRequest fr = fakeRequest(POST, "/v1/admin/login").withJsonBody(user);
         Result result = routeAndCall(fr, REQUEST_TIMEOUT);
         assertNotNull(result);
         assertEquals(200, result.toScala().header().status());
@@ -46,7 +49,7 @@ public class UserControllerTest extends TransactionalTest {
 
     @Test
     public void testLoginBadPass() {
-        Result result = TestUtils.makeProfessionalLoginRequest("testProfessional1", "bad-password");
+        Result result = TestUtils.makeAdminLoginRequest("testAdmin1@glue.gl", "testClientBadPass@glue.gl");
         assertEquals(401, result.toScala().header().status());
         assertFalse(TestUtils.hasCookies(result));
         TestUtils.assertError(401, TestUtils.toJson(result));
@@ -54,7 +57,7 @@ public class UserControllerTest extends TransactionalTest {
 
     @Test
     public void testLoginBadUser() {
-        Result result = TestUtils.makeProfessionalLoginRequest("testNonexistentUser", "anyPassword");
+        Result result = TestUtils.makeAdminLoginRequest("testAdminBadUser@glue.gl", "testClient1@glue.gl");
         assertEquals(401, result.toScala().header().status());
         assertFalse(TestUtils.hasCookies(result));
         TestUtils.assertError(401, TestUtils.toJson(result));
@@ -62,7 +65,7 @@ public class UserControllerTest extends TransactionalTest {
 
     @Test
     public void testLoginBlockedUser() {
-        Result result = TestUtils.makeProfessionalLoginRequest("testPet1", "testPet1");
+        Result result = TestUtils.makeAdminLoginRequest("testhired1@glue.gl", "testhired1@glue.gl");
         assertEquals(401, result.toScala().header().status());
         assertFalse(TestUtils.hasCookies(result));
         TestUtils.assertError(401, TestUtils.toJson(result));
@@ -70,14 +73,15 @@ public class UserControllerTest extends TransactionalTest {
 
     @Test
     public void testUpdateUserWithNotAllowedParams() {
-        String login = "testProfessional1@glue.gl";
-        Result auth = TestUtils.makeProfessionalLoginRequest(login, login);
+        String login = "testAdmin1@glue.gl";
+        String password = "testClient1@glue.gl";
+        Result auth = TestUtils.makeAdminLoginRequest(login, password);
 
         String email = "dummyinvalidemail@dummy.dm";
         ObjectNode user = Json.newObject();
         user.put("email", email);
 
-        Result result = TestUtils.callController(POST, "/v1/professional/me/update", auth, user);
+        Result result = TestUtils.callController(POST, "/v1/admin/me/update", auth, user);
         assertNotNull(result);
         assertEquals(200, result.toScala().header().status());
 
@@ -88,8 +92,9 @@ public class UserControllerTest extends TransactionalTest {
 
     @Test
     public void testUpdateUserOk() {
-        String login = "testProfessional1@glue.gl";
-        Result auth = TestUtils.makeProfessionalLoginRequest(login, login);
+        String login = "testAdmin1@glue.gl";
+        String password = "testClient1@glue.gl";
+        Result auth = TestUtils.makeAdminLoginRequest(login, password);
 
         String surname1 = "Dummy";
         String surname2 = "Surname";
@@ -97,7 +102,7 @@ public class UserControllerTest extends TransactionalTest {
         user.put("surname1", surname1);
         user.put("surname2", surname2);
 
-        Result result = TestUtils.callController(POST, "/v1/professional/me/update", auth, user);
+        Result result = TestUtils.callController(POST, "/v1/admin/me/update", auth, user);
         assertNotNull(result);
         assertEquals(200, result.toScala().header().status());
 
@@ -108,7 +113,7 @@ public class UserControllerTest extends TransactionalTest {
 
     @Test
     public void testGetMeUnauthenticated() {
-        FakeRequest fr = fakeRequest(GET, "/v1/professional/me");
+        FakeRequest fr = fakeRequest(GET, "/v1/admin/me");
         Result result = routeAndCall(fr, REQUEST_TIMEOUT);
         assertNotNull(result);
         assertEquals(401, result.toScala().header().status());
@@ -116,11 +121,11 @@ public class UserControllerTest extends TransactionalTest {
 
     @Test
     public void testGetMeUserBlock() {
-        String login = "testhired1@glue.gl";
-        String password = "testHired1@glue.gl";
-        Result auth = TestUtils.makeProfessionalLoginRequest(login, password);
+        String login = "testadminbanned@glue.gl";
+        String password = "testClient1@glue.gl";
+        Result auth = TestUtils.makeAdminLoginRequest(login, password);
 
-        Result result = TestUtils.callController(GET, "/v1/professional/me", auth);
+        Result result = TestUtils.callController(GET, "/v1/admin/me", auth);
 
         assertNotNull(result);
         assertEquals(401, result.toScala().header().status());
@@ -128,11 +133,11 @@ public class UserControllerTest extends TransactionalTest {
 
     @Test
     public void testGetMeUserOk() {
-        String login = "testprofessional1@glue.gl";
-        String password = "testProfessional1@glue.gl";
-        Result auth = TestUtils.makeProfessionalLoginRequest(login, password);
+        String login = "testadmin1@glue.gl";
+        String password = "testClient1@glue.gl";
+        Result auth = TestUtils.makeAdminLoginRequest(login, password);
 
-        Result result = TestUtils.callController(GET, "/v1/professional/me", auth);
+        Result result = TestUtils.callController(GET, "/v1/admin/me", auth);
         assertNotNull(result);
         assertEquals(200, result.toScala().header().status());
 

@@ -7,6 +7,9 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 
 public class FakeRedisHelper extends RedisHelper {
 
@@ -19,12 +22,26 @@ public class FakeRedisHelper extends RedisHelper {
 
     @Override
     public Jedis getResource() {
-        pool = new JedisPool(new JedisPoolConfig(),
-            conf.getString("redis.host"),
-            Integer.valueOf(conf.getString("redis.port")),
-            Integer.valueOf(conf.getString("redis.timeout")),
-            null,
-            1);
+
+        // Defaults
+        String host = "localhost";
+        int port = 6379;
+
+        URL url = null;
+        try {
+            String uri = conf.getString("redis.uri").replace("tcp", "http");
+            url = new URL(uri);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+        if (url != null) {
+            host = url.getHost();
+            port = url.getPort();
+        }
+
+        pool = new JedisPool(new JedisPoolConfig(), host, port);
+
         return pool.getResource();
     }
 
