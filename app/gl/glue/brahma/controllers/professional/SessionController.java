@@ -175,7 +175,7 @@ public class SessionController extends Controller {
 
         // Get all our sessions.
         Set<Session.State> states = EnumSet.of(Session.State.UNDERWAY, Session.State.CLOSED);
-        List<SessionUser> sessionUsers = sessionService.getUserSessionsByState(uid, states);
+        List<SessionUser> sessionUsers = sessionService.getUserSessionsByState(uid, states, -1);
 
         ArrayNode sessions = new ArrayNode(JsonNodeFactory.instance);
         ObjectNode sessionsByServiceType = Json.newObject();

@@ -134,13 +134,26 @@ public class SessionService {
     }
 
     /**
-     * Return Sessions by user to show in home screen
-     * @param uid User Login to search in DAO functions
-     * @return ObjectNode with all sessions grouped by state.
+     * Return the target user's SessionUser for sessions in the given state, limited to MAX_RESULTS.
+     * @param uid The target user's ID
+     * @param state States we're interested in
+     * @return List of the selected SessionUsers.
      */
     @Transactional
     public List<SessionUser> getUserSessionsByState(int uid, Set<Session.State> state) {
-        return sessionDao.findByState(state, uid, MAX_RESULTS);
+        return getUserSessionsByState(uid, state, MAX_RESULTS);
+    }
+
+    /**
+     * Return the target user's SessionUser for sessions in the given state, up to limit entries.
+     * @param uid The target user's ID
+     * @param state States we're interested in
+     * @param limit Max number of results, or a negative number to make it unlimited
+     * @return List of the selected SessionUsers.
+     */
+    @Transactional
+    public List<SessionUser> getUserSessionsByState(int uid, Set<Session.State> state, int limit) {
+        return sessionDao.findByState(state, uid, limit);
     }
 
     /**
