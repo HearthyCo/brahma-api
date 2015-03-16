@@ -89,10 +89,23 @@ public class SessionService {
             case "programmed": states = EnumSet.of(Session.State.PROGRAMMED); break;
             case "underway": states = EnumSet.of(Session.State.REQUESTED, Session.State.UNDERWAY); break;
             case "closed": states = EnumSet.of(Session.State.CLOSED, Session.State.FINISHED); break;
+            case "all": states = EnumSet.of(Session.State.PROGRAMMED, Session.State.REQUESTED, Session.State.UNDERWAY,
+                    Session.State.CLOSED, Session.State.FINISHED); break;
             default: return null;
         }
 
         return sessionDao.findByState(states, uid);
+    }
+
+    /**
+     * Search sessions with state passed
+     * @param state Session State to search
+     * @param uid User Login to search
+     * @return Object array list with sessions with state passed
+     */
+    @Transactional
+    public List<SessionUser> getAllState(int uid) {
+        return getState("all", uid);
     }
 
     /**

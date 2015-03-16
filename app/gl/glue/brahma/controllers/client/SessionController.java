@@ -143,6 +143,37 @@ public class SessionController extends Controller {
     }
 
 
+    @ClientAuth
+    @Transactional
+    @BodyParser.Of(BodyParser.Json.class)
+    public static Result getAllState() {
+        int uid = Integer.parseInt(session("id"));
+
+        List<SessionUser> sessionUsers = sessionService.getAllState(uid);
+        if (sessionUsers == null) return status(404, JsonUtils.simpleError("404", "Invalid identifier"));
+
+        ArrayNode sessions = new ArrayNode(JsonNodeFactory.instance);
+        for(SessionUser sessionUser : sessionUsers) {
+            Session session = sessionUser.getSession();
+
+            boolean isNew = true;
+            if(sessionUser.getViewedDate() != null) {
+                isNew = session.getTimestamp().after(sessionUser.getViewedDate());
+            }
+
+            ObjectNode sessionObject = (ObjectNode) Json.toJson(session);
+            sessionObject.put("isNew", isNew);
+
+            sessions.add(sessionObject);
+        }
+        List<Integer> sessionIds = sessionUsers.stream().map(o->o.getSession().getId()).collect(Collectors.toList());
+
+        ObjectNode result = Json.newObject();
+        result.put("sessions", sessions);
+        result.put("userSessions", Json.toJson(sessionIds));
+        return ok(result);
+    }
+
     /**
      * @api {get} /client/sessions/:state Sessions by state
      * @apiGroup Session
