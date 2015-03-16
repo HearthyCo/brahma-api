@@ -3,6 +3,9 @@ package gl.glue.brahma.service;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.opentok.OpenTok;
+import com.opentok.TokenOptions;
+import com.opentok.exception.OpenTokException;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import gl.glue.brahma.model.servicetype.ServiceType;
@@ -20,6 +23,9 @@ import gl.glue.brahma.model.user.Professional;
 import gl.glue.brahma.model.user.User;
 import gl.glue.brahma.model.user.UserDao;
 import gl.glue.brahma.util.RedisHelper;
+import play.Application;
+import play.Configuration;
+import play.Play;
 import play.db.jpa.Transactional;
 import play.libs.Json;
 import redis.clients.jedis.Jedis;
@@ -40,6 +46,15 @@ public class SessionService {
     private ServiceTypeDao serviceTypeDao = new ServiceTypeDao();
     private TransactionDao transactionDao = new TransactionDao();
     private RedisHelper redisHelper = new RedisHelper();
+
+    private OpenTok openTok;
+
+    public SessionService() {
+        Configuration configuration = Play.application().configuration();
+        int key = configuration.getInt("opentok.key");
+        String secret = configuration.getString("opentok.secret");
+        openTok = new OpenTok(key, secret);
+    }
 
     public void setRedisHelper(RedisHelper redisHelper) { this.redisHelper = redisHelper; }
 
@@ -182,9 +197,30 @@ public class SessionService {
         transactionDao.create(transaction);
 
         Session session = new Session(service, title, startDate, state);
-        sessionDao.create(session);
-
         SessionUser sessionUser = new SessionUser(user, session);
+
+        // OpenTok integration
+        if (service.getMode() == ServiceType.ServiceMode.VIDEO) {
+            try {
+                // Create room
+                com.opentok.Session otSession = openTok.createSession();
+                ObjectNode meta = Json.newObject();
+                meta.put("opentokSession", otSession.getSessionId());
+                session.setMeta(meta);
+
+                // Create token for this user
+                TokenOptions.Builder builder = new TokenOptions.Builder();
+                builder.expireTime(System.currentTimeMillis() / 1000 + 3600*24*30);
+                ObjectNode meta2 = Json.newObject();
+                meta2.put("opentokToken", otSession.generateToken(builder.build()));
+                sessionUser.setMeta(meta2);
+            } catch (OpenTokException e) {
+                // No video, no session! Break the transaction.
+                throw new RuntimeException(e);
+            }
+        }
+
+        sessionDao.create(session);
         sessionUserDao.create(sessionUser);
 
         return session;
@@ -219,12 +255,27 @@ public class SessionService {
         Session session = sessionDao.getFromPool(service_type_id);
         if (session == null) return null;
 
-        SessionUser sessionUser = new SessionUser();
-        sessionUser.setUser(user);
-        sessionUser.setSession(session);
-        sessionUser.setMeta(Json.newObject());
+        SessionUser sessionUser = new SessionUser(user, session);
         if (service != null) {
             sessionUser.setService(service);
+        }
+        // OpenTok integration
+        if (session.getServiceType().getMode() == ServiceType.ServiceMode.VIDEO) {
+            try {
+                if (session.getMeta() == null || !session.getMeta().has("opentokSession")) {
+                    throw new RuntimeException("Video session without OpenTok session assigned.");
+                }
+                // Create token for this user
+                String otSession = session.getMeta().get("opentokSession").asText();
+                TokenOptions.Builder builder = new TokenOptions.Builder();
+                builder.expireTime(System.currentTimeMillis() / 1000 + 3600*24*30);
+                ObjectNode meta = Json.newObject();
+                meta.put("opentokToken", openTok.generateToken(otSession, builder.build()));
+                sessionUser.setMeta(meta);
+            } catch (OpenTokException e) {
+                // No video, no session! Break the transaction.
+                throw new RuntimeException(e);
+            }
         }
         sessionUserDao.create(sessionUser);
 
