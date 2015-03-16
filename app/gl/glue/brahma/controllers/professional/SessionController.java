@@ -159,38 +159,39 @@ public class SessionController extends Controller {
     public static Result getAssignedSessions() {
         int uid = Integer.parseInt(session("id"));
 
-        // Create State Session List Array for iterate and pass DAO function a Session.State ArrayList
+        // We list only the service types we offer, as we can't accept sessions of other types.
         List<Service> services = serviceService.getServicesOfUser(uid);
-        Set<Session.State> states = EnumSet.of(Session.State.UNDERWAY, Session.State.CLOSED);
-
-        ArrayNode sessions = new ArrayNode(JsonNodeFactory.instance);
-        ArrayNode serviceTypes = new ArrayNode(JsonNodeFactory.instance);
-        ObjectNode sessionsByServiceType = Json.newObject();
+        List<ServiceType> acceptableServiceTypes =
+                services.stream().map(o -> o.getServiceType()).collect(Collectors.toList());
 
         Map<Integer, Integer> poolsSize = sessionService.getPoolsSize();
-
-        // Iterate State Session List Array
-        for (Service service : services) {
-            ServiceType serviceType = service.getServiceType();
+        ArrayNode serviceTypes = new ArrayNode(JsonNodeFactory.instance);
+        for (ServiceType serviceType: acceptableServiceTypes) {
             ObjectNode serviceTypeObject = (ObjectNode) Json.toJson(serviceType);
-            int serviceTypeId = serviceType.getId();
-
-            int queue = poolsSize.containsKey(serviceTypeId) ? poolsSize.get(serviceTypeId) : 0;
+            int queue = poolsSize.containsKey(serviceType.getId()) ? poolsSize.get(serviceType.getId()) : 0;
             serviceTypeObject.put("waiting", queue);
-
             serviceTypes.add(serviceTypeObject);
+        }
 
-            List<SessionUser> sessionUsers = sessionService.getUserSessionsByService(uid, states, serviceTypeId);
+        // Get all our sessions.
+        Set<Session.State> states = EnumSet.of(Session.State.UNDERWAY, Session.State.CLOSED);
+        List<SessionUser> sessionUsers = sessionService.getUserSessionsByState(uid, states);
 
-            ArrayNode sessionsThisService = new ArrayNode(JsonNodeFactory.instance);
-            for(SessionUser sessionUser : sessionUsers) {
-                Session session = sessionUser.getSession();
+        ArrayNode sessions = new ArrayNode(JsonNodeFactory.instance);
+        ObjectNode sessionsByServiceType = Json.newObject();
 
-                sessions.add(Json.toJson(session));
-                sessionsThisService.add(session.getId());
+        for (SessionUser sessionUser: sessionUsers) {
+            ServiceType serviceType = sessionUser.getSession().getServiceType();
+            String serviceTypeId = Integer.toString(serviceType.getId());
+            if (!sessionsByServiceType.has(serviceTypeId))
+                sessionsByServiceType.put(serviceTypeId, new ArrayNode(JsonNodeFactory.instance));
+            sessions.add(Json.toJson(sessionUser.getSession()));
+            ((ArrayNode)sessionsByServiceType.get(serviceTypeId)).add(Json.toJson(sessionUser.getSession()));
+            // If we can't offer this servicetype, show it anyway (we've been invited?)
+            if (!acceptableServiceTypes.contains(serviceType)) {
+                acceptableServiceTypes.add(serviceType);
+                serviceTypes.add(Json.toJson(serviceType));
             }
-
-            sessionsByServiceType.put(Integer.toString(serviceTypeId), sessionsThisService);
         }
 
         ObjectNode result = Json.newObject()
