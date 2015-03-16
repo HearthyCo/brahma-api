@@ -14,18 +14,18 @@ INSERT INTO institution (id, name, meta) VALUES
   (90600, 'Institution1', '{}'),
   (90601, 'Institution2', '{}');
 
-INSERT INTO "user" (id, type, manager_user_id, tutor_user_id, collective_collective_id, institution_institution_id, email, password, state, name, surname1, surname2, birthdate, national_id, gender, balance, meta) VALUES
-  (90000, 'CLIENT', null, null, null, null, 'testclient1@glue.gl', '$2a$10$WsjgBbDB0uILyHoz7U7qIuTmWueom1f5AQ9fzlRlrQS1jtO9oeday', 'CONFIRMED', 'Test', 'Client', 'User1', '1987-12-25', '12345678Z', 'FEMALE', 20000000, '{}'),
-  (90001, 'CLIENT', null, null, 90100, null, 'testclient2@glue.gl', '$2a$10$Fet.SSfzU013yDhiBFoyh.PTHE1HV/TR6DQZQ1beWVjTk.V2yllTe', 'CONFIRMED', 'Test', 'Client', 'User2', '1985-06-21', '23456789Z', 'MALE', 20, '{}'),
-  (90002, 'TUTOR', null, null, null, null, 'testtutor1@glue.gl', '$2a$10$hyaM.y3UyCIKWmq/hXMr7Oqcd4KmryMIdFi7mQxH9iBH7ASM53CBe', 'CONFIRMED', 'Test', 'Tutor', 'User1', '1999-01-01', '34567890Z', 'FEMALE', 4, '{}'),
-  (90003, 'CLIENT', null, 90002, null, null, 'testpet1@glue.gl', '$2a$10$9wC2cRkENN0hyQdfV9wny.GFdhd01iJixfCSynb8DKKnaBfWkj5q.', 'DELEGATED', 'Test', 'Client', 'Pet1', '2014-12-01', null, 'MALE', 1000, '{}'),
-  (90004, 'CLIENT', null, 90002, 90101, null, 'testpet2@glue.gl', null, 'DELEGATED', 'Test', 'Client', 'Pet2', '2014-11-01', null, 'FEMALE', 20000, '{}'),
-  (90005, 'PROFESSIONAL', null, null, null, null, 'testprofessional1@glue.gl', '$2a$10$N8/bNSwCRvgkLllU7dPqwOhnLRhunhrFuZAsq6hHoQceXDvQsdMAq', 'CONFIRMED', 'Test', 'Professional', 'User1', '1970-01-01', '99999999Z', 'MALE', 2300, '{}'),
-  (90006, 'PROFESSIONAL', null, null, null, 90600, 'testprofessional2@glue.gl', '$2a$10$ujNb2RvpINeFHTDVtrH9HeVsFP0MxtRFeQf1tENXegtk7dOh9hl9K', 'CONFIRMED', 'Test', 'Professional', 'User2', '1970-12-31', '88888888Z', 'FEMALE', 31000, '{}'),
-  (90007, 'COORDINATOR', null, null, null, null, 'testcoordinator1@glue.gl', '$2a$10$GKckVNVdU0MeMHoKi6B7ke8SW5BVOIscKjgm4gxYMV5hcT9ujW1rq', 'BANNED', 'Test', 'Coordinator', 'User1', '1970-12-25', '77777777Z', 'MALE', 9000, '{}'),
-  (90008, 'PROFESSIONAL', 90007, null, null, null, 'testhired1@glue.gl', '$2a$10$rk..ceMCVA73nlIKnll.d.qRtB61iIC2.Ruy.x5b2bR0JCgf1MSQ2', 'BANNED', 'Test', 'Hired', 'User1', '1970-02-28', '66666666Z', 'FEMALE', 3400, '{}'),
-  (90009, 'PROFESSIONAL', 90007, null, null, 90601, 'testhired2@glue.gl', '$2a$10$nDkLcWlv7BlDY0u/DlYFMOPQvoerzbnqd.QAMNYDz2N5b8DxHLG.W', 'BANNED', 'Test', 'Hired', 'User2', '1970-03-25', '55555555Z', 'MALE', 9000, '{}'),
-  (90010, 'ADMIN', null, null, null, null, 'testadmin1@glue.gl', '$2a$10$Zv4qmaHQgMwbN8pyoKp5Ue2wKWbF80DhMj7HWwCDI0LZraQ5Xm6s6', 'CONFIRMED', 'Test', 'Admin', 'User1', '1950-01-01', '98765432J', 'MALE', 0, '{}');
+INSERT INTO "user" (id, type, manager_user_id, tutor_user_id, collective_collective_id, institution_institution_id, email, password, state, name, surname1, surname2, birthdate, national_id, gender, balance, meta, avatar) VALUES
+  (90000, 'CLIENT', null, null, null, null, 'testclient1@glue.gl', '$2a$10$WsjgBbDB0uILyHoz7U7qIuTmWueom1f5AQ9fzlRlrQS1jtO9oeday', 'CONFIRMED', 'Amanda', 'Chick', null, '1987-12-25', '12345678Z', 'FEMALE', 20000000, '{}', 'http://i.imgur.com/nRYY3OK.jpg'),
+  (90001, 'CLIENT', null, null, 90100, null, 'testclient2@glue.gl', '$2a$10$Fet.SSfzU013yDhiBFoyh.PTHE1HV/TR6DQZQ1beWVjTk.V2yllTe', 'CONFIRMED', 'Mr', 'Bean', null, '1985-06-21', '23456789Z', 'MALE', 20, '{}', 'http://i.imgur.com/6xdJREZ.jpg'),
+  (90002, 'TUTOR', null, null, null, null, 'testtutor1@glue.gl', '$2a$10$hyaM.y3UyCIKWmq/hXMr7Oqcd4KmryMIdFi7mQxH9iBH7ASM53CBe', 'CONFIRMED', 'Test', 'Tutor', 'User1', '1999-01-01', '34567890Z', 'FEMALE', 4, '{}', null),
+  (90003, 'CLIENT', null, 90002, null, null, 'testpet1@glue.gl', '$2a$10$9wC2cRkENN0hyQdfV9wny.GFdhd01iJixfCSynb8DKKnaBfWkj5q.', 'DELEGATED', 'Test', 'Client', 'Pet1', '2014-12-01', null, 'MALE', 1000, '{}', null),
+  (90004, 'CLIENT', null, 90002, 90101, null, 'testpet2@glue.gl', null, 'DELEGATED', 'Test', 'Client', 'Pet2', '2014-11-01', null, 'FEMALE', 20000, '{}', null),
+  (90005, 'PROFESSIONAL', null, null, null, null, 'testprofessional1@glue.gl', '$2a$10$N8/bNSwCRvgkLllU7dPqwOhnLRhunhrFuZAsq6hHoQceXDvQsdMAq', 'CONFIRMED', 'Ingeniero', 'Apple', null, '1970-01-01', '99999999Z', 'MALE', 2300, '{}', 'http://i.imgur.com/aOWKXhG.jpg'),
+  (90006, 'PROFESSIONAL', null, null, null, 90600, 'testprofessional2@glue.gl', '$2a$10$ujNb2RvpINeFHTDVtrH9HeVsFP0MxtRFeQf1tENXegtk7dOh9hl9K', 'CONFIRMED', 'Rufo', null, null, '1970-12-31', '88888888Z', 'FEMALE', 31000, '{}', 'http://i.imgur.com/GrLSBRE.jpg'),
+  (90007, 'COORDINATOR', null, null, null, null, 'testcoordinator1@glue.gl', '$2a$10$GKckVNVdU0MeMHoKi6B7ke8SW5BVOIscKjgm4gxYMV5hcT9ujW1rq', 'BANNED', 'Test', 'Coordinator', 'User1', '1970-12-25', '77777777Z', 'MALE', 9000, '{}', null),
+  (90008, 'PROFESSIONAL', 90007, null, null, null, 'testhired1@glue.gl', '$2a$10$rk..ceMCVA73nlIKnll.d.qRtB61iIC2.Ruy.x5b2bR0JCgf1MSQ2', 'BANNED', 'Test', 'Hired', 'User1', '1970-02-28', '66666666Z', 'FEMALE', 3400, '{}', null),
+  (90009, 'PROFESSIONAL', 90007, null, null, 90601, 'testhired2@glue.gl', '$2a$10$nDkLcWlv7BlDY0u/DlYFMOPQvoerzbnqd.QAMNYDz2N5b8DxHLG.W', 'BANNED', 'Test', 'Hired', 'User2', '1970-03-25', '55555555Z', 'MALE', 9000, '{}', null),
+  (90010, 'ADMIN', null, null, null, null, 'testadmin1@glue.gl', '$2a$10$Zv4qmaHQgMwbN8pyoKp5Ue2wKWbF80DhMj7HWwCDI0LZraQ5Xm6s6', 'CONFIRMED', 'Bastard', 'Operator', 'From Hell', '1950-01-01', '98765432J', 'MALE', 0, '{}', 'http://i.imgur.com/b0zW8TK.jpg');
 
 INSERT INTO field (id, name) VALUES
   (90200, 'General');
@@ -64,7 +64,7 @@ INSERT INTO session (id, service_type_id, title, start_date, end_date, state, ti
   (90709, 90300, 'testSession10', '2015-05-12 17:00:00', '2015-05-20 17:15:00', 'CLOSED', '2014-12-15 08:00:00', '{}'),
   (90710, 90302, 'testSession11', '2015-05-22 17:00:00', '2015-05-23 17:15:00', 'PROGRAMMED', '2014-12-15 08:00:00', '{}'),
   (90711, 90302, 'testSession12', '2015-06-27 17:00:00', '2015-06-30 17:15:00', 'PROGRAMMED', '2014-12-15 08:00:00', '{}'),
-  (90712, 90302, 'testPool1', '2015-02-11 17:00:00', '2015-02-11 17:15:00', 'REQUESTED', '2014-12-15 08:00:00', '{}'),
+  (90712, 90302, '#Random', '2015-02-11 17:00:00', '2015-02-11 17:15:00', 'UNDERWAY', '2014-12-15 08:00:00', '{}'),
   (90713, 90301, 'testPool2', '2015-02-14 18:00:00', '2015-02-14 18:18:00', 'REQUESTED', '2014-12-15 08:00:00', '{}'),
   (90714, 90300, 'testPool3', '2015-02-14 19:00:00', '2015-02-21 17:15:00', 'REQUESTED', '2014-12-15 08:00:00', '{"opentokSession":"2_MX40NTE3OTYyMn5-MTQyNjQ5OTY3NjQxNH5HRkVjWlNHZ3lCNkdsL0tTNEQ0M2xpZXh-UH4"}'),
   (90715, 90300, 'testPool4', '2015-02-14 20:00:00', '2015-02-21 17:15:00', 'REQUESTED', '2014-12-15 08:00:00', '{"opentokSession":"1_MX40NTE3OTYyMn5-MTQyNjQ5OTY5OTc0NX44SDJnZmpHK1NOTklJWGVBZUh2S3dPYzZ-UH4"}'),
@@ -114,7 +114,11 @@ INSERT INTO "session_user" (id, session_id, user_id, notification_id, service_id
   (91629, 90724, 90001, null, null, null, '{}'),
   (91630, 90725, 90001, null, null, null, '{}'),
   (91631, 90726, 90000, null, null, null, '{}'),
-  (91632, 90727, 90000, null, null, null, '{}');
+  (91632, 90727, 90000, null, null, null, '{}'),
+  (91633, 90712, 90005, null, null, null, '{}'),
+  (91634, 90712, 90006, null, null, null, '{}'),
+  (91635, 90712, 90010, null, null, null, '{}'),
+  (91636, 90712, 90001, null, null, null, '{}');
 
 INSERT INTO session_log (id, session_id, user_id, timestamp, action) VALUES
   (90800, 90700, 90005, '2014-12-15 08:00:00', 'ACCEPT'),
