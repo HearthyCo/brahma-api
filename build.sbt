@@ -20,5 +20,6 @@ libraryDependencies ++= Seq(
   "redis.clients" % "jedis" % "2.6.0",
   "com.amazonaws" % "aws-java-sdk" % "1.9.22",
   "org.apache.tika" % "tika-core" % "1.7",
-  "com.rabbitmq" % "amqp-client" % "3.4.4"
+  "com.rabbitmq" % "amqp-client" % "3.4.4",
+  "com.tokbox" % "opentok-server-sdk" % "2.2.2"
 )

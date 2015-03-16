@@ -3,6 +3,7 @@ package gl.glue.brahma.service;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.opentok.OpenTok;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import gl.glue.brahma.model.servicetype.ServiceType;
@@ -20,6 +21,9 @@ import gl.glue.brahma.model.user.Professional;
 import gl.glue.brahma.model.user.User;
 import gl.glue.brahma.model.user.UserDao;
 import gl.glue.brahma.util.RedisHelper;
+import play.Application;
+import play.Configuration;
+import play.Play;
 import play.db.jpa.Transactional;
 import play.libs.Json;
 import redis.clients.jedis.Jedis;
@@ -40,6 +44,15 @@ public class SessionService {
     private ServiceTypeDao serviceTypeDao = new ServiceTypeDao();
     private TransactionDao transactionDao = new TransactionDao();
     private RedisHelper redisHelper = new RedisHelper();
+
+    private OpenTok openTok;
+
+    public SessionService() {
+        Configuration configuration = Play.application().configuration();
+        int key = configuration.getInt("opentok.key");
+        String secret = configuration.getString("opentok.secret");
+        openTok = new OpenTok(key, secret);
+    }
 
     public void setRedisHelper(RedisHelper redisHelper) { this.redisHelper = redisHelper; }
 
