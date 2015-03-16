@@ -159,12 +159,13 @@ public class SessionService {
         if(user == null) return null;
 
         // Update user balance
-        int price = service.getPrice() * -1;
-        user.setBalance(user.getBalance() + price);
+        int price = service.getPrice();
+        if (user.getBalance() < price) return null;
+        user.setBalance(user.getBalance() - price);
 
         // Add transaction
         String reason = "Payment session " + title;
-        Transaction transaction = new Transaction(user, price, Transaction.State.APPROVED, null, reason);
+        Transaction transaction = new Transaction(user, price * -1, Transaction.State.APPROVED, null, reason);
         transactionDao.create(transaction);
 
         Session session = new Session(service, title, startDate, state);
