@@ -1,6 +1,5 @@
 package gl.glue.brahma.model.session;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import gl.glue.brahma.model.servicetype.ServiceType;
