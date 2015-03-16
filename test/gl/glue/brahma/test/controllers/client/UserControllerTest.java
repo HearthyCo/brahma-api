@@ -107,6 +107,40 @@ public class UserControllerTest extends TransactionalTest {
         assertEquals(surname2, ret.get("users").get(0).get("surname2").asText());
     }
 
+    @Test
+    public void testGetMeUnauthenticated() {
+        FakeRequest fr = fakeRequest(GET, "/v1/client/me");
+        Result result = routeAndCall(fr, REQUEST_TIMEOUT);
+        assertNotNull(result);
+        assertEquals(401, result.toScala().header().status());
+    }
+
+    @Test
+    public void testGetMeUserBlock() {
+        String login = "testclientbanned@glue.gl";
+        String password = "testClient1@glue.gl";
+        Result auth = TestUtils.makeClientLoginRequest(login, password);
+
+        Result result = TestUtils.callController(GET, "/v1/client/me", auth);
+
+        assertNotNull(result);
+        assertEquals(401, result.toScala().header().status());
+    }
+
+    @Test
+    public void testGetMeUserOk() {
+        String login = "testclient1@glue.gl";
+        String password = "testClient1@glue.gl";
+        Result auth = TestUtils.makeClientLoginRequest(login, password);
+
+        Result result = TestUtils.callController(GET, "/v1/client/me", auth);
+        assertNotNull(result);
+        assertEquals(200, result.toScala().header().status());
+
+        ObjectNode ret = TestUtils.toJson(result);
+        assertEquals(login, ret.get("users").get(0).get("email").asText());
+    }
+
     //@Test // Disabled: there is some problem with transactions on this layer...
     public void testRegisterOk() {
         String login = "testNonexistentUser";

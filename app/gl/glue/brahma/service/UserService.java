@@ -17,7 +17,7 @@ public class UserService {
     @Transactional
     public User login(String email, String password) {
         User user = userDao.findByEmail(email);
-        if (user != null && user.canLogin() && user.authenticate(password)) {
+        if (user != null && user.authenticate(password)) {
             return user;
         } else {
             return null;
@@ -28,7 +28,6 @@ public class UserService {
     public User register(User user) {
         user.setEmail(user.getEmail().toLowerCase());
         // Email confirmation
-        user.setConfirmed(false);
         user.mergeMeta(Json.newObject()
                 .putPOJO("confirm", Json.newObject()
                         .putPOJO("mail", Json.newObject()
@@ -52,7 +51,7 @@ public class UserService {
         if (user.isConfirmed() || mailConfirm.isMissingNode()) return false;
         if (System.currentTimeMillis() > mailConfirm.get("expires").asLong()) return false;
         if (!mailConfirm.get("hash").asText().equals(hash)) return false;
-        user.setConfirmed(true);
+        user.setState(User.State.CONFIRMED);
         // If adding another welcome mail, send it from here, like this:
         // Mailer.send(user, REGISTER_COMPLETE_MAIL);
         return true;

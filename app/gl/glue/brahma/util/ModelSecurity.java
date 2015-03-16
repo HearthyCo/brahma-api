@@ -13,12 +13,12 @@ public class ModelSecurity {
             "meta.address.*", "meta.cv.*", "meta.account"
     };
 
-    public static final String[] USER_ACCOUNT_MODIFICABLE_FIELDS = {
-            "login", "password", "email"
+    public static final String[] USER_ACCOUNT_MODIFIABLE_FIELDS = {
+            "login", "email"
     };
 
-    public static final String[] USER_MODIFICABLE_FIELDS =
-            ArrayUtils.addAll(USER_ACCOUNT_MODIFICABLE_FIELDS, USER_PROFILE_MODIFIABLE_FIELDS);
+    public static final String[] USER_MODIFIABLE_FIELDS =
+            ArrayUtils.addAll(USER_ACCOUNT_MODIFIABLE_FIELDS, USER_PROFILE_MODIFIABLE_FIELDS);
 
     public static final String[] CREATE_SESSION_REQUIRED_FIELDS = { "service" };
     public static final String[] BOOK_SESSION_REQUIRED_FIELDS = { "service", "startDate" };

@@ -12,17 +12,34 @@ OPTIONS        /*all                                                            
 GET            /assets/*file                                                        controllers.Assets.at(path="/public", file)
 
 ####
+#### ADMIN ROUTES
+####
+# Me
+POST        /v1/admin/login                                                         gl.glue.brahma.controllers.admin.UserController.login()
+POST        /v1/admin/logout                                                        gl.glue.brahma.controllers.common.UserController.logout()
+POST        /v1/admin/me/update                                                     gl.glue.brahma.controllers.admin.UserController.updateProfile()
+GET         /v1/admin/me                                                            gl.glue.brahma.controllers.admin.UserController.getMe()
+
+# Users
+POST        /v1/admin/users/professional/create                                     gl.glue.brahma.controllers.admin.UsersController.createProfessional()
+GET         /v1/admin/users/professional/:id                                        gl.glue.brahma.controllers.admin.UsersController.readProfessional(id: Integer)
+POST        /v1/admin/users/professional/update/:id                                 gl.glue.brahma.controllers.admin.UsersController.updateProfessional(id: Integer)
+POST        /v1/admin/users/professional/ban/:id                                    gl.glue.brahma.controllers.admin.UsersController.banProfessional(id: Integer)
+POST        /v1/admin/users/professional/delete/:id                                 gl.glue.brahma.controllers.admin.UsersController.deleteProfessional(id: Integer)
+
+####
 #### CLIENT ROUTES
 ####
 # Me
 POST           /v1/client                                                           gl.glue.brahma.controllers.client.UserController.register()
 POST           /v1/client/login                                                     gl.glue.brahma.controllers.client.UserController.login()
 POST           /v1/client/logout                                                    gl.glue.brahma.controllers.common.UserController.logout()
+POST           /v1/client/me/update                                                 gl.glue.brahma.controllers.client.UserController.updateProfile()
+GET            /v1/client/me                                                        gl.glue.brahma.controllers.common.UserController.getMe()
 POST           /v1/client/recover                                                   gl.glue.brahma.controllers.common.UserController.requestPasswordChange()
 POST           /v1/client/recover/confirm                                           gl.glue.brahma.controllers.common.UserController.confirmPasswordChange()
 POST           /v1/client/me/confirm                                                gl.glue.brahma.controllers.common.UserController.confirmMail()
-POST           /v1/client/me/update                                                 gl.glue.brahma.controllers.client.UserController.update()
-GET            /v1/client/me                                                        gl.glue.brahma.controllers.client.UserController.getMe()
+
 GET            /v1/client/me/home                                                   gl.glue.brahma.controllers.client.HomeController.getHome()
 GET            /v1/client/me/sessions/$state<(programmed|underway|closed)\b>        gl.glue.brahma.controllers.client.SessionController.getState(state: String)
 GET            /v1/client/me/transactions                                           gl.glue.brahma.controllers.client.TransactionController.getUserTransactions()
@@ -50,11 +67,12 @@ POST           /v1/client/transaction/execute                                   
 #Me
 POST           /v1/professional/login                                               gl.glue.brahma.controllers.professional.UserController.login()
 POST           /v1/professional/logout                                              gl.glue.brahma.controllers.common.UserController.logout()
+POST           /v1/professional/me/update                                           gl.glue.brahma.controllers.professional.UserController.updateProfile()
+GET            /v1/professional/me                                                  gl.glue.brahma.controllers.common.UserController.getMe()
 POST           /v1/professional/recover                                             gl.glue.brahma.controllers.common.UserController.requestPasswordChange()
 POST           /v1/professional/recover/confirm                                     gl.glue.brahma.controllers.common.UserController.confirmPasswordChange()
 POST           /v1/professional/me/confirm                                          gl.glue.brahma.controllers.common.UserController.confirmMail()
-POST           /v1/professional/me/update                                           gl.glue.brahma.controllers.professional.UserController.update()
-GET            /v1/professional/me                                                  gl.glue.brahma.controllers.professional.UserController.getMe()
+
 GET            /v1/professional/me/home                                             gl.glue.brahma.controllers.professional.HomeController.getHome()
 
 #Sessions
