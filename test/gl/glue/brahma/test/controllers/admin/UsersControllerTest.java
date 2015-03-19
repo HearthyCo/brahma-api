@@ -141,6 +141,18 @@ public class UsersControllerTest extends TransactionalTest {
     }
 
     @Test
+    public void testGetProfessionalsOk() {
+        Result auth = TestUtils.makeAdminLoginRequest(loginValid, passwordValid);
+
+        Result result = TestUtils.callController(GET, "/v1/admin/users/professional", auth);
+        assertNotNull(result);
+        assertEquals(200, result.toScala().header().status());
+
+        ObjectNode ret = TestUtils.toJson(result);
+        assertNotEquals(4, ret.get("users").size());
+    }
+
+    @Test
     public void testUpdateProfessionalUnauthenticated() {
         FakeRequest fr = fakeRequest(POST, "/v1/admin/users/professional/update/90006");
         Result result = routeAndCall(fr, REQUEST_TIMEOUT);

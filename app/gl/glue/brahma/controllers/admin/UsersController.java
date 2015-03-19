@@ -51,7 +51,7 @@ public class UsersController extends Controller {
      *          "password": "newprofessiona1@glue.gl"
      *      }
      *
-     * @apiSuccess {Array}  user    Contains all user fields after login
+     * @apiSuccess {Array}  user    Contains all user fields
      * @apiSuccess {Array}  sign    Contains all signed user content index (sessions, id)
      * @apiSuccessExample {json} Success-Response
      *      HTTP/1.1 200 OK
@@ -158,7 +158,7 @@ public class UsersController extends Controller {
      * @apiName Get Professional
      * @apiDescription Allow the administrator to get the professional user which has passed the parameter id
      *
-     * @apiSuccess {Array}  users   Contains all user fields after login
+     * @apiSuccess {Array}  users   Contains all user fields
      * @apiSuccess {Array}  sign    Contains all signed user content index (sessions, id)
      * @apiSuccessExample {json} Success-Response
      *      HTTP/1.1 200 OK
@@ -242,13 +242,68 @@ public class UsersController extends Controller {
         return ok(result);
     }
 
+    /**
+     * @api {get} /admin/users/professional Get all Professionals
+     *
+     * @apiGroup Admin
+     * @apiName Get all Professionals
+     * @apiDescription Allow the administrator to get all professionals
+     *
+     * @apiSuccess {Array}  users               Contains all user fields
+     * @apiSuccess {Array}  professionalUsers   Contains all professional ids
+     * @apiSuccessExample {json} Success-Response
+     *      HTTP/1.1 200 OK
+     *      {
+     *          "users": [
+     *              {
+     *                  "id": 90005,
+     *                  "login": null,
+     *                  "email": "testuser1@glue.gl",
+     *                  "name": "Test",
+     *                  "surname1": "User",
+     *                  "surname2": "User1",
+     *                  "birthdate": "1969-12-31",
+     *                  "avatar": "http://...",
+     *                  "nationalId": "12345678A",
+     *                  "gender": "MALE",
+     *                  "state": "UNCONFIRMED",
+     *                  "balance": 0,
+     *                  "type": "user"
+     *                  "locked": false,
+     *                  "confirmed": false,
+     *                  "banned": false,
+     *                  "meta": {},
+     *              }
+     *          ],
+     *          "professionalUsers": [
+     *              90005
+     *          ]
+     *      }
+     *
+     * @apiVersion 0.1.0
+     *
+     * @apiError {Object} UserNotLoggedIn User is not logged in.
+     * @apiErrorExample {json} UserNotLoggedIn
+     *      HTTP/1.1 401 Unauthorized
+     *      {
+     *          "status": "401",
+     *          "title": "You are not logged in"
+     *      }
+     *
+     * @apiError {Object} ForbiddenTypeUser Unauthorized type user
+     * @apiErrorExample {json} ForbiddenTypeUser
+     *      HTTP/1.1 403 Forbidden
+     *      {
+     *          "status": "403",
+     *          "title": "Unauthorized type user"
+     *      }
+     *
+     */
     @AdminAuth
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
     public static Result readProfessionals() {
         List<Professional> professionalUsers = userService.getByType(Professional.class);
-
-        if (professionalUsers == null) return status(404, JsonUtils.simpleError("404", "Invalid identifier"));
 
         ObjectNode result = Json.newObject();
         ArrayNode users = new ArrayNode(JsonNodeFactory.instance);
@@ -262,11 +317,11 @@ public class UsersController extends Controller {
     }
 
     /**
-     * @api {post} /professional/me/update Update
+     * @api {post} /admin/users/professional/update/:id Update
      *
      * @apiGroup Professional
      * @apiName Update
-     * @apiDescription Allow professional user can to update fields profile.
+     * @apiDescription Allow admin user to update professional fields.
      *
      * @apiParam {String}               email       Optional. User email.
      * @apiParam {String}               login       Optional. User login.
@@ -393,13 +448,13 @@ public class UsersController extends Controller {
     }
 
     /**
-     * @api {get} /admin/users/professional/ban/:id Ban Professional
+     * @api {post} /admin/users/professional/ban/:id Ban Professional
      *
      * @apiGroup Admin
      * @apiName Ban Professional
      * @apiDescription Allow the administrator to ban a professional user which has passed the parameter id
      *
-     * @apiSuccess {Array}  users   Contains all user fields after login
+     * @apiSuccess {Array}  users   Contains all user fields
      * @apiSuccess {Array}  sign    Contains all signed user content index (sessions, id)
      * @apiSuccessExample {json} Success-Response
      *      HTTP/1.1 200 OK
@@ -493,13 +548,13 @@ public class UsersController extends Controller {
     }
 
     /**
-     * @api {get} /admin/users/professional/delete/:id Delete Professional
+     * @api {post} /admin/users/professional/delete/:id Delete Professional
      *
      * @apiGroup Admin
      * @apiName Delete Professional
      * @apiDescription Allow the administrator to delete a professional user which has passed the parameter id
      *
-     * @apiSuccess {Array}  users   Contains all user fields after login
+     * @apiSuccess {Array}  users   Contains all user fields
      * @apiSuccess {Array}  sign    Contains all signed user content index (sessions, id)
      * @apiSuccessExample {json} Success-Response
      *      HTTP/1.1 200 OK
