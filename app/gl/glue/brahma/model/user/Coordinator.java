@@ -21,7 +21,7 @@ public class Coordinator extends User {
     }
 
     @Override
-    public Type getType() {
-        return Type.COORDINADOR;
+    public UserType getUserType() {
+        return UserType.COORDINATOR;
     }
 }

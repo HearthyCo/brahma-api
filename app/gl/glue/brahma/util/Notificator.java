@@ -26,14 +26,15 @@ public class Notificator {
 
     public static void send(User user, NotificationEvents event, ObjectNode opts) {
         ObjectNode defaults = Json.newObject();
+
         defaults.put("user", Json.toJson(user));
         ((ObjectNode)defaults.get("user")).put("meta", user.getMeta()); // Skip meta fields erasure
+
         defaults.put("type", event.toString());
 
-        if(opts != null) opts = Json.newObject();
+        if(opts == null) opts = Json.newObject();
 
         JsonNode payload = JsonUtils.merge(defaults, opts);
-
         Controller.sendMessage(event.getEvent(), payload.toString());
     }
 

@@ -11,7 +11,6 @@ import play.libs.Json;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -53,7 +52,7 @@ import java.util.List;
 @Inheritance
 @DiscriminatorColumn(name = "type")
 public abstract class User {
-    public enum Type {ADMIN, CLIENT, COORDINADOR, PROFESSIONAL, TUTOR}
+    public enum UserType {ADMIN, CLIENT, COORDINATOR, PROFESSIONAL, TUTOR}
     public enum Gender {MALE, FEMALE, OTHER}
     public enum State {UNCONFIRMED, CONFIRMED, DELEGATED, BANNED, DELETED}
 
@@ -267,6 +266,6 @@ public abstract class User {
         return BCrypt.checkpw(password, this.password);
     }
 
-    public abstract Type getType();
+    public abstract UserType getUserType();
 
 }

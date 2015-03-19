@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.model.user.Professional;
 import gl.glue.brahma.model.user.User;
 import gl.glue.brahma.service.UserService;
@@ -123,7 +122,7 @@ public class UserController extends Controller {
 
         session().clear();
         session("id", Integer.toString(user.getId()));
-        session("role", user.getType().name());
+        session("role", user.getUserType().name());
 
         result = Json.newObject();
         result.put("users", new ArrayNode(JsonNodeFactory.instance).add(Json.toJson(user)));

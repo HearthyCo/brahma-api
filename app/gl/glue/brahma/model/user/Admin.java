@@ -18,7 +18,7 @@ public class Admin extends User {
     }
 
     @Override
-    public Type getType() {
-        return Type.ADMIN;
+    public UserType getUserType() {
+        return UserType.ADMIN;
     }
 }

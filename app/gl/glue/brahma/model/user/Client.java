@@ -23,7 +23,7 @@ public class Client extends User {
     }
 
     @Override
-    public Type getType() {
-        return Type.CLIENT;
+    public UserType getUserType() {
+        return UserType.CLIENT;
     }
 }

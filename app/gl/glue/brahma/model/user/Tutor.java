@@ -18,7 +18,7 @@ public class Tutor extends User {
     }
 
     @Override
-    public Type getType() {
-        return Type.TUTOR;
+    public UserType getUserType() {
+        return UserType.TUTOR;
     }
 }

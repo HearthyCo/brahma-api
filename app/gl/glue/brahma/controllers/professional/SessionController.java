@@ -337,7 +337,7 @@ public class SessionController extends Controller {
             }
             participants.add(sessionUser.getId());
             users.add(u);
-            if (u.getType().equals("client")) {
+            if (u.getUserType().equals("client")) {
                 List<HistoryEntry> userHistory = historyService.getHistory(u.getId());
                 List<Integer> userHistoryIds = userHistory.stream().map(o -> o.getId()).collect(Collectors.toList());
                 historyEntries.addAll(userHistory);

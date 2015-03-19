@@ -11,7 +11,6 @@ import gl.glue.brahma.service.UserService;
 import gl.glue.brahma.util.JsonUtils;
 import gl.glue.brahma.util.ModelSecurity;
 import gl.glue.brahma.util.SignatureHelper;
-import play.Logger;
 import play.db.jpa.Transactional;
 import play.libs.Json;
 import play.mvc.BodyParser;
@@ -125,7 +124,7 @@ public class UserController extends Controller {
 
         session().clear();
         session("id", Integer.toString(user.getId()));
-        session("role", user.getType().name());
+        session("role", user.getUserType().name());
 
         result = Json.newObject();
         result.put("users", new ArrayNode(JsonNodeFactory.instance).add(Json.toJson(user)));
@@ -246,7 +245,7 @@ public class UserController extends Controller {
         // Also log him in
         session().clear();
         session("id", Integer.toString(user.getId()));
-        session("role", user.getType().name());
+        session("role", user.getUserType().name());
 
         result = Json.newObject();
         result.put("users", new ArrayNode(JsonNodeFactory.instance).add(Json.toJson(user)));
