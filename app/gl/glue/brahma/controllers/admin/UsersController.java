@@ -22,6 +22,7 @@ import javax.persistence.PersistenceException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class UsersController extends Controller {
 
@@ -238,6 +239,25 @@ public class UsersController extends Controller {
         users.add(Json.toJson(user));
         result.put("users", users);
         SignatureHelper.addSignatures(result, user.getId());
+        return ok(result);
+    }
+
+    @AdminAuth
+    @Transactional
+    @BodyParser.Of(BodyParser.Json.class)
+    public static Result readProfessionals() {
+        List<Professional> professionalUsers = userService.getByType(Professional.class);
+
+        if (professionalUsers == null) return status(404, JsonUtils.simpleError("404", "Invalid identifier"));
+
+        ObjectNode result = Json.newObject();
+        ArrayNode users = new ArrayNode(JsonNodeFactory.instance);
+        users.add(Json.toJson(professionalUsers));
+
+        List<Integer> professionalUsersIds = professionalUsers.stream().map(o->o.getId()).collect(Collectors.toList());
+
+        result.put("users", users);
+        result.put("professionalUsers", Json.toJson(professionalUsersIds));
         return ok(result);
     }
 

@@ -18,7 +18,7 @@ public class Admin extends User {
     }
 
     @Override
-    public String getType() {
-        return "admin";
+    public Type getType() {
+        return Type.ADMIN;
     }
 }

@@ -1,5 +1,6 @@
 package actions;
 
+import gl.glue.brahma.model.user.User;
 import gl.glue.brahma.util.JsonUtils;
 import play.libs.F;
 import play.mvc.Action;
@@ -16,7 +17,7 @@ public class ClientAuthAction extends Action.Simple {
 
         // Check if client
         String role = ctx.session().get("role");
-        if(role == null || !role.equals("client")) {
+        if(role == null || !role.equals(User.Type.CLIENT.name())) {
             return F.Promise.pure(status(403, JsonUtils.simpleError("403", "Unauthorized")));
         }
 

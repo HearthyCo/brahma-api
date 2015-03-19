@@ -116,7 +116,7 @@ public class UserController extends Controller {
 
         session().clear();
         session("id", Integer.toString(user.getId()));
-        session("role", user.getType());
+        session("role", user.getType().name());
 
         result = Json.newObject();
         result.put("users", new ArrayNode(JsonNodeFactory.instance).add(Json.toJson(user)));

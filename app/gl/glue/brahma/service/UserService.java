@@ -4,11 +4,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import gl.glue.brahma.model.user.User;
 import gl.glue.brahma.model.user.UserDao;
-import gl.glue.brahma.util.Mailer;
+import gl.glue.brahma.util.Notificator;
 import org.apache.commons.lang3.RandomStringUtils;
 import play.db.jpa.JPA;
 import play.db.jpa.Transactional;
 import play.libs.Json;
+
+import java.util.List;
 
 public class UserService {
 
@@ -35,13 +37,18 @@ public class UserService {
                                 .put("expires", System.currentTimeMillis() + 86400000))));
         userDao.create(user);
         JPA.em().flush(); // Detect errors right now, before sending junk mail.
-        Mailer.send(user, Mailer.MailTemplate.REGISTER_CONFIRM_MAIL);
+        Notificator.send(user, Notificator.NotificationEvents.USER_REGISTER);
         return user;
     }
 
     @Transactional
     public User getById(int uid) {
         return userDao.findById(uid);
+    }
+
+    @Transactional
+    public <T extends User> List<T> getByType(Class<T> userTypeClass) {
+        return userDao.findByType(userTypeClass);
     }
 
     @Transactional
@@ -53,7 +60,7 @@ public class UserService {
         if (!mailConfirm.get("hash").asText().equals(hash)) return false;
         user.setState(User.State.CONFIRMED);
         // If adding another welcome mail, send it from here, like this:
-        // Mailer.send(user, REGISTER_COMPLETE_MAIL);
+        // Notificator.send(user, REGISTER_COMPLETE_MAIL);
         return true;
     }
 
@@ -66,7 +73,7 @@ public class UserService {
                         .putPOJO("password", Json.newObject()
                                 .put("hash", RandomStringUtils.randomAlphanumeric(32))
                                 .put("expires", System.currentTimeMillis() + 86400000))));
-        Mailer.send(user, Mailer.MailTemplate.RECOVER_CONFIRM_MAIL);
+        Notificator.send(user, Notificator.NotificationEvents.USER_RECOVER);
         return user;
     }
 

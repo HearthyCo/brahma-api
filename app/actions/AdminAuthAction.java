@@ -1,5 +1,6 @@
 package actions;
 
+import gl.glue.brahma.model.user.User;
 import gl.glue.brahma.util.JsonUtils;
 import play.libs.F;
 import play.mvc.Action;
@@ -16,7 +17,7 @@ public class AdminAuthAction extends Action.Simple {
 
         // Check if admin
         String role = ctx.session().get("role");
-        if(role == null || !role.equals("admin")) {
+        if(role == null || !role.equals(User.Type.ADMIN.name())) {
             return F.Promise.pure(status(403, JsonUtils.simpleError("403", "Unauthorized")));
         }
 

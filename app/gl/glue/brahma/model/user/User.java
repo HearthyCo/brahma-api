@@ -16,7 +16,6 @@ import java.util.Date;
 import java.util.List;
 
 @NamedQueries({
-
         @NamedQuery(
                 name = "User.findByLogin",
                 query = "select x from User x where x.login = :login"
@@ -24,14 +23,37 @@ import java.util.List;
         @NamedQuery(
                 name = "User.findByEmail",
                 query = "select x from User x where x.email = :email"
+        ),
+        @NamedQuery(
+                name = "User.findByAdminSortTS",
+                query = "select x from Admin x"
+        ),
+        @NamedQuery(
+                name = "User.findAdmins",
+                query = "select x from Admin x"
+        ),
+        @NamedQuery(
+                name = "User.findClients",
+                query = "select x from Client x"
+        ),
+        @NamedQuery(
+                name = "User.findCoordinators",
+                query = "select x from Coordinator x"
+        ),
+        @NamedQuery(
+                name = "User.findProfessionals",
+                query = "select x from Professional x"
+        ),
+        @NamedQuery(
+                name = "User.findTutors",
+                query = "select x from Tutor x"
         )
-
 })
 @Entity
 @Inheritance
 @DiscriminatorColumn(name = "type")
 public abstract class User {
-
+    public enum Type {ADMIN, CLIENT, COORDINADOR, PROFESSIONAL, TUTOR}
     public enum Gender {MALE, FEMALE, OTHER}
     public enum State {UNCONFIRMED, CONFIRMED, DELEGATED, BANNED, DELETED}
 
@@ -245,6 +267,6 @@ public abstract class User {
         return BCrypt.checkpw(password, this.password);
     }
 
-    public abstract String getType();
+    public abstract Type getType();
 
 }
