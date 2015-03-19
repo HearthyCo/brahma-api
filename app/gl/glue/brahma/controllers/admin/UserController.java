@@ -240,7 +240,7 @@ public class UserController extends Controller {
      * @apiName Get Me
      * @apiDescription Get the current logged in admin.
      *
-     * @apiSuccess {Array}  users   Contains all user fields after login
+     * @apiSuccess {Array}  users   Contains all user fields
      * @apiSuccessExample {json} Success-Response
      *      HTTP/1.1 200 OK
      *      {
@@ -296,15 +296,6 @@ public class UserController extends Controller {
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
     public static Result getMe() {
-        User user = userService.getById(Integer.parseInt(session("id")));
-
-        if (user.isLocked()) return status(423, JsonUtils.simpleError("423", "Locked or removed user"));
-
-        ObjectNode result = Json.newObject();
-        ArrayNode users = new ArrayNode(JsonNodeFactory.instance);
-        users.add(Json.toJson(user));
-        result.put("users", users);
-        SignatureHelper.addSignatures(result, user.getId());
-        return ok(result);
+        return gl.glue.brahma.controllers.common.UserController.getMe();
     }
 }

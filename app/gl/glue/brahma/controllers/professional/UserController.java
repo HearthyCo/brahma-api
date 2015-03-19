@@ -1,5 +1,6 @@
 package gl.glue.brahma.controllers.professional;
 
+import actions.ClientAuth;
 import actions.ProfessionalAuth;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -240,5 +241,71 @@ public class UserController extends Controller {
         result.put("users", new ArrayNode(JsonNodeFactory.instance).add(Json.toJson(user)));
 
         return ok(result);
+    }
+
+    /**
+     * @api {get} /professional/me Get Me
+     *
+     * @apiGroup Professional
+     * @apiName Get Me
+     * @apiDescription Get the current logged in professional.
+     *
+     * @apiSuccess {Array}  users   Contains all user fields
+     * @apiSuccessExample {json} Success-Response
+     *      HTTP/1.1 200 OK
+     *      {
+     *          "users": [
+     *              {
+     *                  "id": 90005,
+     *                  "login": null,
+     *                  "email": "testprofessional1@glue.gl",
+     *                  "name": "Test",
+     *                  "surname1": "User",
+     *                  "surname2": "User1",
+     *                  "birthdate": "1969-12-31",
+     *                  "avatar": "http://...",
+     *                  "nationalId": "12345678A",
+     *                  "gender": "OTHER",
+     *                  "state": "UNCONFIRMED",
+     *                  "balance": 0,
+     *                  "type": "professional"
+     *                  "locked": false,
+     *                  "confirmed": false,
+     *                  "banned": false,
+     *                  "meta": {},
+     *              }
+     *          ],
+     *          "sign": [
+     *              {
+     *                  "id": "userId",
+     *                  "signature": "f1xdmk+xNP6mgWxK3v03MNUccyiUV+238NfwWsKdbeY=1426153660567",
+     *                  "value": 2
+     *              }
+     *          ]
+     *      }
+     *
+     * @apiVersion 0.1.0
+     *
+     * @apiError {Object} UserNotLoggedIn User is not logged in.
+     * @apiErrorExample {json} UserNotLoggedIn
+     *      HTTP/1.1 401 Unauthorized
+     *      {
+     *          "status": "401",
+     *          "title": "You are not logged in"
+     *      }
+     *
+     * @apiError {Object} LockedUser User is not logged in.
+     * @apiErrorExample {json} LockedUser
+     *      HTTP/1.1 423 Locked
+     *      {
+     *          "status": "423",
+     *          "title": "Locked or removed user"
+     *      }
+     */
+    @ProfessionalAuth
+    @Transactional
+    @BodyParser.Of(BodyParser.Json.class)
+    public static Result getMe() {
+        return gl.glue.brahma.controllers.common.UserController.getMe();
     }
 }
