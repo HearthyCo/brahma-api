@@ -17,7 +17,7 @@ public class AdminAuthAction extends Action.Simple {
 
         // Check if admin
         String role = ctx.session().get("role");
-        if(role == null || !role.equals(User.UserType.ADMIN.name())) {
+        if(role == null || !role.equals("admin")) {
             return F.Promise.pure(status(403, JsonUtils.simpleError("403", "Unauthorized")));
         }
 

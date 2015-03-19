@@ -24,7 +24,7 @@ public class Professional extends User {
     }
 
     @Override
-    public UserType getUserType() {
-        return UserType.PROFESSIONAL;
+    public String getUserType() {
+        return "professional";
     }
 }
