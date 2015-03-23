@@ -404,14 +404,6 @@ public class UsersController extends Controller {
      *          "title": "Invalid identifier"
      *      }
      *
-     * @apiError {Object} LockedUser User is not logged in.
-     * @apiErrorExample {json} LockedUser
-     *      HTTP/1.1 423 Locked
-     *      {
-     *          "status": "423",
-     *          "title": "Locked or removed user"
-     *      }
-     *
      * @apiVersion 0.1.0
      */
     @AdminAuth
@@ -422,10 +414,15 @@ public class UsersController extends Controller {
 
         if (user == null) return status(404, JsonUtils.simpleError("404", "Invalid identifier"));
         if (!(user instanceof Professional)) return status(403, JsonUtils.simpleError("403", "Unauthorized type user"));
-        if (user.isLocked()) return status(423, JsonUtils.simpleError("423", "Locked or removed user"));
 
         JsonNode json = request().body().asJson();
-        json = JsonUtils.cleanFields((ObjectNode)json, ModelSecurity.USER_MODIFIABLE_FIELDS);
+        json = JsonUtils.cleanFields((ObjectNode)json, ModelSecurity.ADMIN_MODIFIABLE_FIELDS);
+
+        // Check if new email is already in use
+        if (json.has("email")) {
+            User userAux = userService.getByEmail(json.get("email").asText());
+            if (userAux != null) return status(409, JsonUtils.simpleError("409", "Email already in use."));
+        }
 
         Iterator<String> fields = json.fieldNames();
         List<String> availableFields = new ArrayList<>();
@@ -522,10 +519,10 @@ public class UsersController extends Controller {
      *
      * @apiError {Object} LockedUser User is not logged in.
      * @apiErrorExample {json} LockedUser
-     *      HTTP/1.1 423 Locked
+     *      HTTP/1.1 403 Locked
      *      {
-     *          "status": "423",
-     *          "title": "Locked or removed user"
+     *          "status": "403",
+     *          "title": "Banned or removed user"
      *      }
      *
      */
@@ -537,7 +534,7 @@ public class UsersController extends Controller {
 
         if (user == null) return status(404, JsonUtils.simpleError("404", "Invalid identifier"));
         if (!(user instanceof Professional)) return status(403, JsonUtils.simpleError("403", "Unauthorized type user"));
-        if (user.isLocked()) return status(423, JsonUtils.simpleError("423", "Locked or removed user"));
+        if (user.isLocked()) return status(403, JsonUtils.simpleError("403", "Banned or removed user"));
 
         user.setState(User.State.BANNED);
 

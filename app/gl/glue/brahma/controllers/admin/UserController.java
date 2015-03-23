@@ -283,14 +283,6 @@ public class UserController extends Controller {
      *          "status": "401",
      *          "title": "You are not logged in"
      *      }
-     *
-     * @apiError {Object} LockedUser User is not logged in.
-     * @apiErrorExample {json} LockedUser
-     *      HTTP/1.1 423 Locked
-     *      {
-     *          "status": "423",
-     *          "title": "Locked or removed user"
-     *      }
      */
     @AdminAuth
     @Transactional

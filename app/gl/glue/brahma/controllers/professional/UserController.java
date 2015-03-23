@@ -103,6 +103,14 @@ public class UserController extends Controller {
      *          "title": "Unauthorized type user"
      *      }
      *
+     * @apiError {Object} LockedUser  Unauthorized type user
+     * @apiErrorExample {json} LockedUser
+     *      HTTP/1.1 403 Locked
+     *      {
+     *          "status": "403",
+     *          "title": "Banned or removed user"
+     *      }
+     *
      * @apiVersion 0.1.0
      */
     @Transactional
@@ -119,7 +127,7 @@ public class UserController extends Controller {
         User user = userService.login(login, pass);
         if (user == null) return status(401, JsonUtils.simpleError("401", "Invalid username or password."));
         if (!(user instanceof Professional)) return status(403, JsonUtils.simpleError("403", "Unauthorized type user"));
-        if (!user.canLogin()) return status(423, JsonUtils.simpleError("423", "Locked user"));
+        if (!user.canLogin()) return status(403, JsonUtils.simpleError("403", "Banned or removed user"));
 
         session().clear();
         session("id", Integer.toString(user.getId()));
@@ -202,12 +210,12 @@ public class UserController extends Controller {
      *          "title": "You are not logged in"
      *      }
      *
-     * @apiError {Object} LockedUser User is not logged in.
+     * @apiError {Object} LockedUser User is locked.
      * @apiErrorExample {json} LockedUser
-     *      HTTP/1.1 423 Locked
+     *      HTTP/1.1 403 Locked
      *      {
-     *          "status": "423",
-     *          "title": "Locked or removed user"
+     *          "status": "403",
+     *          "title": "Banned or removed user"
      *      }
      *
      * @apiVersion 0.1.0
@@ -233,7 +241,7 @@ public class UserController extends Controller {
 
         User user = userService.getById(Integer.parseInt(session("id")));
 
-        if (user.isLocked()) return status(423, JsonUtils.simpleError("423", "Locked or removed user"));
+        if (user.isLocked()) return status(403, JsonUtils.simpleError("403", "Banned or removed user"));
 
         user.merge(professional, availableFields);
 
@@ -294,13 +302,6 @@ public class UserController extends Controller {
      *          "title": "You are not logged in"
      *      }
      *
-     * @apiError {Object} LockedUser User is not logged in.
-     * @apiErrorExample {json} LockedUser
-     *      HTTP/1.1 423 Locked
-     *      {
-     *          "status": "423",
-     *          "title": "Locked or removed user"
-     *      }
      */
     @ProfessionalAuth
     @Transactional

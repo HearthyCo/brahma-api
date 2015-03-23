@@ -37,13 +37,19 @@ public class UserService {
                                 .put("expires", System.currentTimeMillis() + 86400000))));
         userDao.create(user);
         JPA.em().flush(); // Detect errors right now, before sending junk mail.
-        Notificator.send(user, Notificator.NotificationEvents.USER_REGISTER);
+        Notificator.send(user, Notificator.NotificationEvents.USER_REGISTER,
+                Json.newObject().put("link", "http://localhost:3000/irparaconfirmar"));
         return user;
     }
 
     @Transactional
     public User getById(int uid) {
         return userDao.findById(uid);
+    }
+
+    @Transactional
+    public User getByEmail(String email) {
+        return userDao.findByEmail(email);
     }
 
     @Transactional

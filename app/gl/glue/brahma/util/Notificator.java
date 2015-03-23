@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import gl.glue.brahma.model.user.User;
 import gl.glue.play.amqp.Controller;
+import play.Logger;
 import play.libs.Json;
 
 public class Notificator {
@@ -39,7 +40,7 @@ public class Notificator {
     }
 
     public static void send(User user, NotificationEvents event) {
-        send(user, event, null);
+        send(user, event, Json.newObject());
     }
 
 }

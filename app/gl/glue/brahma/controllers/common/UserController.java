@@ -98,10 +98,10 @@ public class UserController extends Controller {
      *
      * @apiError {Object} LockedUser User is not logged in.
      * @apiErrorExample {json} LockedUser
-     *      HTTP/1.1 423 Locked
+     *      HTTP/1.1 403 Locked
      *      {
-     *          "status": "423",
-     *          "title": "Locked or removed user"
+     *          "status": "403",
+     *          "title": "Banned or removed user"
      *      }
      */
     @BasicAuth
@@ -110,7 +110,7 @@ public class UserController extends Controller {
     public static Result getMe() {
         User user = userService.getById(Integer.parseInt(session("id")));
 
-        if (user.isLocked()) return status(423, JsonUtils.simpleError("423", "Locked or removed user"));
+        if (user.isLocked()) return status(403, JsonUtils.simpleError("403", "Banned or removed user"));
 
         ObjectNode result = Json.newObject();
         ArrayNode users = new ArrayNode(JsonNodeFactory.instance);
