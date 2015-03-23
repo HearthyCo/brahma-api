@@ -443,4 +443,196 @@ public class UsersController extends Controller {
 
         return ok(result);
     }
+
+    /**
+     * @api {post} /admin/users/professional/ban/:id Ban Professional
+     *
+     * @apiGroup Admin
+     * @apiName Ban Professional
+     * @apiDescription Allow the administrator to ban a professional user which has passed the parameter id
+     *
+     * @apiSuccess {Array}  users   Contains all user fields
+     * @apiSuccess {Array}  sign    Contains all signed user content index (sessions, id)
+     * @apiSuccessExample {json} Success-Response
+     *      HTTP/1.1 200 OK
+     *      {
+     *          "users": [
+     *              {
+     *                  "id": 90005,
+     *                  "login": null,
+     *                  "email": "testuser1@glue.gl",
+     *                  "name": "Test",
+     *                  "surname1": "User",
+     *                  "surname2": "User1",
+     *                  "birthdate": "1969-12-31",
+     *                  "avatar": "http://...",
+     *                  "nationalId": "12345678A",
+     *                  "gender": "MALE",
+     *                  "state": "BANNED",
+     *                  "balance": 0,
+     *                  "type": "user"
+     *                  "locked": false,
+     *                  "confirmed": false,
+     *                  "banned": false,
+     *                  "meta": {},
+     *              }
+     *          ],
+     *          "sign": [
+     *              {
+     *                  "id": "sessions",
+     *                  "signature": "jBFTvM5669uJ9eLbN8CUhyAUTmgkjUpXn1GLXqOtR5Q=1425987517615",
+     *                  "value": [ 90700, 90712 ]
+     *              },
+     *              {
+     *                  "id": "userId",
+     *                  "signature": "oG8urM4fQFc4ma2fJ58TtAC/lO9CUwDa73goXytm1NA=1425987517619",
+     *                  "value": 90005
+     *              }
+     *          ]
+     *      }
+     *
+     * @apiVersion 0.1.0
+     *
+     * @apiError {Object} UnauthorizedUser User is not logged in.
+     * @apiErrorExample {json} UnauthorizedUser
+     *      HTTP/1.1 401 Unauthorized
+     *      {
+     *          "status": "401",
+     *          "title": "You are not logged in"
+     *      }
+     *
+     * @apiError {Object} ForbiddenTypeUser Unauthorized type user
+     * @apiErrorExample {json} ForbiddenTypeUser
+     *      HTTP/1.1 403 Forbidden
+     *      {
+     *          "status": "403",
+     *          "title": "Unauthorized type user"
+     *      }
+     *
+     * @apiError UserNotFound The <code>state</code> contains a unknown value.
+     * @apiErrorExample {json} UserNotFound
+     *      HTTP/1.1 404 Not Found
+     *      {
+     *          "status": "404",
+     *          "title": "Invalid identifier"
+     *      }
+     *
+     * @apiError {Object} LockedUser User is not logged in.
+     * @apiErrorExample {json} LockedUser
+     *      HTTP/1.1 403 Locked
+     *      {
+     *          "status": "403",
+     *          "title": "Banned or removed user"
+     *      }
+     *
+     */
+    @AdminAuth
+    @Transactional
+    @BodyParser.Of(BodyParser.Json.class)
+    public static Result banProfessional(int uid) {
+        User user = userService.getById(uid);
+
+        if (user == null) return status(404, JsonUtils.simpleError("404", "Invalid identifier"));
+        if (!(user instanceof Professional)) return status(403, JsonUtils.simpleError("403", "Unauthorized type user"));
+        if (user.isLocked()) return status(403, JsonUtils.simpleError("403", "Banned or removed user"));
+
+        user.setState(User.State.BANNED);
+
+        ObjectNode result = Json.newObject();
+        result.put("users", new ArrayNode(JsonNodeFactory.instance).add(Json.toJson(user)));
+
+        return ok(result);
+    }
+
+    /**
+     * @api {post} /admin/users/professional/delete/:id Delete Professional
+     *
+     * @apiGroup Admin
+     * @apiName Delete Professional
+     * @apiDescription Allow the administrator to delete a professional user which has passed the parameter id
+     *
+     * @apiSuccess {Array}  users   Contains all user fields
+     * @apiSuccess {Array}  sign    Contains all signed user content index (sessions, id)
+     * @apiSuccessExample {json} Success-Response
+     *      HTTP/1.1 200 OK
+     *      {
+     *          "users": [
+     *              {
+     *                  "id": 90005,
+     *                  "login": null,
+     *                  "email": "testuser1@glue.gl",
+     *                  "name": "Test",
+     *                  "surname1": "User",
+     *                  "surname2": "User1",
+     *                  "birthdate": "1969-12-31",
+     *                  "avatar": "http://...",
+     *                  "nationalId": "12345678A",
+     *                  "gender": "MALE",
+     *                  "state": "DELETED",
+     *                  "balance": 0,
+     *                  "type": "user"
+     *                  "locked": false,
+     *                  "confirmed": false,
+     *                  "banned": false,
+     *                  "meta": {},
+     *              }
+     *          ],
+     *          "sign": [
+     *              {
+     *                  "id": "sessions",
+     *                  "signature": "jBFTvM5669uJ9eLbN8CUhyAUTmgkjUpXn1GLXqOtR5Q=1425987517615",
+     *                  "value": [ 90700, 90712 ]
+     *              },
+     *              {
+     *                  "id": "userId",
+     *                  "signature": "oG8urM4fQFc4ma2fJ58TtAC/lO9CUwDa73goXytm1NA=1425987517619",
+     *                  "value": 90005
+     *              }
+     *          ]
+     *      }
+     *
+     * @apiVersion 0.1.0
+     *
+     * @apiError {Object} UnauthorizedUser User is not logged in.
+     * @apiErrorExample {json} UnauthorizedUser
+     *      HTTP/1.1 401 Unauthorized
+     *      {
+     *          "status": "401",
+     *          "title": "You are not logged in"
+     *      }
+     *
+     * @apiError {Object} ForbiddenTypeUser Unauthorized type user
+     * @apiErrorExample {json} ForbiddenTypeUser
+     *      HTTP/1.1 403 Forbidden
+     *      {
+     *          "status": "403",
+     *          "title": "Unauthorized type user"
+     *      }
+     *
+     * @apiError UserNotFound The <code>state</code> contains a unknown value.
+     * @apiErrorExample {json} UserNotFound
+     *      HTTP/1.1 404 Not Found
+     *      {
+     *          "status": "404",
+     *          "title": "Invalid identifier"
+     *      }
+     *
+     */
+    @AdminAuth
+    @Transactional
+    @BodyParser.Of(BodyParser.Json.class)
+    public static Result deleteProfessional(int uid) {
+        User user = userService.getById(uid);
+
+        if (user == null) return status(404, JsonUtils.simpleError("404", "Invalid identifier"));
+
+        if (!(user instanceof Professional)) return status(403, JsonUtils.simpleError("403", "Unauthorized type user"));
+
+        user.setState(User.State.DELETED);
+
+        ObjectNode result = Json.newObject();
+        result.put("users", new ArrayNode(JsonNodeFactory.instance).add(Json.toJson(user)));
+
+        return ok(result);
+    }
 }
