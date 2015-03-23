@@ -192,6 +192,7 @@ public class SessionController extends Controller {
     public static Result uploadAttachment(int sessionId) {
         Http.MultipartFormData body = request().body().asMultipartFormData();
         Http.MultipartFormData.FilePart uploadFilePart = body.getFile("upload");
+        Http.MultipartFormData.FilePart uploadFilePart2 = body.getFile("upload_thumb");
         if (uploadFilePart == null) {
             return status(400, JsonUtils.simpleError("400", "Missing upload file"));
         }
@@ -201,8 +202,15 @@ public class SessionController extends Controller {
         try {
             filename = java.net.URLDecoder.decode(filename, "UTF-8");
         } catch (UnsupportedEncodingException e) {}
-        Attachment attachment = attachmentService.uploadToSession(
-                uid, sessionId, filename, uploadFilePart.getFile());
+
+        Attachment attachment;
+        if (uploadFilePart2 == null) {
+            attachment = attachmentService.uploadToSession(
+                    uid, sessionId, filename, uploadFilePart.getFile());
+        } else {
+            attachment = attachmentService.uploadToSession(
+                    uid, sessionId, filename, uploadFilePart.getFile(), uploadFilePart2.getFile());
+        }
 
         if (attachment == null) {
             return status(404, JsonUtils.simpleError("404", "Invalid identifier"));

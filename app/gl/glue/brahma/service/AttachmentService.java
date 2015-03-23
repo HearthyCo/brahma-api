@@ -39,6 +39,11 @@ public class AttachmentService {
 
     @Transactional
     public Attachment uploadToSession(int userId, int sessionId, String filename, File file) {
+        return uploadToSession(userId, sessionId, filename, file, null);
+    }
+
+    @Transactional
+    public Attachment uploadToSession(int userId, int sessionId, String filename, File file, File thumb) {
         Session session = sessionDao.findById(sessionId, userId);
         User user = userDao.findById(userId);
         if (session == null) {
@@ -65,6 +70,9 @@ public class AttachmentService {
 
         // Upload
         PutObjectRequest putObjectRequest = S3Plugin.putFile(key, file, userMetadata);
+        if (thumb != null) {
+            S3Plugin.putFile(key + "_thumb", thumb, userMetadata);
+        }
 
         // Finally add to DB
         Attachment attachment = new Attachment();
@@ -74,6 +82,7 @@ public class AttachmentService {
         attachment.setFilename(filename);
         attachment.setSize((int) file.length());
         attachment.setMime(putObjectRequest.getMetadata().getContentType());
+        attachment.setHasThumb(thumb != null);
         attachmentDao.create(attachment);
 
         // And send AMQP notification
@@ -89,6 +98,7 @@ public class AttachmentService {
                         .put("href", attachment.getUrl())
                         .put("type", attachment.getMime())
                         .put("size", attachment.getSize())
+                        .put("hasThumb", attachment.hasThumb())
                     )
                 )
             .toString());

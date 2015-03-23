@@ -1,6 +1,10 @@
 package gl.glue.brahma.model.attachment;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.BooleanSerializer;
 import gl.glue.brahma.model.historyentry.HistoryEntry;
 import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.model.user.User;
@@ -42,10 +46,12 @@ public class Attachment {
 
     private String mime;
 
+    private boolean hasThumb;
+
+
     public int getId() {
         return id;
     }
-
 
     public HistoryEntry getHistoryEntry() {
         return historyEntry;
@@ -103,6 +109,14 @@ public class Attachment {
         this.mime = mime;
     }
 
+    @JsonProperty("hasThumb")
+    public boolean hasThumb() {
+        return hasThumb;
+    }
+
+    public void setHasThumb(boolean hasThumb) {
+        this.hasThumb = hasThumb;
+    }
 
 
     @Override
