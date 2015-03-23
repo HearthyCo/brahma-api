@@ -25,8 +25,6 @@ POST        /v1/admin/users/professional/create                                 
 GET         /v1/admin/users/professional                                            gl.glue.brahma.controllers.admin.UsersController.readProfessionals()
 GET         /v1/admin/users/professional/:id                                        gl.glue.brahma.controllers.admin.UsersController.readProfessional(id: Integer)
 POST        /v1/admin/users/professional/update/:id                                 gl.glue.brahma.controllers.admin.UsersController.updateProfessional(id: Integer)
-POST        /v1/admin/users/professional/ban/:id                                    gl.glue.brahma.controllers.admin.UsersController.banProfessional(id: Integer)
-POST        /v1/admin/users/professional/delete/:id                                 gl.glue.brahma.controllers.admin.UsersController.deleteProfessional(id: Integer)
 
 ####
 #### CLIENT ROUTES

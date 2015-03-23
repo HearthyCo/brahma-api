@@ -241,6 +241,9 @@ public abstract class User {
                 switch (field) {
                     case "login": this.setLogin(updated.getLogin());  break;
                     case "email": this.setEmail(updated.getEmail());  break;
+                    case "password": this.setPassword(updated.getPassword());  break;
+                    case "balance": this.setBalance(updated.getBalance());  break;
+                    case "state": this.setState(updated.getState());  break;
                     case "gender": this.setGender(updated.getGender()); break;
                     case "name": this.setName(updated.getName()); break;
                     case "birthdate":  this.setBirthdate(updated.getBirthdate()); break;
@@ -256,6 +259,9 @@ public abstract class User {
 
     public void setPassword(String password) {
         this.password = BCrypt.hashpw(password, BCrypt.gensalt());
+    }
+    public String getPassword() {
+        return password;
     }
 
     public boolean authenticate(String password) {
