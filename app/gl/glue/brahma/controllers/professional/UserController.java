@@ -1,6 +1,5 @@
 package gl.glue.brahma.controllers.professional;
 
-import actions.ClientAuth;
 import actions.ProfessionalAuth;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -16,6 +15,7 @@ import play.db.jpa.Transactional;
 import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
+import play.mvc.Http;
 import play.mvc.Result;
 
 import java.util.*;
@@ -309,4 +309,21 @@ public class UserController extends Controller {
     public static Result getMe() {
         return gl.glue.brahma.controllers.common.UserController.getMe();
     }
+
+    @ProfessionalAuth
+    @Transactional
+    public static Result setAvatar() {
+        Http.MultipartFormData body = request().body().asMultipartFormData();
+        Http.MultipartFormData.FilePart uploadFilePart = body.getFile("upload");
+        if (uploadFilePart == null) {
+            return status(400, JsonUtils.simpleError("400", "Missing upload file"));
+        }
+
+        int uid = Integer.parseInt(session("id"));
+        User user = userService.setAvatar(uid, uploadFilePart.getFile());
+
+        return ok(Json.newObject().putPOJO("users", new ArrayNode(JsonNodeFactory.instance).add(Json.toJson(user))));
+    }
+
+
 }
