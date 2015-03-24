@@ -2,6 +2,8 @@ package gl.glue.brahma.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import gl.glue.brahma.model.user.User;
 import gl.glue.brahma.model.user.UserDao;
 import gl.glue.brahma.util.Notificator;
@@ -15,6 +17,11 @@ import java.util.List;
 public class UserService {
 
     private UserDao userDao = new UserDao();
+    private static Config conf = null;
+
+    static {
+        conf = ConfigFactory.load();
+    }
 
     @Transactional
     public User login(String email, String password) {
@@ -29,16 +36,19 @@ public class UserService {
     @Transactional
     public User register(User user) {
         user.setEmail(user.getEmail().toLowerCase());
-        // Email confirmation
+        String hash = RandomStringUtils.randomAlphanumeric(32);
+
         user.mergeMeta(Json.newObject()
                 .putPOJO("confirm", Json.newObject()
                         .putPOJO("mail", Json.newObject()
-                                .put("hash", RandomStringUtils.randomAlphanumeric(32))
+                                .put("hash", hash)
                                 .put("expires", System.currentTimeMillis() + 86400000))));
+
         userDao.create(user);
         JPA.em().flush(); // Detect errors right now, before sending junk mail.
-        Notificator.send(user, Notificator.NotificationEvents.USER_REGISTER,
-                Json.newObject().put("link", "http://localhost:3000/irparaconfirmar"));
+
+        String confirmLink = conf.getString(user.getUserType() + ".uri") + "/confirm/mail/" + user.getId() + "/" + hash;
+        Notificator.send(user, Notificator.NotificationEvents.USER_REGISTER, Json.newObject().put("link", confirmLink));
         return user;
     }
 

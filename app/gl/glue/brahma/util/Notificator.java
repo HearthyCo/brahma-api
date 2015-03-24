@@ -1,10 +1,8 @@
 package gl.glue.brahma.util;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import gl.glue.brahma.model.user.User;
 import gl.glue.play.amqp.Controller;
-import play.Logger;
 import play.libs.Json;
 
 public class Notificator {
@@ -25,17 +23,17 @@ public class Notificator {
         public String toString() { return event; }
     }
 
-    public static void send(User user, NotificationEvents event, ObjectNode opts) {
-        ObjectNode defaults = Json.newObject();
+    public static void send(User user, NotificationEvents event, ObjectNode meta) {
+        ObjectNode payload = Json.newObject();
 
-        defaults.put("user", Json.toJson(user));
-        ((ObjectNode)defaults.get("user")).put("meta", user.getMeta()); // Skip meta fields erasure
+        payload.put("user", Json.toJson(user));
+        ((ObjectNode)payload.get("user")).put("meta", user.getMeta()); // Skip meta fields erasure
 
-        defaults.put("type", event.toString());
+        if(meta == null) meta = Json.newObject();
+        meta.put("type", event.toString());
 
-        if(opts == null) opts = Json.newObject();
+        payload.put("meta", meta);
 
-        JsonNode payload = JsonUtils.merge(defaults, opts);
         Controller.sendMessage(event.getEvent(), payload.toString());
     }
 
