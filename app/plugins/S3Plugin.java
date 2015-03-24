@@ -55,6 +55,12 @@ public class S3Plugin extends Plugin {
         return "https://s3.amazonaws.com/" + s3Bucket + "/" + key;
     }
 
+    public static String url2key(String url) {
+        String prefix = key2url("");
+        if (!prefix.equals(url.substring(0, prefix.length()))) return null;
+        return url.substring(prefix.length());
+    }
+
     public static PutObjectRequest putFile(String key, File file, Map<String, String> userMetadata) {
         PutObjectRequest putObjectRequest = new PutObjectRequest(s3Bucket, key, file);
         ObjectMetadata meta = putObjectRequest.getMetadata();
@@ -70,6 +76,10 @@ public class S3Plugin extends Plugin {
         amazonS3.putObject(putObjectRequest);
 
         return  putObjectRequest;
+    }
+
+    public static void removeFile(String key) {
+        amazonS3.deleteObject(s3Bucket, key);
     }
 
 }

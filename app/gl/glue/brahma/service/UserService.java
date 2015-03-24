@@ -1,5 +1,6 @@
 package gl.glue.brahma.service;
 
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.Config;
@@ -11,8 +12,15 @@ import org.apache.commons.lang3.RandomStringUtils;
 import play.db.jpa.JPA;
 import play.db.jpa.Transactional;
 import play.libs.Json;
+import plugins.S3Plugin;
 
+import java.io.File;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class UserService {
 
@@ -101,10 +109,44 @@ public class UserService {
         if (passConfirm.isMissingNode()) return false;
         if (System.currentTimeMillis() > passConfirm.get("expires").asLong()) return false;
         if (!passConfirm.get("hash").asText().equals(hash)) return false;
-        ((ObjectNode)meta.get("confirm")).remove("password");
+        ((ObjectNode) meta.get("confirm")).remove("password");
         user.setMeta(meta);
         user.setPassword(newPassword);
         return true;
     }
 
+    @Transactional
+    public User setAvatar(int uid, File file) {
+        User user = userDao.findById(uid);
+
+        // If the user has one already, invalidate it!
+        if (user.getAvatar() != null) {
+            String oldKey = S3Plugin.url2key(user.getAvatar());
+            if (oldKey != null) S3Plugin.removeFile(oldKey);
+        }
+
+        // Generate a random-looking key using a SHA-256 hash and base64encoding it
+        String in = String.format("%d/%d", uid, System.currentTimeMillis());
+        String key;
+        try {
+            MessageDigest sha = MessageDigest.getInstance("SHA-256");
+            sha.update(in.getBytes());
+            byte[] digest = sha.digest();
+            String hash = Base64.getUrlEncoder().encodeToString(digest);
+            key = "avatars/" + hash;
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+
+        // Add some metadata we'd like to keep (privately) with the file
+        Map<String, String> userMetadata = new HashMap<>();
+        userMetadata.put("userId", Integer.toString(uid));
+
+        // Upload
+        S3Plugin.putFile(key, file, userMetadata);
+        String url = S3Plugin.key2url(key);
+
+        user.setAvatar(url);
+        return user;
+    }
 }

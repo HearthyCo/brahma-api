@@ -311,14 +311,15 @@ CREATE TABLE IF NOT EXISTS prescription (
 CREATE INDEX prescription_history_entry_id ON prescription (history_entry_id ASC);
 
 CREATE TABLE IF NOT EXISTS attachment (
-  id               SERIAL NOT NULL,
-  history_entry_id INT    NULL,
-  session_id       INT    NULL,
-  user_id          INT    NULL,
-  url              TEXT   NOT NULL,
-  filename         TEXT   NOT NULL,
-  size             INT    NOT NULL,
-  mime             TEXT   NULL,
+  id               SERIAL  NOT NULL,
+  history_entry_id INT     NULL,
+  session_id       INT     NULL,
+  user_id          INT     NULL,
+  url              TEXT    NOT NULL,
+  filename         TEXT    NOT NULL,
+  size             INT     NOT NULL,
+  mime             TEXT    NULL,
+  has_thumb        BOOLEAN NOT NULL DEFAULT FALSE,
   PRIMARY KEY (id),
   CONSTRAINT fk_attachment_history_entry1
   FOREIGN KEY (history_entry_id)
