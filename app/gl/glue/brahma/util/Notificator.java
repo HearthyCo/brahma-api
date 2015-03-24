@@ -23,16 +23,16 @@ public class Notificator {
         public String toString() { return event; }
     }
 
-    public static void send(User user, NotificationEvents event, ObjectNode meta) {
+    public static void send(User user, NotificationEvents event, ObjectNode vars) {
         ObjectNode payload = Json.newObject();
 
         payload.put("user", Json.toJson(user));
         ((ObjectNode)payload.get("user")).put("meta", user.getMeta()); // Skip meta fields erasure
 
-        if(meta == null) meta = Json.newObject();
-        meta.put("type", event.toString());
+        if(vars == null) vars = Json.newObject();
+        vars.put("type", event.toString());
 
-        payload.put("meta", meta);
+        payload.put("vars", vars);
 
         Controller.sendMessage(event.getEvent(), payload.toString());
     }
