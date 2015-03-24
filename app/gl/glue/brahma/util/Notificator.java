@@ -9,7 +9,9 @@ public class Notificator {
 
     public enum NotificationEvents {
         USER_REGISTER("user.register"),
-        USER_RECOVER("user.recover");
+        USER_RECOVER_PASSWORD("user.recoverPassword"),
+        USER_CONFIRM_PASSWORD("user.confirmPassword"),
+        USER_CONFIRM("user.confirm");
 
         private String event;
 

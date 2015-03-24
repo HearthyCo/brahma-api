@@ -83,21 +83,25 @@ public class UserService {
         if (System.currentTimeMillis() > mailConfirm.get("expires").asLong()) return false;
         if (!mailConfirm.get("hash").asText().equals(hash)) return false;
         user.setState(User.State.CONFIRMED);
+
         // If adding another welcome mail, send it from here, like this:
-        // Notificator.send(user, REGISTER_COMPLETE_MAIL);
+        Notificator.send(user, Notificator.NotificationEvents.USER_CONFIRM);
         return true;
     }
 
     @Transactional
     public User requestPasswordChange(String email) {
         User user = userDao.findByEmail(email);
+        String hash = RandomStringUtils.randomAlphanumeric(32);
+
         if (user == null) return null;
         user.mergeMeta(Json.newObject()
                 .putPOJO("confirm", Json.newObject()
                         .putPOJO("password", Json.newObject()
                                 .put("hash", RandomStringUtils.randomAlphanumeric(32))
                                 .put("expires", System.currentTimeMillis() + 86400000))));
-        Notificator.send(user, Notificator.NotificationEvents.USER_RECOVER);
+        String confirmLink = conf.getString(user.getUserType() + ".uri") + "/confirm/mail/" + user.getId() + "/" + hash;
+        Notificator.send(user, Notificator.NotificationEvents.USER_RECOVER_PASSWORD, Json.newObject().put("link", confirmLink));
         return user;
     }
 
@@ -112,6 +116,7 @@ public class UserService {
         ((ObjectNode) meta.get("confirm")).remove("password");
         user.setMeta(meta);
         user.setPassword(newPassword);
+        Notificator.send(user, Notificator.NotificationEvents.USER_CONFIRM_PASSWORD);
         return true;
     }
 
