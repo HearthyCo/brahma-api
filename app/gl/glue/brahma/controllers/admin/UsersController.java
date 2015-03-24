@@ -534,7 +534,6 @@ public class UsersController extends Controller {
 
         if (user == null) return status(404, JsonUtils.simpleError("404", "Invalid identifier"));
         if (!(user instanceof Professional)) return status(403, JsonUtils.simpleError("403", "Unauthorized type user"));
-        if (user.isLocked()) return status(403, JsonUtils.simpleError("403", "Banned or removed user"));
 
         user.setState(User.State.BANNED);
 
