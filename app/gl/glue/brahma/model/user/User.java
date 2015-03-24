@@ -2,6 +2,7 @@ package gl.glue.brahma.model.user;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import gl.glue.brahma.util.JsonUtils;
@@ -181,12 +182,15 @@ public abstract class User {
         this.gender = gender;
     }
 
+    @JsonIgnore
     public boolean isConfirmed() { return this.state == State.CONFIRMED; }
 
+    @JsonIgnore
     public boolean isBanned() {
         return this.state == State.BANNED;
     }
 
+    @JsonIgnore
     public boolean isLocked() { return (this.state == State.BANNED || this.state == State.DELETED); }
 
     public void setState(State state) {
