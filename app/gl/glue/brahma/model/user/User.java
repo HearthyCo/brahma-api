@@ -25,28 +25,24 @@ import java.util.List;
                 query = "select x from User x where x.email = :email"
         ),
         @NamedQuery(
-                name = "User.findByAdminSortTS",
-                query = "select x from Admin x"
-        ),
-        @NamedQuery(
                 name = "User.findAdmins",
-                query = "select x from Admin x"
+                query = "select x from Admin x order by x.id"
         ),
         @NamedQuery(
                 name = "User.findClients",
-                query = "select x from Client x"
+                query = "select x from Client x order by x.id"
         ),
         @NamedQuery(
                 name = "User.findCoordinators",
-                query = "select x from Coordinator x"
+                query = "select x from Coordinator x order by x.id"
         ),
         @NamedQuery(
                 name = "User.findProfessionals",
-                query = "select x from Professional x"
+                query = "select x from Professional x order by x.id"
         ),
         @NamedQuery(
                 name = "User.findTutors",
-                query = "select x from Tutor x"
+                query = "select x from Tutor x order by x.id"
         )
 })
 @Entity
