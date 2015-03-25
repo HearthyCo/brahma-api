@@ -3,9 +3,11 @@ package utils;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 
+import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.junit.*;
 
+import play.Configuration;
 import play.db.jpa.JPA;
 import play.db.jpa.JPAPlugin;
 import play.test.FakeApplication;
@@ -24,10 +26,8 @@ public abstract class TransactionalTest {
 
     @BeforeClass
     public static void setUp() {
-        Map<String, String> settings = new HashMap<String, String>();
-        ConfigFactory.parseResourcesAnySyntax("application-test.conf").entrySet().forEach(
-                entry -> settings.put(entry.getKey(), entry.getValue().unwrapped().toString()));
-        FakeApplication myapp = Helpers.fakeApplication(settings);
+        Config config = ConfigFactory.parseResourcesAnySyntax("application-test.conf").resolve();
+        FakeApplication myapp = Helpers.fakeApplication(new Configuration(config).asMap());
         Helpers.start(myapp);
         app = myapp.getWrappedApplication();
         Option<JPAPlugin> jpaPlugin = app.plugin(JPAPlugin.class);
