@@ -26,6 +26,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.network :forwarded_port, guest: 15672, host: 15672
   # redis
   config.vm.network :forwarded_port, guest: 6379, host: 6379
+  # swagger
+  # config.vm.network :forwarded_port, guest: 9812, host: 9812
   # activator
   config.vm.network :forwarded_port, guest: 8889, host: 8889
 

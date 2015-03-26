@@ -5,6 +5,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiResponse;
+import com.wordnik.swagger.annotations.ApiResponses;
 import gl.glue.brahma.model.user.Admin;
 import gl.glue.brahma.model.user.User;
 import gl.glue.brahma.service.UserService;
@@ -19,85 +23,21 @@ import play.mvc.Result;
 
 import java.util.*;
 
+@Api(value = "/admin", description = "User admin operations")
 public class UserController extends Controller {
 
     private static UserService userService = new UserService();
 
-    /**
-     * @api {post} /admin/login Login
-     *
-     * @apiGroup Admin
-     * @apiName Login
-     * @apiDescription Allow user (registered before) can be identified to access his private information.
-     *
-     * @apiParam {String} login     Unique identifier for user in service.
-     * @apiParam {String} password  Password
-     * @apiParamExample {json} Request-Example
-     *      {
-     *          "login": "testadmin1@glue.gl",
-     *          "password": "testClient1@glue.gl"
-     *      }
-     *
-     * @apiSuccess {Array}  user    Contains all user fields after login
-     * @apiSuccessExample {json} Success-Response
-     *      HTTP/1.1 200 OK
-     *      {
-     *          "users": [
-     *              {
-     *                  "id": 90010,
-     *                  "login": null,
-     *                  "email": "testadmin1@glue.gl",
-     *                  "name": "Test",
-     *                  "surname1": "Admin",
-     *                  "surname2": "User1",
-     *                  "birthdate": "1949-12-31",
-     *                  "avatar": null,
-     *                  "nationalId": "98765432J",
-     *                  "gender": "OTHER",
-     *                  "state": "UNCONFIRMED",
-     *                  "balance": 0,
-     *                  "type": "admin"
-     *                  "locked": false,
-     *                  "confirmed": false,
-     *                  "banned": false,
-     *                  "meta": {},
-     *              }
-     *          ],
-     *          "sign": [
-     *              {
-     *                  "id": "userId",
-     *                  "signature": "f1xdmk+xNP6mgWxK3v03MNUccyiUV+238NfwWsKdbeY=1426153660567",
-     *                  "value": 2
-     *              }
-     *          ]
-     *      }
-     *
-     * @apiError {Object} MissingRequiredField  Params has not a required field.
-     * @apiErrorExample {json} MissingRequiredField
-     *      HTTP/1.1 400 BadRequest
-     *      {
-     *          "status": "400",
-     *          "title": "Missing required field `field`"
-     *      }
-     *
-     * @apiError {Object} InvalidParams Username (login field) or password is wrong.
-     * @apiErrorExample {json} InvalidParams
-     *      HTTP/1.1 401 Unauthorized
-     *      {
-     *          "status": "401",
-     *          "title": "Invalid username or password."
-     *      }
-     *
-     * @apiError {Object} ForbbidenTypeUser  Unauthorized type user
-     * @apiErrorExample {json} ForbbidenTypeUser
-     *      HTTP/1.1 403 Forbbiden
-     *      {
-     *          "status": "403",
-     *          "title": "Unauthorized type user"
-     *      }
-     *
-     * @apiVersion 0.1.0
-     */
+    @ApiOperation(
+            nickname = "login",
+            value = "User admin login",
+            response = Result.class,
+            notes = "Allow user (registered before) can be identified to access his private information.",
+            httpMethod = "POST")
+    @ApiResponses(value = {
+            @ApiResponse(code = 400, message = "Params has not a required field."),
+            @ApiResponse(code = 401, message = "Email or password is wrong."),
+            @ApiResponse(code = 403, message = "Unauthorized type user")})
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
     public static Result login() {

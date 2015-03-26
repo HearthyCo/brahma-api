@@ -11,9 +11,15 @@ OPTIONS        /*all                                                            
 # Map static resources from the /public folder to the /assets URL path
 GET            /assets/*file                                                        controllers.Assets.at(path="/public", file)
 
+# Swagger
+GET            /api-docs                                                            controllers.ApiHelpController.getResources
+
 ####
 #### ADMIN ROUTES
 ####
+# Docs
+GET            /api-docs/admin                                                      controllers.ApiHelpController.getResource(path = "/admin")
+
 # Me
 POST           /v1/admin/login                                                      gl.glue.brahma.controllers.admin.UserController.login()
 POST           /v1/admin/logout                                                     gl.glue.brahma.controllers.common.UserController.logout()
