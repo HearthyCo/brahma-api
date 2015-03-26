@@ -141,7 +141,7 @@ public class UserControllerTest extends TransactionalTest {
         assertEquals(login, ret.get("users").get(0).get("email").asText());
     }
 
-    //@Test // Disabled: there is some problem with transactions on this layer...
+    @Test
     public void testRegisterOk() {
         String login = "testNonexistentUser";
         ObjectNode user = Json.newObject();
@@ -151,14 +151,14 @@ public class UserControllerTest extends TransactionalTest {
         user.put("name", "testName");
         user.put("gender", "OTHER");
         user.put("birthdate", "1970-01-01");
-        FakeRequest fr = fakeRequest(POST, "/v1/user").withJsonBody(user);
+        FakeRequest fr = fakeRequest(POST, "/v1/client").withJsonBody(user);
         Result result = routeAndCall(fr, REQUEST_TIMEOUT);
         assertNotNull(result);
         assertEquals(200, result.toScala().header().status());
         assertTrue(TestUtils.hasCookies(result));
         ObjectNode ret = TestUtils.toJson(result);
-        assertTrue(ret.has("user"));
-        assertEquals(login, ret.get("user").get("email").asText());
+        assertTrue(ret.has("users"));
+        assertEquals(login.toLowerCase(), ret.get("users").get(0).get("email").asText());
     }
 
 }

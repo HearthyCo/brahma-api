@@ -1,6 +1,9 @@
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import play.Configuration;
 import play.GlobalSettings;
+import play.Play;
+import play.db.jpa.JPA;
 import play.libs.F.Promise;
 import play.mvc.Action;
 import play.mvc.Http;
@@ -16,12 +19,16 @@ public class Global extends GlobalSettings {
 
         @Override
         public Promise<Result> call(Http.Context ctx) throws java.lang.Throwable {
-            Config conf = ConfigFactory.load();
+            Configuration conf = Play.application().configuration();
             Http.Response response = ctx.response();
             String origin = ctx.request().getHeader("Origin");
             if (conf.getStringList("cors.origins").contains(origin)) {
                 response.setHeader("Access-Control-Allow-Origin", origin);
                 response.setHeader("Access-Control-Allow-Credentials", "true");
+            }
+
+            if (conf.getBoolean("persistence.rollbackOnly")) {
+                JPA.em().getTransaction().setRollbackOnly();
             }
             Promise<Result> result = this.delegate.call(ctx);
             return result;
