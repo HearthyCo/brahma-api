@@ -122,7 +122,7 @@ public class Plugin extends play.Plugin {
                 application.configuration().keys().contains("amqp.uri") &&
                 application.configuration().keys().contains("amqp.exchange") &&
                 application.configuration().keys().contains("amqp.bindings") &&
-                application.configuration().getBoolean("amqp.disabled", false));
+                !application.configuration().getBoolean("amqp.disabled", false));
     }
 
     /**
