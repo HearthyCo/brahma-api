@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.wordnik.swagger.annotations.*;
 import gl.glue.brahma.model.user.Professional;
 import gl.glue.brahma.model.user.User;
 import gl.glue.brahma.service.UserService;
@@ -20,99 +21,23 @@ import play.mvc.Result;
 
 import java.util.*;
 
+@Api(value = "/professional", description = "Professional functions")
 public class UserController extends Controller {
 
     private static UserService userService = new UserService();
 
-    /**
-     * @api {post} /professional/login Login
-     *
-     * @apiGroup Professional
-     * @apiName Login
-     * @apiDescription Allow user (registered before) can be identified to access his private information.
-     *
-     * @apiParam {String} login     Unique identifier for user in service.
-     * @apiParam {String} password  Password
-     * @apiParamExample {json} Request-Example
-     *      {
-     *          "login": "testProfessional1@glue.gl",
-     *          "password": "testProfessional1@glue.gl"
-     *      }
-     *
-     * @apiSuccess {Array}  user    Contains all user fields after login
-     * @apiSuccess {Array}  sign    Contains all signed user content index (sessions, id)
-     * @apiSuccessExample {json} Success-Response
-     *      HTTP/1.1 200 OK
-     *      {
-     *          "users": [
-     *              {
-     *                  "id": 90005,
-     *                  "login": null,
-     *                  "email": "testprofessional1@glue.gl",
-     *                  "name": "Test",
-     *                  "surname1": "Professional",
-     *                  "surname2": "User1",
-     *                  "birthdate": "1969-12-31",
-     *                  "avatar": "http://...",
-     *                  "nationalId": "12345678A",
-     *                  "gender": "MALE",
-     *                  "state": "UNCONFIRMED",
-     *                  "balance": 0,
-     *                  "type": "professional"
-     *                  "locked": false,
-     *                  "confirmed": false,
-     *                  "banned": false,
-     *                  "meta": {},
-     *              }
-     *          ],
-     *          "sign": [
-     *              {
-     *                  "id": "sessions",
-     *                  "signature": "jBFTvM5669uJ9eLbN8CUhyAUTmgkjUpXn1GLXqOtR5Q=1425987517615",
-     *                  "value": [ 90700, 90712 ]
-     *              },
-     *              {
-     *                  "id": "userId",
-     *                  "signature": "oG8urM4fQFc4ma2fJ58TtAC/lO9CUwDa73goXytm1NA=1425987517619",
-     *                  "value": 90005
-     *              }
-     *          ]
-     *      }
-     *
-     * @apiError {Object} MissingRequiredField  Params has not a required field.
-     * @apiErrorExample {json} MissingRequiredField
-     *      HTTP/1.1 400 BadRequest
-     *      {
-     *          "status": "400",
-     *          "title": "Missing required field `field`"
-     *      }
-     *
-     * @apiError {Object} InvalidParams Username (login field) or password is wrong.
-     * @apiErrorExample {json} InvalidParams
-     *      HTTP/1.1 401 InvalidParams
-     *      {
-     *          "status": "401",
-     *          "title": "Invalid username or password."
-     *      }
-     *
-     * @apiError {Object} Forbidden  Unauthorized type user
-     * @apiErrorExample {json} Forbidden
-     *      HTTP/1.1 403 Forbidden
-     *      {
-     *          "status": "403",
-     *          "title": "Unauthorized type user"
-     *      }
-     *
-     * @apiError {Object} LockedUser  Unauthorized type user
-     * @apiErrorExample {json} LockedUser
-     *      HTTP/1.1 403 Locked
-     *      {
-     *          "status": "403",
-     *          "title": "Banned or removed user"
-     *      }
-     *
-     * @apiVersion 0.1.0
-     */
+    @ApiOperation(nickname = "login", value = "User professional login",
+            notes = "Allow professional user (registered before) can be identified to access his private information.",
+            httpMethod = "POST")
+    @ApiImplicitParams(value= {
+            @ApiImplicitParam(name = "body", defaultValue = "{\n" +
+                    "  \"email\": \"testprofessional1@glue.gl\",\n" +
+                    "  \"password\": \"testProfessional1@glue.gl\"\n" +
+                    "}", value="Object with post params", required = true, dataType = "Object", paramType = "body")})
+    @ApiResponses(value = {
+            @ApiResponse(code = 400, message = "Params has not a required field."),
+            @ApiResponse(code = 401, message = "Email or password is wrong."),
+            @ApiResponse(code = 403, message = "Unauthorized type user")})
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
     public static Result login() {
@@ -139,87 +64,18 @@ public class UserController extends Controller {
         return ok(result);
     }
 
-
-    /**
-     * @api {post} /professional/me/update Update
-     *
-     * @apiGroup Professional
-     * @apiName Update
-     * @apiDescription Allow professional user can to update fields profile.
-     *
-     * @apiParam {Enum="MALE","FEMALE"} gender      Optional. User gender.
-     * @apiParam {String}               name        Optional. Real user name.
-     * @apiParam {Date}                 birthdate   Optional. Date of user birthdate.
-     * @apiParam {String}               surname1    Optional. Real user first surname.
-     * @apiParam {String}               surname2    Optional. Real user second surname.
-     * @apiParam {String}               avatar      Optional. Url for user avatar.
-     * @apiParam {String}               nationalId  Optional. Number iof id card.
-     * @apiParam {String}               meta        Optional. Number iof id card.
-     * @apiParamExample {json} Request-Example
-     *      {
-     *          "gender": "FEMALE",
-     *          "name": "TestUpdated1",
-     *          "birthdate": "1987-08-06",
-     *          "surname1": "ProfessionalUpdated",
-     *          "surname2": "User1Updated",
-     *          "avatar": "http://...",
-     *          "nationalId": "98765432Z",
-     *          "meta": {}
-     *      }
-     *
-     * @apiSuccess {Array} users    Contains all user fields after update.
-     * @apiSuccessExample {json} Success-Response
-     *      HTTP/1.1 200 OK
-     *      {
-     *          "users": [
-     *              {
-     *                  "id": 90005,
-     *                  "login": null,
-     *                  "email": "testprofessional1@glue.gl",
-     *                  "name": "TestUpdated1",
-     *                  "surname1": "ProfessionalUpdated",
-     *                  "surname2": "User1Updated",
-     *                  "birthdate": "1987-08-06",
-     *                  "avatar": "http://...",
-     *                  "nationalId": "98765432Z",
-     *                  "gender": "FEMALE",
-     *                  "state": "UNCONFIRMED",
-     *                  "balance": 0,
-     *                  "type": "professional"
-     *                  "locked": false,
-     *                  "confirmed": false,
-     *                  "banned": false,
-     *                  "meta": {}
-     *              }
-     *          ]
-     *      }
-     *
-     * @apiError {Object} MissingRequiredField Params has not a required field.
-     * @apiErrorExample {json} MissingRequiredField
-     *      HTTP/1.1 400 BadRequest
-     *      {
-     *          "status": "400",
-     *          "title": "Missing required field `field`"
-     *      }
-     *
-     * @apiError {Object} UserNotLoggedIn User is not logged in.
-     * @apiErrorExample {json} UserNotLoggedIn
-     *      HTTP/1.1 401 Unauthorized
-     *      {
-     *          "status": "401",
-     *          "title": "You are not logged in"
-     *      }
-     *
-     * @apiError {Object} LockedUser User is locked.
-     * @apiErrorExample {json} LockedUser
-     *      HTTP/1.1 403 Locked
-     *      {
-     *          "status": "403",
-     *          "title": "Banned or removed user"
-     *      }
-     *
-     * @apiVersion 0.1.0
-     */
+    @ApiOperation(nickname = "updateProfile", value = "User professional update profile",
+            notes = "Allow professional user (registered before) can to update fields profile.",
+            httpMethod = "POST")
+    @ApiImplicitParams(value= {
+            @ApiImplicitParam(name = "body", defaultValue = "{\n" +
+                    "  \"surname1\": \"Dummy\",\n" +
+                    "  \"nationalId\": \"00000000C\"\n" +
+                    "}", value="Object with post params", required = true, dataType = "Object", paramType = "body")})
+    @ApiResponses(value = {
+            @ApiResponse(code = 400, message = "Params has not a required field."),
+            @ApiResponse(code = 401, message = "User is not logged in."),
+            @ApiResponse(code = 403, message = "Unauthorized") })
     @ProfessionalAuth
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
@@ -251,58 +107,10 @@ public class UserController extends Controller {
         return ok(result);
     }
 
-    /**
-     * @api {get} /professional/me Get Me
-     *
-     * @apiGroup Professional
-     * @apiName Get Me
-     * @apiDescription Get the current logged in professional.
-     *
-     * @apiSuccess {Array}  users   Contains all user fields
-     * @apiSuccessExample {json} Success-Response
-     *      HTTP/1.1 200 OK
-     *      {
-     *          "users": [
-     *              {
-     *                  "id": 90005,
-     *                  "login": null,
-     *                  "email": "testprofessional1@glue.gl",
-     *                  "name": "Test",
-     *                  "surname1": "User",
-     *                  "surname2": "User1",
-     *                  "birthdate": "1969-12-31",
-     *                  "avatar": "http://...",
-     *                  "nationalId": "12345678A",
-     *                  "gender": "OTHER",
-     *                  "state": "UNCONFIRMED",
-     *                  "balance": 0,
-     *                  "type": "professional"
-     *                  "locked": false,
-     *                  "confirmed": false,
-     *                  "banned": false,
-     *                  "meta": {},
-     *              }
-     *          ],
-     *          "sign": [
-     *              {
-     *                  "id": "userId",
-     *                  "signature": "f1xdmk+xNP6mgWxK3v03MNUccyiUV+238NfwWsKdbeY=1426153660567",
-     *                  "value": 2
-     *              }
-     *          ]
-     *      }
-     *
-     * @apiVersion 0.1.0
-     *
-     * @apiError {Object} UserNotLoggedIn User is not logged in.
-     * @apiErrorExample {json} UserNotLoggedIn
-     *      HTTP/1.1 401 Unauthorized
-     *      {
-     *          "status": "401",
-     *          "title": "You are not logged in"
-     *      }
-     *
-     */
+    @ApiOperation(nickname = "getMe", value = "Get Me", notes = "Get the current professional logged", httpMethod = "GET")
+    @ApiResponses(value = {
+            @ApiResponse(code = 401, message = "User is not logged in."),
+            @ApiResponse(code = 403, message = "Unauthorized") })
     @ProfessionalAuth
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
@@ -310,6 +118,14 @@ public class UserController extends Controller {
         return gl.glue.brahma.controllers.common.UserController.getMe();
     }
 
+    @ApiOperation(nickname = "setAvatar", value = "Set Avatar",
+            notes = "Set avatar for the current professional user logged", httpMethod = "POST")
+    @ApiImplicitParams(value= {
+            @ApiImplicitParam(name = "upload", required = true, dataType = "File", paramType = "file")})
+    @ApiResponses(value = {
+            @ApiResponse(code = 400, message = "Missing upload file."),
+            @ApiResponse(code = 401, message = "User is not logged in."),
+            @ApiResponse(code = 403, message = "Unauthorized") })
     @ProfessionalAuth
     @Transactional
     public static Result setAvatar() {

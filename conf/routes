@@ -15,6 +15,12 @@ GET            /assets/*file                                                    
 GET            /api-docs                                                            controllers.ApiHelpController.getResources
 
 ####
+#### COMMON ROUTES
+####
+# Docs
+GET            /api-docs/common                                                     controllers.ApiHelpController.getResource(path = "/common")
+
+####
 #### ADMIN ROUTES
 ####
 # Docs
@@ -25,6 +31,9 @@ POST           /v1/admin/login                                                  
 POST           /v1/admin/logout                                                     gl.glue.brahma.controllers.common.UserController.logout()
 POST           /v1/admin/me/update                                                  gl.glue.brahma.controllers.admin.UserController.updateProfile()
 GET            /v1/admin/me                                                         gl.glue.brahma.controllers.admin.UserController.getMe()
+
+# Docs
+GET            /api-docs/users                                                      controllers.ApiHelpController.getResource(path = "/users")
 
 # Users
 POST           /v1/admin/users/professional/create                                  gl.glue.brahma.controllers.admin.UsersController.createProfessional()
@@ -37,6 +46,9 @@ POST           /v1/admin/users/professional/delete/:id                          
 ####
 #### CLIENT ROUTES
 ####
+# Docs
+GET            /api-docs/client                                                     controllers.ApiHelpController.getResource(path = "/client")
+
 # Me
 POST           /v1/client                                                           gl.glue.brahma.controllers.client.UserController.register()
 POST           /v1/client/login                                                     gl.glue.brahma.controllers.client.UserController.login()
@@ -72,6 +84,9 @@ POST           /v1/client/transaction/execute                                   
 ####
 #### PROFESSIONAL ROUTES
 ####
+# Docs
+GET            /api-docs/professional                                               controllers.ApiHelpController.getResource(path = "/professional")
+
 #Me
 POST           /v1/professional/login                                               gl.glue.brahma.controllers.professional.UserController.login()
 POST           /v1/professional/logout                                              gl.glue.brahma.controllers.common.UserController.logout()

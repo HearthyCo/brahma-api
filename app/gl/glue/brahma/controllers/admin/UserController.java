@@ -20,13 +20,13 @@ import play.mvc.Result;
 
 import java.util.*;
 
-@Api(value = "/admin", description = "User admin functions")
+@Api(value = "/admin", description = "Admin functions")
 public class UserController extends Controller {
 
     private static UserService userService = new UserService();
 
     @ApiOperation(nickname = "login", value = "User admin login",
-            notes = "Allow user (registered before) can be identified to access his private information.",
+            notes = "Allow admin user (registered before) can be identified to access his private information.",
             httpMethod = "POST")
     @ApiImplicitParams(value= {
             @ApiImplicitParam(name = "body", defaultValue = "{\n" +
@@ -36,7 +36,8 @@ public class UserController extends Controller {
     @ApiResponses(value = {
             @ApiResponse(code = 400, message = "Params has not a required field."),
             @ApiResponse(code = 401, message = "Email or password is wrong."),
-            @ApiResponse(code = 403, message = "Unauthorized type user")})
+            @ApiResponse(code = 403, message = "Unauthorized type user"),
+            @ApiResponse(code = 403, message = "Banned or removed user.")})
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
     public static Result login() {
@@ -51,7 +52,7 @@ public class UserController extends Controller {
         User user = userService.login(login, pass);
         if (user == null) return status(401, JsonUtils.simpleError("401", "Invalid username or password."));
         if (!(user instanceof Admin)) return status(403, JsonUtils.simpleError("403", "Unauthorized type user"));
-        if (!user.canLogin()) return status(423, JsonUtils.simpleError("423", "Locked user"));
+        if (!user.canLogin()) return status(403, JsonUtils.simpleError("403", "Banned user"));
 
         session().clear();
         session("id", Integer.toString(user.getId()));
@@ -73,7 +74,8 @@ public class UserController extends Controller {
                     "}", value="Object with post params", required = true, dataType = "Object", paramType = "body")})
     @ApiResponses(value = {
             @ApiResponse(code = 400, message = "Params has not a required field."),
-            @ApiResponse(code = 401, message = "User is not logged in.")})
+            @ApiResponse(code = 401, message = "User is not logged in."),
+            @ApiResponse(code = 403, message = "Banned or removed user.")})
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
     public static Result updateProfile() {
@@ -94,7 +96,7 @@ public class UserController extends Controller {
 
         User user = userService.getById(Integer.parseInt(session("id")));
 
-        if (user.isLocked()) return status(423, JsonUtils.simpleError("423", "Locked or removed user"));
+        if (user.isLocked()) return status(403, JsonUtils.simpleError("403", "Banned or removed user"));
 
         user.merge(admin, availableFields);
 

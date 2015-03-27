@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.wordnik.swagger.annotations.*;
 import gl.glue.brahma.model.user.User;
 import gl.glue.brahma.service.UserService;
 import gl.glue.brahma.util.JsonUtils;
@@ -15,95 +16,22 @@ import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
 
+@Api(value = "/common", description = "User functions")
 public class UserController extends Controller {
 
     private static UserService userService = new UserService();
 
-    /**
-     * @api {post} /user/logout Logout
-     *
-     * @apiGroup User
-     * @apiName Logout
-     * @apiDescription Destroy user session.
-     *
-     * @apiSuccessExample {json} Success-Response
-     *      HTTP/1.1 200 OK
-     *      {
-     *      }
-     *
-     * @apiVersion 0.1.0
-     */
+    @ApiOperation(nickname = "logout", value = "User logout",
+            notes = "Destroy user session.",
+            httpMethod = "POST")
     @Transactional
     public static Result logout() {
         session().clear();
         return ok(Json.newObject());
     }
 
-    /**
-     * @api {get} /user/me Get Me
-     *
-     * @apiGroup User
-     * @apiName Get Me
-     * @apiDescription Get the current logged in user.
-     *
-     * @apiSuccess {Array}  users   Contains all user fields after login
-     * @apiSuccess {Array}  sign    Contains all signed user content index (sessions, id)
-     * @apiSuccessExample {json} Success-Response
-     *      HTTP/1.1 200 OK
-     *      {
-     *          "users": [
-     *              {
-     *                  "id": 90005,
-     *                  "login": null,
-     *                  "email": "testuser1@glue.gl",
-     *                  "name": "Test",
-     *                  "surname1": "User",
-     *                  "surname2": "User1",
-     *                  "birthdate": "1969-12-31",
-     *                  "avatar": "http://...",
-     *                  "nationalId": "12345678A",
-     *                  "gender": "OTHER",
-     *                  "state": "UNCONFIRMED",
-     *                  "balance": 0,
-     *                  "type": "user"
-     *                  "locked": false,
-     *                  "confirmed": false,
-     *                  "banned": false,
-     *                  "meta": {},
-     *              }
-     *          ],
-     *          "sign": [
-     *              {
-     *                  "id": "sessions",
-     *                  "signature": "jBFTvM5669uJ9eLbN8CUhyAUTmgkjUpXn1GLXqOtR5Q=1425987517615",
-     *                  "value": [ 90700, 90712 ]
-     *              },
-     *              {
-     *                  "id": "userId",
-     *                  "signature": "oG8urM4fQFc4ma2fJ58TtAC/lO9CUwDa73goXytm1NA=1425987517619",
-     *                  "value": 90005
-     *              }
-     *          ]
-     *      }
-     *
-     * @apiVersion 0.1.0
-     *
-     * @apiError {Object} UserNotLoggedIn User is not logged in.
-     * @apiErrorExample {json} UserNotLoggedIn
-     *      HTTP/1.1 401 Unauthorized
-     *      {
-     *          "status": "401",
-     *          "title": "You are not logged in"
-     *      }
-     *
-     * @apiError {Object} LockedUser User is not logged in.
-     * @apiErrorExample {json} LockedUser
-     *      HTTP/1.1 403 Locked
-     *      {
-     *          "status": "403",
-     *          "title": "Banned or removed user"
-     *      }
-     */
+    @ApiOperation(nickname = "getMe", value = "Get Me", notes = "Get the current user logged", httpMethod = "GET")
+    @ApiResponses(value = { @ApiResponse(code = 401, message = "User is not logged in.") })
     @BasicAuth
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
@@ -120,6 +48,17 @@ public class UserController extends Controller {
         return ok(result);
     }
 
+    @ApiOperation(nickname = "confirmMail", value = "Confirm mail user",
+            notes = "Allow user (registered before) can confirm account.",
+            httpMethod = "POST")
+    @ApiImplicitParams(value= {
+            @ApiImplicitParam(name = "body", defaultValue = "{\n" +
+                    "  \"userId\": \"testClient100@glue.gl\",\n" +
+                    "  \"hash\": \"\"\n" +
+                    "}", value="Object with post params", required = true, dataType = "Object", paramType = "body")})
+    @ApiResponses(value = {
+            @ApiResponse(code = 400, message = "Params has not a required field."),
+            @ApiResponse(code = 403, message = "Unauthorized type user.")})
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
     public static Result confirmMail() {
@@ -134,6 +73,16 @@ public class UserController extends Controller {
         }
     }
 
+    @ApiOperation(nickname = "requestPasswordChange", value = "Change password",
+            notes = "Allow user (registered before) can change password account.",
+            httpMethod = "POST")
+    @ApiImplicitParams(value= {
+            @ApiImplicitParam(name = "body", defaultValue = "{\n" +
+                    "  \"email\": \"testClient1@glue.gl\",\n" +
+                    "}", value="Object with post params", required = true, dataType = "Object", paramType = "body")})
+    @ApiResponses(value = {
+            @ApiResponse(code = 400, message = "Params has not a required field."),
+            @ApiResponse(code = 404, message = "User not found.")})
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
     public static Result requestPasswordChange() {
@@ -149,6 +98,18 @@ public class UserController extends Controller {
         }
     }
 
+    @ApiOperation(nickname = "confirmPasswordChange", value = "Confirm password",
+            notes = "Allow user (registered before) confirm new password account (requested before).",
+            httpMethod = "POST")
+    @ApiImplicitParams(value= {
+            @ApiImplicitParam(name = "body", defaultValue = "{\n" +
+                    "  \"userId\": \"testClient1@glue.gl\",\n" +
+                    "  \"hash\": \"\"\n" +
+                    "  \"newPassword\": \"newDummyPassword@glue.gl\"\n" +
+                    "}", value="Object with post params", required = true, dataType = "Object", paramType = "body")})
+    @ApiResponses(value = {
+            @ApiResponse(code = 400, message = "Params has not a required field."),
+            @ApiResponse(code = 403, message = "Hash validation failed.")})
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
     public static Result confirmPasswordChange() {

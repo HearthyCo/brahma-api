@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.wordnik.swagger.annotations.*;
 import gl.glue.brahma.model.user.Professional;
 import gl.glue.brahma.model.user.User;
 import gl.glue.brahma.service.UserService;
@@ -19,104 +20,31 @@ import play.mvc.Controller;
 import play.mvc.Result;
 
 import javax.persistence.PersistenceException;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Api(value = "/users", description = "Admin Users functions")
 public class UsersController extends Controller {
 
     private static UserService userService = new UserService();
 
-    /**
-     * @api {post} /admin/users/professional/create Create
-     *
-     * @apiGroup Admin
-     * @apiName Create
-     * @apiDescription Allow admin to create a professional user.
-     *
-     * @apiParam {String}               email       Unique identifier for user in service.
-     * @apiParam {String}               password    Password
-     * @apiParam {Enum="MALE","FEMALE"} gender      Optional. User gender.
-     * @apiParam {String}               name        Optional. Real user name.
-     * @apiParam {Date}                 birthdate   Optional. Date of user birthdate.
-     * @apiParam {String}               surname1    Optional. Real user first surname.
-     * @apiParam {String}               surname2    Optional. Real user second surname.
-     * @apiParam {String}               avatar      Optional. Url for user avatar.
-     * @apiParam {String}               nationalId  Optional. Number iof id card.
-     * @apiParam {Object}               meta        Optional. Other data still to be determined.
-     * @apiParamExample {json} Request-Example
-     *      {
-     *          "email": "newprofessiona1@glue.gl",
-     *          "password": "newprofessiona1@glue.gl"
-     *      }
-     *
-     * @apiSuccess {Array}  user    Contains all user fields
-     * @apiSuccess {Array}  sign    Contains all signed user content index (sessions, id)
-     * @apiSuccessExample {json} Success-Response
-     *      HTTP/1.1 200 OK
-     *      {
-     *          "users": [
-     *              {
-     *                  "id": 3,
-     *                  "login": null,
-     *                  "email": "newprofessiona10@glue.gl",
-     *                  "name": null,
-     *                  "surname1": null,
-     *                  "surname2": null,
-     *                  "birthdate": null,
-     *                  "avatar": null,
-     *                  "nationalId": null,
-     *                  "gender": "OTHER",
-     *                  "state": "UNCONFIRMED",
-     *                  "balance": 0,
-     *                  "type": "professional"
-     *                  "locked": false,
-     *                  "confirmed": false,
-     *                  "banned": false,
-     *                  "meta": {},
-     *              }
-     *          ],
-     *          "sign": [
-     *              {
-     *                  "id": "sessions",
-     *                  "signature": "GtCU0kx60JDTQYiNVFzJkYQbGAJ/jsRVCz6lBNgXVNA=1426153660567",
-     *                  "value": [ ]
-     *              },
-     *              {
-     *                  "id": "userId",
-     *                  "signature": "f1xdmk+xNP6mgWxK3v03MNUccyiUV+238NfwWsKdbeY=1426153660567",
-     *                  "value": 3
-     *              }
-     *          ]
-     *      }
-     *
-     * @apiError {Object} MissingRequiredField Params has not a required field.
-     * @apiError {Object} UserNameInUse Username (login field) is already in use.
-     * @apiErrorExample {json} MissingRequiredField
-     *      HTTP/1.1 400 BadRequest
-     *      {
-     *          "status": "400",
-     *          "title": "Missing required field `field`"
-     *      }
-     *
-     * @apiError {Object} UserNotLoggedIn User is not logged in.
-     * @apiErrorExample {json} UserNotLoggedIn
-     *      HTTP/1.1 401 Unauthorized
-     *      {
-     *          "status": "401",
-     *          "title": "You are not logged in"
-     *      }
-     *
-     * @apiErrorExample {json} UserNameInUse
-     *      HTTP/1.1 409 Conflict
-     *      {
-     *          "status": "409",
-     *          "title": "Username already in use."
-     *      }
-     *
-     * @apiVersion 0.1.0
-     */
+    @ApiOperation(nickname = "createProfessional", value = "Create professional",
+            notes = "Allow admin to create a professional users.",
+            httpMethod = "POST")
+    @ApiImplicitParams(value= {
+            @ApiImplicitParam(name = "body", defaultValue = "{\n" +
+                    "  \"email\": \"testclient100@glue.gl\",\n" +
+                    "  \"password\": \"testClient100@glue.gl\"\n" +
+                    "}", value="Object with post params", required = true, dataType = "Object", paramType = "body")})
+    @ApiResponses(value = {
+            @ApiResponse(code = 400, message = "Params has not a required field."),
+            @ApiResponse(code = 401, message = "Email or password is wrong."),
+            @ApiResponse(code = 403, message = "Unauthorized."),
+            @ApiResponse(code = 409, message = "Email already in use.")})
     @AdminAuth
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
@@ -151,83 +79,20 @@ public class UsersController extends Controller {
         return ok(result);
     }
 
-    /**
-     * @api {get} /admin/users/professional/:id Get Professional
-     *
-     * @apiGroup Admin
-     * @apiName Get Professional
-     * @apiDescription Allow the administrator to get the professional user which has passed the parameter id
-     *
-     * @apiSuccess {Array}  users   Contains all user fields
-     * @apiSuccess {Array}  sign    Contains all signed user content index (sessions, id)
-     * @apiSuccessExample {json} Success-Response
-     *      HTTP/1.1 200 OK
-     *      {
-     *          "users": [
-     *              {
-     *                  "id": 90005,
-     *                  "login": null,
-     *                  "email": "testuser1@glue.gl",
-     *                  "name": "Test",
-     *                  "surname1": "User",
-     *                  "surname2": "User1",
-     *                  "birthdate": "1969-12-31",
-     *                  "avatar": "http://...",
-     *                  "nationalId": "12345678A",
-     *                  "gender": "MALE",
-     *                  "state": "UNCONFIRMED",
-     *                  "balance": 0,
-     *                  "type": "user"
-     *                  "locked": false,
-     *                  "confirmed": false,
-     *                  "banned": false,
-     *                  "meta": {},
-     *              }
-     *          ],
-     *          "sign": [
-     *              {
-     *                  "id": "sessions",
-     *                  "signature": "jBFTvM5669uJ9eLbN8CUhyAUTmgkjUpXn1GLXqOtR5Q=1425987517615",
-     *                  "value": [ 90700, 90712 ]
-     *              },
-     *              {
-     *                  "id": "userId",
-     *                  "signature": "oG8urM4fQFc4ma2fJ58TtAC/lO9CUwDa73goXytm1NA=1425987517619",
-     *                  "value": 90005
-     *              }
-     *          ]
-     *      }
-     *
-     * @apiVersion 0.1.0
-     *
-     * @apiError {Object} UserNotLoggedIn User is not logged in.
-     * @apiErrorExample {json} UserNotLoggedIn
-     *      HTTP/1.1 401 Unauthorized
-     *      {
-     *          "status": "401",
-     *          "title": "You are not logged in"
-     *      }
-     *
-     * @apiError {Object} ForbiddenTypeUser Unauthorized type user
-     * @apiErrorExample {json} ForbiddenTypeUser
-     *      HTTP/1.1 403 Forbidden
-     *      {
-     *          "status": "403",
-     *          "title": "Unauthorized type user"
-     *      }
-     *
-     * @apiError UserNotFound The <code>state</code> contains a unknown value.
-     * @apiErrorExample {json} UserNotFound
-     *      HTTP/1.1 404 Not Found
-     *      {
-     *          "status": "404",
-     *          "title": "Invalid identifier"
-     *      }
-     */
+    @ApiOperation(nickname = "readProfessional", value = "Read a professional",
+            notes = "Allow admin to read an professional user.",
+            httpMethod = "GET")
+    @ApiResponses(value = {
+            @ApiResponse(code = 400, message = "Params has not a required field."),
+            @ApiResponse(code = 401, message = "Email or password is wrong."),
+            @ApiResponse(code = 403, message = "Unauthorized."),
+            @ApiResponse(code = 403, message = "Unauthorized type user."),
+            @ApiResponse(code = 404, message = "Invalid identifier.")})
     @AdminAuth
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
-    public static Result readProfessional(int uid) {
+    public static Result readProfessional(
+            @ApiParam(value = "Professional id", required = true) @PathParam("id") int uid) {
         User user = userService.getById(uid);
 
         if (user == null) return status(404, JsonUtils.simpleError("404", "Invalid identifier"));
@@ -242,63 +107,13 @@ public class UsersController extends Controller {
         return ok(result);
     }
 
-    /**
-     * @api {get} /admin/users/professional Get all Professionals
-     *
-     * @apiGroup Admin
-     * @apiName Get all Professionals
-     * @apiDescription Allow the administrator to get all professionals
-     *
-     * @apiSuccess {Array}  users               Contains all user fields
-     * @apiSuccess {Array}  professionalUsers   Contains all professional ids
-     * @apiSuccessExample {json} Success-Response
-     *      HTTP/1.1 200 OK
-     *      {
-     *          "users": [
-     *              {
-     *                  "id": 90005,
-     *                  "login": null,
-     *                  "email": "testuser1@glue.gl",
-     *                  "name": "Test",
-     *                  "surname1": "User",
-     *                  "surname2": "User1",
-     *                  "birthdate": "1969-12-31",
-     *                  "avatar": "http://...",
-     *                  "nationalId": "12345678A",
-     *                  "gender": "MALE",
-     *                  "state": "UNCONFIRMED",
-     *                  "balance": 0,
-     *                  "type": "user"
-     *                  "locked": false,
-     *                  "confirmed": false,
-     *                  "banned": false,
-     *                  "meta": {},
-     *              }
-     *          ],
-     *          "professionalUsers": [
-     *              90005
-     *          ]
-     *      }
-     *
-     * @apiVersion 0.1.0
-     *
-     * @apiError {Object} UserNotLoggedIn User is not logged in.
-     * @apiErrorExample {json} UserNotLoggedIn
-     *      HTTP/1.1 401 Unauthorized
-     *      {
-     *          "status": "401",
-     *          "title": "You are not logged in"
-     *      }
-     *
-     * @apiError {Object} ForbiddenTypeUser Unauthorized type user
-     * @apiErrorExample {json} ForbiddenTypeUser
-     *      HTTP/1.1 403 Forbidden
-     *      {
-     *          "status": "403",
-     *          "title": "Unauthorized type user"
-     *      }
-     *
-     */
+    @ApiOperation(nickname = "readProfessionals", value = "Read all professional",
+            notes = "Allow admin to read all professional users.",
+            httpMethod = "GET")
+    @ApiResponses(value = {
+            @ApiResponse(code = 400, message = "Params has not a required field."),
+            @ApiResponse(code = 401, message = "Email or password is wrong."),
+            @ApiResponse(code = 403, message = "Unauthorized.")})
     @AdminAuth
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
@@ -406,10 +221,23 @@ public class UsersController extends Controller {
      *
      * @apiVersion 0.1.0
      */
+    @ApiOperation(nickname = "updateProfessional", value = "Update professional",
+            notes = "Allow admin to update an professional user.",
+            httpMethod = "POST")
+    @ApiImplicitParams(value= {
+            @ApiImplicitParam(name = "body", defaultValue = "{\n" +
+                    "  \"surname1\": \"Dummy\",\n" +
+                    "  \"nationalId\": \"00000000C\"\n" +
+                    "}", value="Object with post params", required = true, dataType = "Object", paramType = "body")})
+    @ApiResponses(value = {
+            @ApiResponse(code = 400, message = "Params has not a required field."),
+            @ApiResponse(code = 401, message = "Email or password is wrong."),
+            @ApiResponse(code = 403, message = "Unauthorized.")})
     @AdminAuth
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
-    public static Result updateProfessional(int uid) {
+    public static Result updateProfessional(
+            @ApiParam(value = "Professional id", required = true) @PathParam("id") int uid) {
         User user = userService.getById(uid);
 
         if (user == null) return status(404, JsonUtils.simpleError("404", "Invalid identifier"));
@@ -417,12 +245,6 @@ public class UsersController extends Controller {
 
         JsonNode json = request().body().asJson();
         json = JsonUtils.cleanFields((ObjectNode)json, ModelSecurity.ADMIN_MODIFIABLE_FIELDS);
-
-        // Check if new email is already in use
-        if (json.has("email")) {
-            User userAux = userService.getByEmail(json.get("email").asText());
-            if (userAux != null) return status(409, JsonUtils.simpleError("409", "Email already in use."));
-        }
 
         Iterator<String> fields = json.fieldNames();
         List<String> availableFields = new ArrayList<>();
@@ -444,92 +266,19 @@ public class UsersController extends Controller {
         return ok(result);
     }
 
-    /**
-     * @api {post} /admin/users/professional/ban/:id Ban Professional
-     *
-     * @apiGroup Admin
-     * @apiName Ban Professional
-     * @apiDescription Allow the administrator to ban a professional user which has passed the parameter id
-     *
-     * @apiSuccess {Array}  users   Contains all user fields
-     * @apiSuccess {Array}  sign    Contains all signed user content index (sessions, id)
-     * @apiSuccessExample {json} Success-Response
-     *      HTTP/1.1 200 OK
-     *      {
-     *          "users": [
-     *              {
-     *                  "id": 90005,
-     *                  "login": null,
-     *                  "email": "testuser1@glue.gl",
-     *                  "name": "Test",
-     *                  "surname1": "User",
-     *                  "surname2": "User1",
-     *                  "birthdate": "1969-12-31",
-     *                  "avatar": "http://...",
-     *                  "nationalId": "12345678A",
-     *                  "gender": "MALE",
-     *                  "state": "BANNED",
-     *                  "balance": 0,
-     *                  "type": "user"
-     *                  "locked": false,
-     *                  "confirmed": false,
-     *                  "banned": false,
-     *                  "meta": {},
-     *              }
-     *          ],
-     *          "sign": [
-     *              {
-     *                  "id": "sessions",
-     *                  "signature": "jBFTvM5669uJ9eLbN8CUhyAUTmgkjUpXn1GLXqOtR5Q=1425987517615",
-     *                  "value": [ 90700, 90712 ]
-     *              },
-     *              {
-     *                  "id": "userId",
-     *                  "signature": "oG8urM4fQFc4ma2fJ58TtAC/lO9CUwDa73goXytm1NA=1425987517619",
-     *                  "value": 90005
-     *              }
-     *          ]
-     *      }
-     *
-     * @apiVersion 0.1.0
-     *
-     * @apiError {Object} UnauthorizedUser User is not logged in.
-     * @apiErrorExample {json} UnauthorizedUser
-     *      HTTP/1.1 401 Unauthorized
-     *      {
-     *          "status": "401",
-     *          "title": "You are not logged in"
-     *      }
-     *
-     * @apiError {Object} ForbiddenTypeUser Unauthorized type user
-     * @apiErrorExample {json} ForbiddenTypeUser
-     *      HTTP/1.1 403 Forbidden
-     *      {
-     *          "status": "403",
-     *          "title": "Unauthorized type user"
-     *      }
-     *
-     * @apiError UserNotFound The <code>state</code> contains a unknown value.
-     * @apiErrorExample {json} UserNotFound
-     *      HTTP/1.1 404 Not Found
-     *      {
-     *          "status": "404",
-     *          "title": "Invalid identifier"
-     *      }
-     *
-     * @apiError {Object} LockedUser User is not logged in.
-     * @apiErrorExample {json} LockedUser
-     *      HTTP/1.1 403 Locked
-     *      {
-     *          "status": "403",
-     *          "title": "Banned or removed user"
-     *      }
-     *
-     */
+    @ApiOperation(nickname = "banProfessional", value = "Ban professional",
+            notes = "Allow the administrator to ban a professional user.",
+            httpMethod = "POST")
+    @ApiResponses(value = {
+            @ApiResponse(code = 401, message = "Email or password is wrong."),
+            @ApiResponse(code = 403, message = "Unauthorized."),
+            @ApiResponse(code = 403, message = "Unauthorized type user."),
+            @ApiResponse(code = 404, message = "Invalid identifier.")})
     @AdminAuth
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
-    public static Result banProfessional(int uid) {
+    public static Result banProfessional(
+            @ApiParam(value = "Professional id", required = true) @PathParam("id") int uid) {
         User user = userService.getById(uid);
 
         if (user == null) return status(404, JsonUtils.simpleError("404", "Invalid identifier"));
@@ -543,84 +292,19 @@ public class UsersController extends Controller {
         return ok(result);
     }
 
-    /**
-     * @api {post} /admin/users/professional/delete/:id Delete Professional
-     *
-     * @apiGroup Admin
-     * @apiName Delete Professional
-     * @apiDescription Allow the administrator to delete a professional user which has passed the parameter id
-     *
-     * @apiSuccess {Array}  users   Contains all user fields
-     * @apiSuccess {Array}  sign    Contains all signed user content index (sessions, id)
-     * @apiSuccessExample {json} Success-Response
-     *      HTTP/1.1 200 OK
-     *      {
-     *          "users": [
-     *              {
-     *                  "id": 90005,
-     *                  "login": null,
-     *                  "email": "testuser1@glue.gl",
-     *                  "name": "Test",
-     *                  "surname1": "User",
-     *                  "surname2": "User1",
-     *                  "birthdate": "1969-12-31",
-     *                  "avatar": "http://...",
-     *                  "nationalId": "12345678A",
-     *                  "gender": "MALE",
-     *                  "state": "DELETED",
-     *                  "balance": 0,
-     *                  "type": "user"
-     *                  "locked": false,
-     *                  "confirmed": false,
-     *                  "banned": false,
-     *                  "meta": {},
-     *              }
-     *          ],
-     *          "sign": [
-     *              {
-     *                  "id": "sessions",
-     *                  "signature": "jBFTvM5669uJ9eLbN8CUhyAUTmgkjUpXn1GLXqOtR5Q=1425987517615",
-     *                  "value": [ 90700, 90712 ]
-     *              },
-     *              {
-     *                  "id": "userId",
-     *                  "signature": "oG8urM4fQFc4ma2fJ58TtAC/lO9CUwDa73goXytm1NA=1425987517619",
-     *                  "value": 90005
-     *              }
-     *          ]
-     *      }
-     *
-     * @apiVersion 0.1.0
-     *
-     * @apiError {Object} UnauthorizedUser User is not logged in.
-     * @apiErrorExample {json} UnauthorizedUser
-     *      HTTP/1.1 401 Unauthorized
-     *      {
-     *          "status": "401",
-     *          "title": "You are not logged in"
-     *      }
-     *
-     * @apiError {Object} ForbiddenTypeUser Unauthorized type user
-     * @apiErrorExample {json} ForbiddenTypeUser
-     *      HTTP/1.1 403 Forbidden
-     *      {
-     *          "status": "403",
-     *          "title": "Unauthorized type user"
-     *      }
-     *
-     * @apiError UserNotFound The <code>state</code> contains a unknown value.
-     * @apiErrorExample {json} UserNotFound
-     *      HTTP/1.1 404 Not Found
-     *      {
-     *          "status": "404",
-     *          "title": "Invalid identifier"
-     *      }
-     *
-     */
+    @ApiOperation(nickname = "deleteProfessional", value = "Delete Professional",
+            notes = "Allow the administrator to delete a professional user.",
+            httpMethod = "POST")
+    @ApiResponses(value = {
+            @ApiResponse(code = 401, message = "Email or password is wrong."),
+            @ApiResponse(code = 403, message = "Unauthorized."),
+            @ApiResponse(code = 403, message = "Unauthorized type user."),
+            @ApiResponse(code = 404, message = "Invalid identifier.")})
     @AdminAuth
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
-    public static Result deleteProfessional(int uid) {
+    public static Result deleteProfessional(
+            @ApiParam(value = "Professional id", required = true) @PathParam("id") int uid) {
         User user = userService.getById(uid);
 
         if (user == null) return status(404, JsonUtils.simpleError("404", "Invalid identifier"));
