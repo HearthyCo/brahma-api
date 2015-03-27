@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.wordnik.swagger.annotations.*;
 import gl.glue.brahma.model.user.Admin;
 import gl.glue.brahma.model.user.User;
 import gl.glue.brahma.service.UserService;
@@ -19,85 +20,23 @@ import play.mvc.Result;
 
 import java.util.*;
 
+@Api(value = "/admin", description = "User admin functions")
 public class UserController extends Controller {
 
     private static UserService userService = new UserService();
 
-    /**
-     * @api {post} /admin/login Login
-     *
-     * @apiGroup Admin
-     * @apiName Login
-     * @apiDescription Allow user (registered before) can be identified to access his private information.
-     *
-     * @apiParam {String} login     Unique identifier for user in service.
-     * @apiParam {String} password  Password
-     * @apiParamExample {json} Request-Example
-     *      {
-     *          "login": "testadmin1@glue.gl",
-     *          "password": "testClient1@glue.gl"
-     *      }
-     *
-     * @apiSuccess {Array}  user    Contains all user fields after login
-     * @apiSuccessExample {json} Success-Response
-     *      HTTP/1.1 200 OK
-     *      {
-     *          "users": [
-     *              {
-     *                  "id": 90010,
-     *                  "login": null,
-     *                  "email": "testadmin1@glue.gl",
-     *                  "name": "Test",
-     *                  "surname1": "Admin",
-     *                  "surname2": "User1",
-     *                  "birthdate": "1949-12-31",
-     *                  "avatar": null,
-     *                  "nationalId": "98765432J",
-     *                  "gender": "OTHER",
-     *                  "state": "UNCONFIRMED",
-     *                  "balance": 0,
-     *                  "type": "admin"
-     *                  "locked": false,
-     *                  "confirmed": false,
-     *                  "banned": false,
-     *                  "meta": {},
-     *              }
-     *          ],
-     *          "sign": [
-     *              {
-     *                  "id": "userId",
-     *                  "signature": "f1xdmk+xNP6mgWxK3v03MNUccyiUV+238NfwWsKdbeY=1426153660567",
-     *                  "value": 2
-     *              }
-     *          ]
-     *      }
-     *
-     * @apiError {Object} MissingRequiredField  Params has not a required field.
-     * @apiErrorExample {json} MissingRequiredField
-     *      HTTP/1.1 400 BadRequest
-     *      {
-     *          "status": "400",
-     *          "title": "Missing required field `field`"
-     *      }
-     *
-     * @apiError {Object} InvalidParams Username (login field) or password is wrong.
-     * @apiErrorExample {json} InvalidParams
-     *      HTTP/1.1 401 Unauthorized
-     *      {
-     *          "status": "401",
-     *          "title": "Invalid username or password."
-     *      }
-     *
-     * @apiError {Object} ForbbidenTypeUser  Unauthorized type user
-     * @apiErrorExample {json} ForbbidenTypeUser
-     *      HTTP/1.1 403 Forbbiden
-     *      {
-     *          "status": "403",
-     *          "title": "Unauthorized type user"
-     *      }
-     *
-     * @apiVersion 0.1.0
-     */
+    @ApiOperation(nickname = "login", value = "User admin login",
+            notes = "Allow user (registered before) can be identified to access his private information.",
+            httpMethod = "POST")
+    @ApiImplicitParams(value= {
+            @ApiImplicitParam(name = "body", defaultValue = "{\n" +
+                    "  \"email\": \"testadmin1@glue.gl\",\n" +
+                    "  \"password\": \"testAdmin1@glue.gl\"\n" +
+                    "}", value="Object with post params", required = true, dataType = "Object", paramType = "body")})
+    @ApiResponses(value = {
+            @ApiResponse(code = 400, message = "Params has not a required field."),
+            @ApiResponse(code = 401, message = "Email or password is wrong."),
+            @ApiResponse(code = 403, message = "Unauthorized type user")})
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
     public static Result login() {
@@ -124,85 +63,17 @@ public class UserController extends Controller {
         return ok(result);
     }
 
-    /**
-     * @api {post} /admin/me/update Update
-     *
-     * @apiGroup Admin
-     * @apiName Update
-     * @apiDescription Allow admin user can to update fields profile.
-     *
-     * @apiParam {Enum="MALE","FEMALE"} gender      Optional. User gender.
-     * @apiParam {String}               name        Optional. Real user name.
-     * @apiParam {Date}                 birthdate   Optional. Date of user birthdate.
-     * @apiParam {String}               surname1    Optional. Real user first surname.
-     * @apiParam {String}               surname2    Optional. Real user second surname.
-     * @apiParam {String}               avatar      Optional. Url for user avatar.
-     * @apiParam {String}               nationalId  Optional. Number iof id card.
-     * @apiParam {String}               meta        Optional. Number iof id card.
-     * @apiParamExample {json} Request-Example
-     *      {
-     *          "gender": "FEMALE",
-     *          "name": "TestUpdated1",
-     *          "birthdate": "1987-08-06",
-     *          "surname1": "AdminUpdated",
-     *          "surname2": "User1Updated",
-     *          "avatar": "http://...",
-     *          "nationalId": "98765432Z",
-     *          "meta": {}
-     *      }
-     *
-     * @apiSuccess {Array} users    Contains all user fields after update.
-     * @apiSuccessExample {json} Success-Response
-     *      HTTP/1.1 200 OK
-     *      {
-     *          "users": [
-     *              {
-     *                  "id": 90005,
-     *                  "login": null,
-     *                  "email": "testadmin1@glue.gl",
-     *                  "name": "TestUpdated1",
-     *                  "surname1": "AdminUpdated",
-     *                  "surname2": "User1Updated",
-     *                  "birthdate": "1987-08-06",
-     *                  "avatar": "http://...",
-     *                  "nationalId": "98765432Z",
-     *                  "gender": "OTHER",
-     *                  "state": "UNCONFIRMED",
-     *                  "balance": 0,
-     *                  "type": "admin"
-     *                  "locked": false,
-     *                  "confirmed": false,
-     *                  "banned": false,
-     *                  "meta": {}
-     *              }
-     *          ],
-     *          "sign": [
-     *              {
-     *                  "id": "userId",
-     *                  "signature": "f1xdmk+xNP6mgWxK3v03MNUccyiUV+238NfwWsKdbeY=1426153660567",
-     *                  "value": 2
-     *              }
-     *          ]
-     *      }
-     *
-     * @apiError {Object} MissingRequiredField Params has not a required field.
-     * @apiErrorExample {json} MissingRequiredField
-     *      HTTP/1.1 400 BadRequest
-     *      {
-     *          "status": "400",
-     *          "title": "Missing required field `field`"
-     *      }
-     *
-     * @apiError {Object} UserNotLoggedIn User is not logged in.
-     * @apiErrorExample {json} UserNotLoggedIn
-     *      HTTP/1.1 401 Unauthorized
-     *      {
-     *          "status": "401",
-     *          "title": "You are not logged in"
-     *      }
-     *
-     * @apiVersion 0.1.0
-     */
+    @ApiOperation(nickname = "updateProfile", value = "User admin update profile",
+            notes = "Allow admin user (registered before) can to update fields profile.",
+            httpMethod = "POST")
+    @ApiImplicitParams(value= {
+            @ApiImplicitParam(name = "body", defaultValue = "{\n" +
+                    "  \"surname1\": \"Dummy\",\n" +
+                    "  \"nationalId\": \"00000000C\"\n" +
+                    "}", value="Object with post params", required = true, dataType = "Object", paramType = "body")})
+    @ApiResponses(value = {
+            @ApiResponse(code = 400, message = "Params has not a required field."),
+            @ApiResponse(code = 401, message = "User is not logged in.")})
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
     public static Result updateProfile() {
@@ -233,57 +104,8 @@ public class UserController extends Controller {
         return ok(result);
     }
 
-    /**
-     * @api {get} /admin/me Get Me
-     *
-     * @apiGroup Admin
-     * @apiName Get Me
-     * @apiDescription Get the current logged in admin.
-     *
-     * @apiSuccess {Array}  users   Contains all user fields
-     * @apiSuccessExample {json} Success-Response
-     *      HTTP/1.1 200 OK
-     *      {
-     *          "users": [
-     *              {
-     *                  "id": 90005,
-     *                  "login": null,
-     *                  "email": "testadmin1@glue.gl",
-     *                  "name": "Test",
-     *                  "surname1": "User",
-     *                  "surname2": "User1",
-     *                  "birthdate": "1969-12-31",
-     *                  "avatar": "http://...",
-     *                  "nationalId": "12345678A",
-     *                  "gender": "OTHER",
-     *                  "state": "UNCONFIRMED",
-     *                  "balance": 0,
-     *                  "type": "admin"
-     *                  "locked": false,
-     *                  "confirmed": false,
-     *                  "banned": false,
-     *                  "meta": {},
-     *              }
-     *          ],
-     *          "sign": [
-     *              {
-     *                  "id": "userId",
-     *                  "signature": "f1xdmk+xNP6mgWxK3v03MNUccyiUV+238NfwWsKdbeY=1426153660567",
-     *                  "value": 2
-     *              }
-     *          ]
-     *      }
-     *
-     * @apiVersion 0.1.0
-     *
-     * @apiError {Object} UserNotLoggedIn User is not logged in.
-     * @apiErrorExample {json} UserNotLoggedIn
-     *      HTTP/1.1 401 Unauthorized
-     *      {
-     *          "status": "401",
-     *          "title": "You are not logged in"
-     *      }
-     */
+    @ApiOperation(nickname = "getMe", value = "Get Me", notes = "Get the current admin logged", httpMethod = "GET")
+    @ApiResponses(value = { @ApiResponse(code = 401, message = "User is not logged in.") })
     @AdminAuth
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)

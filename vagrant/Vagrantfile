@@ -49,6 +49,16 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
   end
 
+  # config.vm.define "swagger" do |v|
+  #   v.vm.provider "docker" do |d|
+  #     d.name = "swagger"
+  #     d.image = "capoferro/swagger-ui"
+  #     d.volumes = ["/var/docker/swagger/data:/data"]
+  #     d.ports = ["9812:80"]
+  #     d.vagrant_vagrantfile = "./proxy.Vagrantfile"
+  #   end
+  # end
+
   config.vm.define "activator" do |v|
     v.vm.provider "docker" do |d|
       d.name = "activator"
