@@ -57,6 +57,7 @@ public class S3Plugin extends Plugin {
 
     public static String url2key(String url) {
         String prefix = key2url("");
+        if (url.length() <= prefix.length()) return null;
         if (!prefix.equals(url.substring(0, prefix.length()))) return null;
         return url.substring(prefix.length());
     }

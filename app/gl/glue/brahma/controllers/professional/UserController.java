@@ -130,6 +130,7 @@ public class UserController extends Controller {
     @Transactional
     public static Result setAvatar() {
         Http.MultipartFormData body = request().body().asMultipartFormData();
+        if (body == null) return status(400, JsonUtils.simpleError("400", "Expected multipart/form-data enctype"));
         Http.MultipartFormData.FilePart uploadFilePart = body.getFile("upload");
         if (uploadFilePart == null) {
             return status(400, JsonUtils.simpleError("400", "Missing upload file"));
