@@ -65,7 +65,7 @@ public class Global extends GlobalSettings {
                     list.add(new Tuple2<>("Access-Control-Allow-Credentials", "true"));
                 }
             }
-            list.add(new Tuple2<>("Content-Type", "application/json"));
+            list.add(new Tuple2<>("Content-Type", "application/json; charset=utf-8"));
             wrappedResult = JavaResults.Status(statusCode)
                     .apply(body.toString().getBytes(), JavaResults.writeBytes())
                     .withHeaders(Scala.toSeq(list));
