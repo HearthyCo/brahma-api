@@ -155,6 +155,9 @@ public class TransactionController extends Controller {
                 baseUrl = url.getProtocol() + "://" + url.getAuthority();
             } catch (MalformedURLException e) {
             }
+        } else if (request().hasHeader("Origin")) {
+            // There is no referer from file://, but we always have Origin
+            baseUrl = request().getHeader("Origin");
         }
 
         ObjectNode redirectUrls;
