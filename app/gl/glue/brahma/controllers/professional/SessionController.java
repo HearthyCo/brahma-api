@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.wordnik.swagger.annotations.*;
 import gl.glue.brahma.model.historyentry.HistoryEntry;
 import gl.glue.brahma.model.service.Service;
 import gl.glue.brahma.model.servicetype.ServiceType;
@@ -22,9 +23,11 @@ import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
 
+import javax.ws.rs.PathParam;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Api(value = "/professional", description = "Professional functions")
 public class SessionController extends Controller {
 
     private static SessionService sessionService = new SessionService();
@@ -353,4 +356,23 @@ public class SessionController extends Controller {
             .putPOJO("historyentries", Json.toJson(historyEntries))
             .putPOJO("userHistoryEntries", userHistoryEntries));
     }
+
+    @ApiOperation(nickname = "closeSession", value = "Close Session",
+            notes = "Closes the specified session", httpMethod = "POST")
+    @ApiResponses(value = {
+            @ApiResponse(code = 404, message = "Invalid identifier"),
+            @ApiResponse(code = 409, message = "Session in wrong state") })
+    @ProfessionalAuth
+    @Transactional
+    public static Result closeSession(@ApiParam(value = "Session id", required = true) @PathParam("session") int id) {
+        int uid = Integer.parseInt(session("id"));
+        Session session = sessionService.close(id, uid);
+        if (session == null) return status(404, JsonUtils.simpleError("404", "Invalid identifier"));
+        if (session.getState() != Session.State.CLOSED)
+            return status(409, JsonUtils.simpleError("409", "Only underway sessions can be closed"));
+        return ok(Json.newObject()
+                .putPOJO("sessions", new ArrayNode(JsonNodeFactory.instance)
+                        .addPOJO(Json.toJson(session))));
+    }
+
 }

@@ -23,6 +23,7 @@ import gl.glue.brahma.model.user.Professional;
 import gl.glue.brahma.model.user.User;
 import gl.glue.brahma.model.user.UserDao;
 import gl.glue.brahma.util.RedisHelper;
+import gl.glue.play.amqp.Controller;
 import play.Application;
 import play.Configuration;
 import play.Play;
@@ -334,6 +335,25 @@ public class SessionService {
         }
 
         return messages;
+    }
+
+
+    /**
+     * Close a session, if the user can close it.
+     * If the session is not underway, no changes will be made.
+     * @param sessionId Target session to close.
+     * @param userId User performing the action
+     * @return The session if the user has access to it, or null otherwise.
+     */
+    @Transactional
+    public Session close(int sessionId, int userId) {
+        Session session = getById(sessionId, userId);
+        if (session == null) return null;
+        if (session.getState() == Session.State.UNDERWAY) {
+            session.setState(Session.State.CLOSED);
+            Controller.sendMessage("session.close", Json.toJson(session).toString());
+        }
+        return session;
     }
 
 }

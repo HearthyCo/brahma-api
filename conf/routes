@@ -108,6 +108,7 @@ POST           /v1/professional/session/chat/append                             
 GET            /v1/professional/session/:session/chat/history                       gl.glue.brahma.controllers.common.SessionController.getChatHistory(session: Integer)
 GET            /v1/professional/session/:session                                    gl.glue.brahma.controllers.professional.SessionController.getSession(session: Integer)
 POST           /v1/professional/session/:session/attach                             gl.glue.brahma.controllers.common.SessionController.uploadAttachment(session: Integer)
+POST           /v1/professional/session/:session/close                              gl.glue.brahma.controllers.professional.SessionController.closeSession(session: Integer)
 
 # Services
 GET            /v1/professional/services                                            gl.glue.brahma.controllers.common.ServiceController.getServices()
