@@ -3,6 +3,7 @@ package gl.glue.brahma.model.transaction;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import gl.glue.brahma.model.service.Service;
 import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.model.user.User;
 import gl.glue.brahma.util.serializers.SessionToTitleSerializer;
@@ -87,6 +88,24 @@ public class Transaction {
         this.sku = sku;
         this.timestamp = new Date();
         this.reason = reason;
+    }
+
+    public Transaction(User user, Session session) {
+        this.user = user;
+        this.amount = -1 * session.getServiceType().getPrice();
+        this.session = session;
+        this.state = State.APPROVED;
+        this.reason = "Session payment";
+        this.timestamp = new Date();
+    }
+
+    public Transaction(User user, Session session, Service service) {
+        this.user = user;
+        this.amount = service.getEarnings();
+        this.session = session;
+        this.state = State.APPROVED;
+        this.reason = "Session earnings";
+        this.timestamp = new Date();
     }
 
     public int getId() {

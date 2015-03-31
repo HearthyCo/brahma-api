@@ -231,4 +231,21 @@ public class SessionController extends Controller {
                         .addPOJO(Json.toJson(sessionUser))));
     }
 
+
+    @ApiOperation(nickname = "closeSession", value = "Finish Session",
+            notes = "Finishes the specified session", httpMethod = "POST")
+    @ApiResponses(value = {
+            @ApiResponse(code = 401, message = "You are not logged in"),
+            @ApiResponse(code = 404, message = "Invalid identifier"),
+            @ApiResponse(code = 409, message = "Session in wrong state") })
+    @ProfessionalAuth
+    @Transactional
+    public static Result finishSession(@ApiParam(value = "Session id", required = true) @PathParam("session") int id) {
+        int uid = Integer.parseInt(session("id"));
+        Session session = sessionService.finish(id, uid);
+        return ok(Json.newObject()
+                .putPOJO("sessions", new ArrayNode(JsonNodeFactory.instance)
+                        .addPOJO(Json.toJson(session))));
+    }
+
 }

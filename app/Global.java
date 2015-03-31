@@ -1,4 +1,5 @@
 import com.fasterxml.jackson.databind.JsonNode;
+import gl.glue.brahma.exceptions.ModelException;
 import gl.glue.brahma.util.CORSResult;
 import gl.glue.brahma.util.JsonUtils;
 import play.Configuration;
@@ -44,8 +45,12 @@ public class Global extends GlobalSettings {
             if (getConf().getBoolean("persistence.rollbackOnly", false)) {
                 JPA.em().getTransaction().setRollbackOnly();
             }
-            Promise<Result> result = this.delegate.call(ctx);
-            return result;
+            try {
+                return this.delegate.call(ctx);
+            } catch (ModelException e) {
+                return pure(new CORSResult(ctx.request(), e.getState(),
+                        JsonUtils.simpleError(Integer.toString(e.getState()), e.getMessage())));
+            }
         }
     }
 

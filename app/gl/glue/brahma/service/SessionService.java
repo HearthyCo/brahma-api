@@ -8,6 +8,8 @@ import com.opentok.TokenOptions;
 import com.opentok.exception.OpenTokException;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import gl.glue.brahma.exceptions.InvalidStateException;
+import gl.glue.brahma.exceptions.TargetNotFoundException;
 import gl.glue.brahma.model.servicetype.ServiceType;
 import gl.glue.brahma.model.servicetype.ServiceTypeDao;
 import gl.glue.brahma.model.service.Service;
@@ -18,13 +20,10 @@ import gl.glue.brahma.model.sessionuser.SessionUser;
 import gl.glue.brahma.model.sessionuser.SessionUserDao;
 import gl.glue.brahma.model.transaction.Transaction;
 import gl.glue.brahma.model.transaction.TransactionDao;
-import gl.glue.brahma.model.user.Client;
-import gl.glue.brahma.model.user.Professional;
 import gl.glue.brahma.model.user.User;
 import gl.glue.brahma.model.user.UserDao;
 import gl.glue.brahma.util.RedisHelper;
 import gl.glue.play.amqp.Controller;
-import play.Application;
 import play.Configuration;
 import play.Play;
 import play.db.jpa.Transactional;
@@ -355,6 +354,71 @@ public class SessionService {
         }
         return session;
     }
+
+
+    /**
+     * Finish a session, if the user can finish it.
+     * If the session is not closed, no changes will be made.
+     * @param sessionId Target session to finish.
+     * @param userId User performing the action
+     * @return The session if the user has access to it, or null otherwise.
+     */
+    @Transactional
+    public Session finish(int sessionId, int userId) {
+        /*
+            To finish a session, it must met the following conditions first:
+              - State must be CLOSED
+              - All Client participants must have a report set
+              - The user initiating the action must be on the session
+              - There must be at least one paying user and one earning user
+              - All paying users must have enough balance
+            This action will perform the following modifications:
+              - The state will be set to FINISHED and its timestamp updated to NOW
+              - All Client participants will get the ServiceType price deducted from their balance
+              - All Professional participants with a Service set on their respective SessionUser
+                will get their earnings added to their balance
+         */
+
+        // Precondition checks
+        Session session = getById(sessionId, userId);
+        if (session == null)
+            throw new TargetNotFoundException(Session.class, sessionId);
+        if (session.getState() != Session.State.CLOSED)
+            throw new InvalidStateException("Session not closed", Session.class, sessionId);
+        List<SessionUser> sessionUsers = sessionUserDao.findBySession(sessionId);
+        List<SessionUser> payers = new ArrayList<>();
+        List<SessionUser> earners = new ArrayList<>();
+        for (SessionUser sessionUser: sessionUsers) {
+            User user = sessionUser.getUser();
+            if (user.getUserType().equals("client")) {
+                if (sessionUser.getReport() == null || sessionUser.getReport().length() == 0)
+                    throw new InvalidStateException("Client without report", User.class, user.getId());
+                if (user.getBalance() < session.getServiceType().getPrice())
+                    throw new InvalidStateException("Client without enough balance", User.class, user.getId());
+                payers.add(sessionUser);
+            } else if (user.getUserType().equals("professional")) {
+                if (sessionUser.getService() != null) earners.add(sessionUser);
+            }
+        }
+        if (payers.size() < 1)
+            throw new InvalidStateException("Session without any Clients", Session.class, sessionId);
+        if (earners.size() < 1)
+            throw new InvalidStateException("Session without any Professionals on Service", Session.class, sessionId);
+
+        // Everything seems fine. Apply changes.
+        for (SessionUser payer: payers) {
+            Transaction transaction = new Transaction(payer.getUser(), session);
+            transactionDao.create(transaction);
+        }
+        for (SessionUser earner: earners) {
+            Transaction transaction = new Transaction(earner.getUser(), session, earner.getService());
+            transactionDao.create(transaction);
+        }
+        session.setState(Session.State.FINISHED);
+        session.setTimestamp(new Date());
+        return session;
+    }
+
 
     /**
      * Sets or updates the report of a specified SessionUser.

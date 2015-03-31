@@ -17,6 +17,17 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 
+@NamedQueries({
+
+        @NamedQuery(
+                name = "SessionUser.findBySession",
+                query = "select sessionUser " +
+                        "from SessionUser sessionUser " +
+                        "join fetch sessionUser.user " +
+                        "where sessionUser.session.id = :id"
+        )
+
+})
 @Entity
 public class SessionUser {
 
