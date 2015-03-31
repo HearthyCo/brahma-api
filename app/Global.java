@@ -1,4 +1,5 @@
 import com.fasterxml.jackson.databind.JsonNode;
+import gl.glue.brahma.util.CORSResult;
 import gl.glue.brahma.util.JsonUtils;
 import play.Configuration;
 import play.GlobalSettings;
@@ -51,29 +52,6 @@ public class Global extends GlobalSettings {
     @Override
     public Action<?> onRequest(Http.Request request, java.lang.reflect.Method actionMethod) {
         return new ActionWrapper(super.onRequest(request, actionMethod));
-    }
-
-    private class CORSResult implements Result {
-        final private play.api.mvc.Result wrappedResult;
-
-        public CORSResult(Http.RequestHeader request, int statusCode, JsonNode body) {
-            List<Tuple2<String, String>> list = new ArrayList<>();
-            if (request.hasHeader("Origin")) {
-                String origin = request.getHeader("Origin");
-                if (getConf().getStringList("cors.origins").contains(origin)) {
-                    list.add(new Tuple2<>("Access-Control-Allow-Origin", origin));
-                    list.add(new Tuple2<>("Access-Control-Allow-Credentials", "true"));
-                }
-            }
-            list.add(new Tuple2<>("Content-Type", "application/json; charset=utf-8"));
-            wrappedResult = JavaResults.Status(statusCode)
-                    .apply(body.toString().getBytes(), JavaResults.writeBytes())
-                    .withHeaders(Scala.toSeq(list));
-        }
-
-        public play.api.mvc.Result toScala() {
-            return this.wrappedResult;
-        }
     }
 
     @Override
