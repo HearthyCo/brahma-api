@@ -53,7 +53,7 @@ public class SessionController extends Controller {
         int uid = Integer.parseInt(session("id"));
 
         JsonNode json = request().body().asJson();
-        if (!json.has("serviceType")) {
+        if (json == null || !json.has("serviceType")) {
             return badRequest(JsonUtils.missingRequiredField("serviceType"));
         }
         int serviceTypeId = json.get("serviceType").asInt();
@@ -198,6 +198,37 @@ public class SessionController extends Controller {
         return ok(Json.newObject()
                 .putPOJO("sessions", new ArrayNode(JsonNodeFactory.instance)
                         .addPOJO(Json.toJson(session))));
+    }
+
+
+    @ApiOperation(nickname = "setReport", value = "Set Report",
+            notes = "Sets or updates the report for a given Session and Client", httpMethod = "POST")
+    @ApiImplicitParams(value= {
+            @ApiImplicitParam(name = "body", defaultValue = "{\n" +
+                    "  \"report\": \"Lorem ipsum dolor sit amet...\"\n" +
+                    "}", value="Object with post params", required = true, dataType = "Object", paramType = "body")})
+    @ApiResponses(value = {
+            @ApiResponse(code = 400, message = "Missing required field \"report\""),
+            @ApiResponse(code = 401, message = "You are not logged in"),
+            @ApiResponse(code = 404, message = "Invalid identifier") })
+    @ProfessionalAuth
+    @Transactional
+    @BodyParser.Of(BodyParser.Json.class)
+    public static Result setReport(
+            @ApiParam(value = "SessionUser id", required = true) @PathParam("sessionuser") int id) {
+
+        int uid = Integer.parseInt(session("id"));
+        JsonNode json = request().body().asJson();
+        if (json == null || !json.has("report")) {
+            return badRequest(JsonUtils.missingRequiredField("report"));
+        }
+        String text = json.get("report").asText();
+
+        SessionUser sessionUser = sessionService.setReport(id, uid, text);
+        if (sessionUser == null) return status(404, JsonUtils.simpleError("404", "Invalid identifier"));
+        return ok(Json.newObject()
+                .putPOJO("sessionusers", new ArrayNode(JsonNodeFactory.instance)
+                        .addPOJO(Json.toJson(sessionUser))));
     }
 
 }

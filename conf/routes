@@ -109,6 +109,7 @@ GET            /v1/professional/session/:session/chat/history                   
 GET            /v1/professional/session/:session                                    gl.glue.brahma.controllers.professional.SessionController.getSession(session: Integer)
 POST           /v1/professional/session/:session/attach                             gl.glue.brahma.controllers.common.SessionController.uploadAttachment(session: Integer)
 POST           /v1/professional/session/:session/close                              gl.glue.brahma.controllers.professional.SessionController.closeSession(session: Integer)
+POST           /v1/professional/sessionuser/:sessionuser/report                     gl.glue.brahma.controllers.professional.SessionController.setReport(sessionuser: Integer)
 
 # Services
 GET            /v1/professional/services                                            gl.glue.brahma.controllers.common.ServiceController.getServices()

@@ -356,4 +356,24 @@ public class SessionService {
         return session;
     }
 
+    /**
+     * Sets or updates the report of a specified SessionUser.
+     * If the session is not underway or closed, or the editor is not on the same session, no changes will be made.
+     * @param sessionUserId Target sessionUser to update.
+     * @param userId User performing the action
+     * @param report New value for the report field
+     * @return The sessionUser if the user has access to it, or null otherwise.
+     */
+    @Transactional
+    public SessionUser setReport(int sessionUserId, int userId, String report) {
+        SessionUser sessionUser = sessionUserDao.findById(sessionUserId);
+        Session session = getById(sessionUser.getSession().getId(), userId);
+        if (session == null) return null;
+        if (!EnumSet.of(Session.State.UNDERWAY, Session.State.CLOSED).contains(session.getState())) {
+            return null;
+        }
+        sessionUser.setReport(report);
+        return sessionUser;
+    }
+
 }
