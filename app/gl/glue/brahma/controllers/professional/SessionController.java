@@ -192,9 +192,6 @@ public class SessionController extends Controller {
     public static Result closeSession(@ApiParam(value = "Session id", required = true) @PathParam("session") int id) {
         int uid = Integer.parseInt(session("id"));
         Session session = sessionService.close(id, uid);
-        if (session == null) return status(404, JsonUtils.simpleError("404", "Invalid identifier"));
-        if (session.getState() != Session.State.CLOSED)
-            return status(409, JsonUtils.simpleError("409", "Only underway sessions can be closed"));
         return ok(Json.newObject()
                 .putPOJO("sessions", new ArrayNode(JsonNodeFactory.instance)
                         .addPOJO(Json.toJson(session))));

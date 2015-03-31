@@ -347,11 +347,12 @@ public class SessionService {
     @Transactional
     public Session close(int sessionId, int userId) {
         Session session = getById(sessionId, userId);
-        if (session == null) return null;
-        if (session.getState() == Session.State.UNDERWAY) {
-            session.setState(Session.State.CLOSED);
-            Controller.sendMessage("session.close", Json.toJson(session).toString());
-        }
+        if (session == null)
+            throw new TargetNotFoundException(Session.class, sessionId);
+        if (session.getState() != Session.State.UNDERWAY)
+            throw new InvalidStateException("Session not underway", Session.class, sessionId);
+        session.setState(Session.State.CLOSED);
+        Controller.sendMessage("session.close", Json.toJson(session).toString());
         return session;
     }
 
