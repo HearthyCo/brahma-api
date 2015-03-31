@@ -34,60 +34,18 @@ public class SessionController extends Controller {
     private static ServiceService serviceService = new ServiceService();
     private static HistoryService historyService = new HistoryService();
 
-    /**
-     * @api {post} /client/session/assignPool Assign session from pool
-     *
-     * @apiGroup Session
-     * @apiName AssignSessionFromPool
-     * @apiDescription Assign a session from one service type pool to the current user.
-     *
-     * @apiParam {Integer} serviceType Service type id.
-     * @apiParamExample {json} Request-Example
-     *      {
-     *          "serviceType": 90302,
-     *      }
-     *
-     * @apiSuccess {Object} session Info about the assigned session.
-     * @apiSuccessExample {json} Success-Response:
-     *      HTTP/1.1 200 OK
-     *      {
-     *          "session": {
-     *              "id": 90712,
-     *              "title": "testPool1",
-     *              "startDate": 1423670400000,
-     *              "endDate": 1423671300000,
-     *              "state": "UNDERWAY",
-     *              "meta": {},
-     *              "timestamp": 1418626800000
-     *         }
-     *     }
-     *
-     * @apiError TargetNotFound No suitable sessions have been found
-     * @apiErrorExample {json} TargetNotFound
-     *      HTTP/1.1 404 Not Found
-     *      {
-     *          "status": "404",
-     *          "title": "Couldn't assign any session"
-     *      }
-     *
-     * @apiError UserNotLoggedIn User is not logged in.
-     * @apiErrorExample {json} UserNotLoggedIn
-     *      HTTP/1.1 401 Unauthorized
-     *      {
-     *          "status": "401",
-     *          "title": "You are not logged in"
-     *      }
-     *
-     * @apiError MissingRequiredField Missing required field
-     * @apiErrorExample {json} MissingRequiredField
-     *      HTTP/1.1 400 BadRequest
-     *      {
-     *          "status": "400",
-     *          "title": "Missing required field \"serviceType\""
-     *      }
-     *
-     * @apiVersion 0.1.0
-     */
+
+    @ApiOperation(nickname = "getAssignedSessions", value = "Get assigned Sessions",
+            notes = "Returns the currently assigned sessions.",
+            httpMethod = "GET")
+    @ApiImplicitParams(value= {
+            @ApiImplicitParam(name = "body", defaultValue = "{\n" +
+                    "  \"serviceType\": \"90302\"\n" +
+                    "}", value="Object with post params", required = true, dataType = "Object", paramType = "body")})
+    @ApiResponses(value = {
+            @ApiResponse(code = 400, message = "Missing required field \"serviceType\""),
+            @ApiResponse(code = 401, message = "You are not logged in"),
+            @ApiResponse(code = 404, message = "Couldn't assign any session") })
     @ProfessionalAuth
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
@@ -108,54 +66,12 @@ public class SessionController extends Controller {
         return getAssignedSessions();
     }
 
-    /**
-     * @api {post} /professional/sessions/assigned/ Return assigned sessions
-     *
-     * @apiGroup Session
-     * @apiName GetAssignedSessions
-     * @apiDescription Return assigned sessions of current user.
-     *
-     * @apiParam {Integer} serviceTypeId Service type id.
-     *
-     * @apiSuccess {Object} session Info about the assigned session.
-     * @apiSuccessExample {json} Success-Response:
-     *      HTTP/1.1 200 OK
-     *      {
-     *          "sessions": [
-     *              {
-     *                  "id": 90712,
-     *                  "title": "testPool1",
-     *                  "startDate": 1423670400000,
-     *                  "endDate": 1423671300000,
-     *                  "state": "UNDERWAY",
-     *                  "meta": { },
-     *                  "timestamp": 1418626800000
-     *              }
-     *          ],
-     *          "userSessions": [
-     *              90712
-     *          ]
-     *      }
-     *
-     * @apiError TargetNotFound No suitable sessions have been found in serviceTypeId passed
-     * @apiErrorExample {json} TargetNotFound
-     *      HTTP/1.1 404 Not Found
-     *      {
-     *          "status": "404",
-     *          "title": "Invalid identifier"
-     *      }
-     *
-     * @apiError UserNotLoggedIn User is not logged in.
-     * @apiErrorExample {json} UserNotLoggedIn
-     *      HTTP/1.1 401 Unauthorized
-     *      {
-     *          "status": "401",
-     *          "title": "You are not logged in"
-     *      }
-     *
-     *
-     * @apiVersion 0.1.0
-     */
+
+    @ApiOperation(nickname = "getAssignedSessions", value = "Get assigned Sessions",
+            notes = "Returns the currently assigned sessions.",
+            httpMethod = "GET")
+    @ApiResponses(value = {
+            @ApiResponse(code = 401, message = "You are not logged in") })
     @ProfessionalAuth
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
@@ -206,32 +122,11 @@ public class SessionController extends Controller {
     }
 
 
-    /**
-     * @api {get} /user/session/pools Get pools size
-     *
-     * @apiGroup Session
-     * @apiName GetPoolsSize
-     * @apiDescription Returns the current queue size for each pool. Pools without queue are ignored.
-     *
-     * @apiSuccess {Object} pools Info about the assigned session.
-     * @apiSuccessExample {json} Success-Response:
-     *      HTTP/1.1 200 OK
-     *      {
-     *          "pools": {
-     *              "90300": 1,
-     *         }
-     *     }
-     *
-     * @apiError UserNotLoggedIn User is not logged in.
-     * @apiErrorExample {json} UserNotLoggedIn
-     *      HTTP/1.1 401 Unauthorized
-     *      {
-     *          "status": "401",
-     *          "title": "You are not logged in"
-     *      }
-     *
-     * @apiVersion 0.1.0
-     */
+    @ApiOperation(nickname = "getPoolsSize", value = "Get Pools Size",
+            notes = "Returns the current queue size for each pool. Pools without queue are ignored.",
+            httpMethod = "GET")
+    @ApiResponses(value = {
+            @ApiResponse(code = 401, message = "You are not logged in") })
     @ProfessionalAuth
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
@@ -241,88 +136,16 @@ public class SessionController extends Controller {
         return ok(ret);
     }
 
-    /**
-     * @api {get} /session/:sessionId Session
-     * @apiGroup Session
-     * @apiName GetSession
-     * @apiDescription Collect info on a session and its participants.
-     *
-     * @apiParam {Integer} id Session unique ID.
-     *
-     * @apiSuccess {Object} session Info about the specified session.
-     * @apiSuccess {Object} session.users Info about the participants on the session.
-     * @apiSuccess {Object} session.users.me Info about the current user.
-     * @apiSuccess {Object[]} session.users.professionals Info about other professionals in the session.
-     * @apiSuccess {Object[]} session.users.clients Info about other clients in the session (for professionals only).
-     *
-     * @apiSuccessExample {json} Success-Response:
-     *     HTTP/1.1 200 OK
-     *     {
-     *         "session": {
-     *             "id": 90700,
-     *             "title": "testSession1",
-     *             "startDate": 1425312000000,
-     *             "endDate": 1425312900000,
-     *             "state": "PROGRAMMED",
-     *             "meta": {},
-     *             "timestamp": 1418626800000,
-     *             "users": {
-     *                 "me": {
-     *                     "id": 90000,
-     *                     "login": "testClient1",
-     *                     "name": "Test",
-     *                     "surname1": "Client",
-     *                     "surname2": "User1",
-     *                     "birthdate": "1987-12-24",
-     *                     "avatar": null,
-     *                     "nationalId": "12345678Z",
-     *                     "gender": "FEMALE",
-     *                     "meta": {},
-     *                     "sessionMeta": {},
-     *                     "report": null
-     *                 },
-     *                 "professionals": [
-     *                     {
-     *                         "id": 90005,
-     *                         "login": "testProfessional1",
-     *                         "name": "Test",
-     *                         "surname1": "Professional",
-     *                         "surname2": "User1",
-     *                         "birthdate": "1969-12-31",
-     *                         "avatar": "http://comps.canstockphoto.com/can-stock-photo_csp6253298.jpg",
-     *                         "nationalId": "99999999Z",
-     *                         "gender": "MALE",
-     *                         "meta": {},
-     *                         "sessionMeta": {},
-     *                         "service": "Field1"
-     *                     }
-     *                 ]
-     *             }
-     *         }
-     *     }
-     *
-     * @apiError SessionNotFound The <code>id</code> of the Session was not found.
-     * @apiErrorExample {json} SessionNotFound
-     *      HTTP/1.1 404 Not Found
-     *      {
-     *          "status": "404",
-     *          "title": "Invalid identifier"
-     *      }
-     *
-     * @apiError UserNotLoggedIn User is not logged in.
-     * @apiErrorExample {json} UserNotLoggedIn
-     *      HTTP/1.1 401 Unauthorized
-     *      {
-     *          "status": "401",
-     *          "title": "You are not logged in"
-     *      }
-     *
-     * @apiVersion 0.1.0
-     */
+
+    @ApiOperation(nickname = "getSession", value = "Get Session",
+            notes = "Collect info  on a session and its participants.", httpMethod = "GET")
+    @ApiResponses(value = {
+            @ApiResponse(code = 401, message = "You are not logged in"),
+            @ApiResponse(code = 404, message = "Invalid identifier") })
     @ProfessionalAuth
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
-    public static Result getSession(int id) {
+    public static Result getSession(@ApiParam(value = "Session id", required = true) @PathParam("session") int id) {
         int uid = Integer.parseInt(session("id"));
         Session session = sessionService.getById(id, uid);
         if (session == null) return status(404, JsonUtils.simpleError("404", "Invalid identifier"));
@@ -357,9 +180,11 @@ public class SessionController extends Controller {
             .putPOJO("userHistoryEntries", userHistoryEntries));
     }
 
+
     @ApiOperation(nickname = "closeSession", value = "Close Session",
             notes = "Closes the specified session", httpMethod = "POST")
     @ApiResponses(value = {
+            @ApiResponse(code = 401, message = "You are not logged in"),
             @ApiResponse(code = 404, message = "Invalid identifier"),
             @ApiResponse(code = 409, message = "Session in wrong state") })
     @ProfessionalAuth
