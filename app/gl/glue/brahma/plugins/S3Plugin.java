@@ -1,4 +1,4 @@
-package plugins;
+package gl.glue.brahma.plugins;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
@@ -9,13 +9,10 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import org.apache.tika.Tika;
 import play.Application;
-import play.Logger;
 import play.Plugin;
 
-import javax.activation.MimetypesFileTypeMap;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.Map;
 
 public class S3Plugin extends Plugin {

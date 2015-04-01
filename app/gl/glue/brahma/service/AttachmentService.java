@@ -12,7 +12,7 @@ import gl.glue.brahma.model.user.UserDao;
 import gl.glue.play.amqp.Controller;
 import play.db.jpa.Transactional;
 import play.libs.Json;
-import plugins.S3Plugin;
+import gl.glue.brahma.plugins.S3Plugin;
 
 import java.io.File;
 import java.security.MessageDigest;

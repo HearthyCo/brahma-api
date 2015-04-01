@@ -5,6 +5,7 @@ import javax.persistence.EntityTransaction;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import gl.glue.brahma.Global;
 import org.junit.*;
 
 import play.Configuration;
@@ -27,7 +28,7 @@ public abstract class TransactionalTest {
     @BeforeClass
     public static void setUp() {
         Config config = ConfigFactory.parseResourcesAnySyntax("application-test.conf").resolve();
-        FakeApplication myapp = Helpers.fakeApplication(new Configuration(config).asMap());
+        FakeApplication myapp = Helpers.fakeApplication(new Configuration(config).asMap(), new Global());
         Helpers.start(myapp);
         app = myapp.getWrappedApplication();
         Option<JPAPlugin> jpaPlugin = app.plugin(JPAPlugin.class);

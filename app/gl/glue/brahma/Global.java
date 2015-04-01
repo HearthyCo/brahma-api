@@ -1,3 +1,5 @@
+package gl.glue.brahma;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import gl.glue.brahma.exceptions.ModelException;
 import gl.glue.brahma.util.CORSResult;
@@ -68,11 +70,11 @@ public class Global extends GlobalSettings {
     @Override
     public Promise<Result> onError(Http.RequestHeader request, Throwable t) {
         String msg = (getConf().getBoolean("errors.detailed", false)) ? t.getMessage() : "Internal Server Error";
-        return pure(new CORSResult(request, 400, JsonUtils.simpleError("500", t.getMessage())));
+        return pure(new CORSResult(request, 500, JsonUtils.simpleError("500", t.getMessage())));
     }
 
     @Override
     public Promise<Result> onHandlerNotFound(Http.RequestHeader request) {
-        return pure(new CORSResult(request, 400, JsonUtils.simpleError("404", "Not Found")));
+        return pure(new CORSResult(request, 404, JsonUtils.simpleError("404", "Not Found")));
     }
 }

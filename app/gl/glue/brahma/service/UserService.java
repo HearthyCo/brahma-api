@@ -1,6 +1,5 @@
 package gl.glue.brahma.service;
 
-import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.Config;
@@ -12,7 +11,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import play.db.jpa.JPA;
 import play.db.jpa.Transactional;
 import play.libs.Json;
-import plugins.S3Plugin;
+import gl.glue.brahma.plugins.S3Plugin;
 
 import java.io.File;
 import java.security.MessageDigest;
