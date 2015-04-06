@@ -2,11 +2,11 @@ package gl.glue.brahma.model.user;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import gl.glue.brahma.util.JsonUtils;
 import gl.glue.brahma.util.serializers.UserMetaCleanerSerializer;
+import gl.glue.brahma.util.serializers.UserPasswordSerializer;
 import org.mindrot.jbcrypt.BCrypt;
 import play.libs.Json;
 
@@ -59,6 +59,7 @@ public abstract class User {
 
     private String login;
 
+    @JsonSerialize(using = UserPasswordSerializer.class)
     private String password;
 
     @NotNull
@@ -241,7 +242,7 @@ public abstract class User {
                 switch (field) {
                     case "login": this.setLogin(updated.getLogin());  break;
                     case "email": this.setEmail(updated.getEmail());  break;
-                    case "password": this.setPassword(updated.getPassword());  break;
+                    case "password": this.password = updated.getPassword();  break;
                     case "balance": this.setBalance(updated.getBalance());  break;
                     case "state": this.setState(updated.getState());  break;
                     case "gender": this.setGender(updated.getGender()); break;

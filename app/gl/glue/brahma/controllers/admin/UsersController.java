@@ -74,7 +74,7 @@ public class UsersController extends Controller {
         }
 
         result = Json.newObject();
-        result.put("users", new ArrayNode(JsonNodeFactory.instance).add(Json.toJson(user)));
+        result.putPOJO("users", new ArrayNode(JsonNodeFactory.instance).add(Json.toJson(user)));
         SignatureHelper.addSignatures(result, user.getId());
         return ok(result);
     }
@@ -99,10 +99,11 @@ public class UsersController extends Controller {
 
         if (!(user instanceof Professional)) return status(403, JsonUtils.simpleError("403", "Unauthorized type user"));
 
-        ObjectNode result = Json.newObject();
         ArrayNode users = new ArrayNode(JsonNodeFactory.instance);
         users.add(Json.toJson(user));
-        result.put("users", users);
+
+        ObjectNode result = Json.newObject();
+        result.putPOJO("users", users);
         SignatureHelper.addSignatures(result, user.getId());
         return ok(result);
     }
@@ -120,107 +121,14 @@ public class UsersController extends Controller {
     public static Result readProfessionals() {
         List<Professional> professionalUsers = userService.getByType(Professional.class);
 
-        ObjectNode result = Json.newObject();
-        ArrayNode users = new ArrayNode(JsonNodeFactory.instance);
-        users.add(Json.toJson(professionalUsers));
-
         List<Integer> professionalUsersIds = professionalUsers.stream().map(o->o.getId()).collect(Collectors.toList());
 
-        result.put("users", users);
-        result.put("professionalUsers", Json.toJson(professionalUsersIds));
+        ObjectNode result = Json.newObject();
+        result.putPOJO("users", Json.toJson(professionalUsers));
+        result.putPOJO("professionalUsers", Json.toJson(professionalUsersIds));
         return ok(result);
     }
 
-    /**
-     * @api {post} /admin/users/professional/update/:id Update
-     *
-     * @apiGroup Professional
-     * @apiName Update
-     * @apiDescription Allow admin user to update professional fields.
-     *
-     * @apiParam {String}               email       Optional. User email.
-     * @apiParam {String}               login       Optional. User login.
-     * @apiParam {Enum="MALE","FEMALE"} gender      Optional. User gender.
-     * @apiParam {String}               name        Optional. Real user name.
-     * @apiParam {Date}                 birthdate   Optional. Date of user birthdate.
-     * @apiParam {String}               surname1    Optional. Real user first surname.
-     * @apiParam {String}               surname2    Optional. Real user second surname.
-     * @apiParam {String}               avatar      Optional. Url for user avatar.
-     * @apiParam {String}               nationalId  Optional. Number iof id card.
-     * @apiParam {String}               meta        Optional. Number iof id card.
-     * @apiParamExample {json} Request-Example
-     *      {
-     *          "gender": "FEMALE",
-     *          "name": "TestUpdated1",
-     *          "birthdate": "1987-08-06",
-     *          "surname1": "ProfessionalUpdated",
-     *          "surname2": "User1Updated",
-     *          "avatar": "http://...",
-     *          "nationalId": "98765432Z",
-     *          "meta": {}
-     *      }
-     *
-     * @apiSuccess {Array} users    Contains all user fields after update.
-     * @apiSuccessExample {json} Success-Response
-     *      HTTP/1.1 200 OK
-     *      {
-     *          "users": [
-     *              {
-     *                  "id": 90005,
-     *                  "login": null,
-     *                  "email": "testprofessional1@glue.gl",
-     *                  "name": "TestUpdated1",
-     *                  "surname1": "ProfessionalUpdated",
-     *                  "surname2": "User1Updated",
-     *                  "birthdate": "1987-08-06",
-     *                  "avatar": "http://...",
-     *                  "nationalId": "98765432Z",
-     *                  "gender": "FEMALE",
-     *                  "state": "UNCONFIRMED",
-     *                  "balance": 0,
-     *                  "type": "professional"
-     *                  "locked": false,
-     *                  "confirmed": false,
-     *                  "banned": false,
-     *                  "meta": {}
-     *              }
-     *          ]
-     *      }
-     *
-     * @apiError {Object} MissingRequiredField Params has not a required field.
-     * @apiErrorExample {json} MissingRequiredField
-     *      HTTP/1.1 400 BadRequest
-     *      {
-     *          "status": "400",
-     *          "title": "Missing required field `field`"
-     *      }
-     *
-     * @apiError {Object} UserNotLoggedIn User is not logged in.
-     * @apiErrorExample {json} UserNotLoggedIn
-     *      HTTP/1.1 401 Unauthorized
-     *      {
-     *          "status": "401",
-     *          "title": "You are not logged in"
-     *      }
-     *
-     * @apiError {Object} ForbiddenTypeUser Unauthorized type user
-     * @apiErrorExample {json} ForbiddenTypeUser
-     *      HTTP/1.1 403 Forbidden
-     *      {
-     *          "status": "403",
-     *          "title": "Unauthorized type user"
-     *      }
-     *
-     * @apiError UserNotFound The <code>state</code> contains a unknown value.
-     * @apiErrorExample {json} UserNotFound
-     *      HTTP/1.1 404 Not Found
-     *      {
-     *          "status": "404",
-     *          "title": "Invalid identifier"
-     *      }
-     *
-     * @apiVersion 0.1.0
-     */
     @ApiOperation(nickname = "updateProfessional", value = "Update professional",
             notes = "Allow admin to update an professional user.",
             httpMethod = "POST")
@@ -261,7 +169,7 @@ public class UsersController extends Controller {
         user.merge(professional, availableFields);
 
         ObjectNode result = Json.newObject();
-        result.put("users", new ArrayNode(JsonNodeFactory.instance).add(Json.toJson(user)));
+        result.putPOJO("users", new ArrayNode(JsonNodeFactory.instance).add(Json.toJson(user)));
 
         return ok(result);
     }
@@ -287,7 +195,7 @@ public class UsersController extends Controller {
         user.setState(User.State.BANNED);
 
         ObjectNode result = Json.newObject();
-        result.put("users", new ArrayNode(JsonNodeFactory.instance).add(Json.toJson(user)));
+        result.putPOJO("users", new ArrayNode(JsonNodeFactory.instance).add(Json.toJson(user)));
 
         return ok(result);
     }
@@ -314,7 +222,7 @@ public class UsersController extends Controller {
         user.setState(User.State.DELETED);
 
         ObjectNode result = Json.newObject();
-        result.put("users", new ArrayNode(JsonNodeFactory.instance).add(Json.toJson(user)));
+        result.putPOJO("users", new ArrayNode(JsonNodeFactory.instance).add(Json.toJson(user)));
 
         return ok(result);
     }
