@@ -240,9 +240,9 @@ public class SessionController extends Controller {
     public static Result finishSession(@ApiParam(value = "Session id", required = true) @PathParam("session") int id) {
         int uid = Integer.parseInt(session("id"));
         Session session = sessionService.finish(id, uid);
-        return ok(Json.newObject()
-                .putPOJO("sessions", new ArrayNode(JsonNodeFactory.instance)
-                        .addPOJO(Json.toJson(session))));
+        // Returning the session only is not enough; we need to update the session list too.
+        // And there is already a controller for that.
+        return getAssignedSessions();
     }
 
 }
