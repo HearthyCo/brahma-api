@@ -42,7 +42,9 @@ import java.util.Date;
 @Entity
 public class Transaction {
 
-    public enum State { INPROGRESS, APPROVED, FAILED;}
+    public enum State { INPROGRESS, APPROVED, FAILED }
+    public enum Reason { SESSION_PAYMENT, SESSION_EARNINGS, SESSION_DEVOLUTION, TOP_UP, CASH_OUT, ADMIN_ACTION }
+
     @Id
     @SequenceGenerator(name = "transaction_id_seq", sequenceName = "transaction_id_seq", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "transaction_id_seq")
@@ -71,7 +73,9 @@ public class Transaction {
     @NotNull
     private Date timestamp;
 
-    private String reason;
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    private Reason reason;
 
     @NotNull // Fake to prevent typing bug
     private String meta = "{}";
@@ -81,7 +85,7 @@ public class Transaction {
 
     public Transaction() { }
 
-    public Transaction(User user, int amount, State state, String sku, String reason) {
+    public Transaction(User user, int amount, State state, String sku, Reason reason) {
         this.user = user;
         this.amount = amount;
         this.state = state;
@@ -95,7 +99,7 @@ public class Transaction {
         this.amount = -1 * session.getServiceType().getPrice();
         this.session = session;
         this.state = State.APPROVED;
-        this.reason = "Session payment";
+        this.reason = Reason.SESSION_PAYMENT;
         this.timestamp = new Date();
     }
 
@@ -104,7 +108,7 @@ public class Transaction {
         this.amount = service.getEarnings();
         this.session = session;
         this.state = State.APPROVED;
-        this.reason = "Session earnings";
+        this.reason = Reason.SESSION_EARNINGS;
         this.timestamp = new Date();
     }
 
@@ -154,11 +158,11 @@ public class Transaction {
         this.timestamp = timestamp;
     }
 
-    public String getReason() {
+    public Reason getReason() {
         return reason;
     }
 
-    public void setReason(String reason) {
+    public void setReason(Reason reason) {
         this.reason = reason;
     }
 

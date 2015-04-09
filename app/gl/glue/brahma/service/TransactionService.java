@@ -57,7 +57,8 @@ public class TransactionService {
         if (user == null) return null;
 
         PaypalHelper.PaypalPayment payment = paypalHelper.createPaypalTransaction(amount, redirectUrls);
-        Transaction transaction = new Transaction(user, amount, payment.getState(), payment.getSku(), payment.getTitle());
+        Transaction transaction = new Transaction(
+                user, amount, payment.getState(), payment.getSku(), Transaction.Reason.TOP_UP);
 
         ObjectNode meta = Json.newObject();
         meta.put("paypal", payment.getMeta());
