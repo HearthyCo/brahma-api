@@ -204,11 +204,7 @@ public class SessionService {
         if (user.getBalance() < price) return null;
         user.setBalance(user.getBalance() - price);
 
-        // Add transaction
-        String reason = "Payment session " + title;
-        Transaction transaction = new Transaction(user, price * -1, Transaction.State.APPROVED, null, reason);
-        transactionDao.create(transaction);
-
+        // Create session
         Session session = new Session(service, title, startDate, state);
         SessionUser sessionUser = new SessionUser(user, session);
 
@@ -235,6 +231,10 @@ public class SessionService {
 
         sessionDao.create(session);
         sessionUserDao.create(sessionUser);
+
+        // Add transaction
+        Transaction transaction = new Transaction(user, session);
+        transactionDao.create(transaction);
 
         return session;
     }
@@ -372,12 +372,11 @@ public class SessionService {
               - All Client participants must have a report set
               - The user initiating the action must be on the session
               - There must be at least one paying user and one earning user
-              - All paying users must have enough balance
             This action will perform the following modifications:
               - The state will be set to FINISHED and its timestamp updated to NOW
-              - All Client participants will get the ServiceType price deducted from their balance
               - All Professional participants with a Service set on their respective SessionUser
                 will get their earnings added to their balance
+            NOTE: No balance will be deducted from the paying clients: they have payed already to start the session.
          */
 
         // Precondition checks
@@ -394,8 +393,10 @@ public class SessionService {
             if (user.getUserType().equals("client")) {
                 if (sessionUser.getReport() == null || sessionUser.getReport().length() == 0)
                     throw new InvalidStateException("Client without report", User.class, user.getId());
+                /*
                 if (user.getBalance() < session.getServiceType().getPrice())
                     throw new InvalidStateException("Client without enough balance", User.class, user.getId());
+                */
                 payers.add(sessionUser);
             } else if (user.getUserType().equals("professional")) {
                 if (sessionUser.getService() != null) earners.add(sessionUser);
@@ -407,10 +408,12 @@ public class SessionService {
             throw new InvalidStateException("Session without any Professionals on Service", Session.class, sessionId);
 
         // Everything seems fine. Apply changes.
+        /*
         for (SessionUser payer: payers) {
             Transaction transaction = new Transaction(payer.getUser(), session);
             transactionDao.create(transaction);
         }
+        */
         for (SessionUser earner: earners) {
             Transaction transaction = new Transaction(earner.getUser(), session, earner.getService());
             transactionDao.create(transaction);
