@@ -10,6 +10,7 @@ import gl.glue.brahma.model.sessionuser.SessionUser;
 import gl.glue.brahma.model.user.Client;
 import gl.glue.brahma.model.user.Professional;
 import gl.glue.brahma.model.user.User;
+import gl.glue.brahma.service.ServiceService;
 import gl.glue.brahma.service.SessionService;
 import gl.glue.brahma.service.UserService;
 import gl.glue.brahma.util.JsonUtils;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
 public class SessionController extends Controller {
 
     private static SessionService sessionService = new SessionService();
+    private static ServiceService serviceService = new ServiceService();
     private static UserService userService = new UserService();
 
     /**
@@ -337,7 +339,8 @@ public class SessionController extends Controller {
         sessionRet.put("isNew", true);
 
         result = Json.newObject();
-        result.put("session", sessionRet);
+        result.putPOJO("session", sessionRet);
+        result.putPOJO("servicetypes", Json.toJson(serviceService.getAllServiceTypes()));
         SignatureHelper.addSignatures(result, uid);
         return ok(result);
     }
