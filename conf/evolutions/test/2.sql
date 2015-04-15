@@ -27,7 +27,8 @@ INSERT INTO "user" (id, type, manager_user_id, tutor_user_id, collective_collect
   (90009, 'PROFESSIONAL', 90007, null, null, 90601, 'testhired2@glue.gl', '$2a$10$nDkLcWlv7BlDY0u/DlYFMOPQvoerzbnqd.QAMNYDz2N5b8DxHLG.W', 'BANNED', 'Test', 'Hired', 'User2', '1970-03-25', '55555555Z', 'MALE', 9000, '{}'),
   (90010, 'ADMIN', null, null, null, null, 'testadmin1@glue.gl', '$2a$10$WsjgBbDB0uILyHoz7U7qIuTmWueom1f5AQ9fzlRlrQS1jtO9oeday', 'CONFIRMED', 'Test', 'Admin', 'User1', '1951-01-01', '98765432J', 'MALE', 0, '{}'),
   (90011, 'ADMIN', null, null, null, null, 'testadminbanned@glue.gl', '$2a$10$WsjgBbDB0uILyHoz7U7qIuTmWueom1f5AQ9fzlRlrQS1jtO9oeday', 'BANNED', 'Test', 'Admin', 'Banned', '1950-01-01', '98765432K', 'FEMALE', 0, '{}'),
-  (90012, 'CLIENT', null, null, null, null, 'testclientbanned@glue.gl', '$2a$10$WsjgBbDB0uILyHoz7U7qIuTmWueom1f5AQ9fzlRlrQS1jtO9oeday', 'BANNED', 'Test', 'Client', 'Banned', '1954-01-01', '98765432L', 'MALE', 0, '{}');
+  (90012, 'CLIENT', null, null, null, null, 'testclientbanned@glue.gl', '$2a$10$WsjgBbDB0uILyHoz7U7qIuTmWueom1f5AQ9fzlRlrQS1jtO9oeday', 'BANNED', 'Test', 'Client', 'Banned', '1954-01-01', '98765432L', 'MALE', 0, '{}'),
+  (90013, 'CLIENT', null, null, null, null, 'testclientunconfirmed@glue.gl', '$2a$10$OhU6mWVOW91l2.zFvZJKQehvntnGGnIBBn9nGP/NjTUbmvlCyQdZ2', 'UNCONFIRMED', 'Test', 'Client', 'Unconfirmed', '1955-05-05', '98765432M', 'FEMALE', 0, '{"confirm":{"mail":{"hash":"mbqbvTRBFwr6IaU8kgNCMFWwwc1fSxnj","expires":1600000000000},"password":{"hash":"mbqbvTRBFwr6IaU8kgNCMFWwwc1fSxnj","expires":1600000000000}}}');
 
 INSERT INTO field (id, name) VALUES
   (90200, 'General');

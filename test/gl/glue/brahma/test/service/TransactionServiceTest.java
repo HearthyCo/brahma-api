@@ -20,6 +20,12 @@ public class TransactionServiceTest extends TransactionalTest {
     private TransactionService transactionService = new TransactionService();
     private UserService userService = new UserService();
 
+    @Test
+    public void getTransactionOk() {
+        Transaction transaction = transactionService.getTransaction(91301);
+        assertEquals(-1000, transaction.getAmount());
+    }
+
     @Test // Request sessions with valid user Authentication
     public void requestBalanceOk() {
         int uid = 90000;

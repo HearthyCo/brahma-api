@@ -1,8 +1,10 @@
 package gl.glue.brahma.test.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import gl.glue.brahma.model.user.Client;
 import gl.glue.brahma.model.user.User;
 import gl.glue.brahma.service.UserService;
+import play.libs.Json;
 import utils.TransactionalTest;
 import org.junit.Test;
 import play.db.jpa.JPA;
@@ -83,6 +85,40 @@ public class UserServiceTest extends TransactionalTest {
     public void testLoginBlockedUser() {
         User ret = userService.login("testPet1@glue.gl", "testPet1");
         assertNull(ret);
+    }
+
+    @Test
+    public void testConfirmMailOk() {
+        boolean confirm = userService.confirmMail(90013, "mbqbvTRBFwr6IaU8kgNCMFWwwc1fSxnj");
+        assertTrue(confirm);
+        User user = userService.getByEmail("testClientUnconfirmed@glue.gl");
+        assertEquals(User.State.CONFIRMED, user.getState());
+    }
+
+    @Test
+    public void testConfirmMailBadHash() {
+        boolean confirm = userService.confirmMail(90013, "bad-hash");
+        assertFalse(confirm);
+        User user = userService.getByEmail("testClientUnconfirmed@glue.gl");
+        assertEquals(User.State.UNCONFIRMED, user.getState());
+    }
+
+    @Test
+    public void testRequestPasswordChangeOk() {
+        User user = userService.requestPasswordChange("testclient1@glue.gl");
+        JsonNode meta = Json.parse(user.getMeta().toString()); // Prevent POJOs from messing with us
+        String hash = meta.get("confirm").get("password").get("hash").asText();
+        assertNotNull(hash);
+    }
+
+    @Test
+    public void testConfirmPasswordChangeOk() {
+        String email = "testClientUnconfirmed@glue.gl";
+        String newPass = "new-password";
+        boolean res = userService.confirmPasswordChange(90013, "mbqbvTRBFwr6IaU8kgNCMFWwwc1fSxnj", newPass);
+        assertTrue(res);
+        User login = userService.login(email, newPass);
+        assertNotNull(login);
     }
 
 }
