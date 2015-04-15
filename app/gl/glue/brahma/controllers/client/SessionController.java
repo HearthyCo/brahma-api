@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.model.sessionuser.SessionUser;
 import gl.glue.brahma.model.user.Client;
-import gl.glue.brahma.model.user.Professional;
 import gl.glue.brahma.model.user.User;
 import gl.glue.brahma.service.ServiceService;
 import gl.glue.brahma.service.SessionService;
@@ -148,10 +147,10 @@ public class SessionController extends Controller {
     @ClientAuth
     @Transactional
     @BodyParser.Of(BodyParser.Json.class)
-    public static Result getAllState() {
+    public static Result getSessions() {
         int uid = Integer.parseInt(session("id"));
 
-        List<SessionUser> sessionUsers = sessionService.getAllState(uid);
+        List<SessionUser> sessionUsers = sessionService.getSessions(uid);
         if (sessionUsers == null) return status(404, JsonUtils.simpleError("404", "Invalid identifier"));
 
         ArrayNode sessions = new ArrayNode(JsonNodeFactory.instance);

@@ -114,12 +114,11 @@ public class SessionService {
 
     /**
      * Search sessions with state passed
-     * @param state Session State to search
      * @param uid User Login to search
      * @return Object array list with sessions with state passed
      */
     @Transactional
-    public List<SessionUser> getAllState(int uid) {
+    public List<SessionUser> getSessions(int uid) {
         return getState("all", uid);
     }
 
@@ -417,6 +416,10 @@ public class SessionService {
         for (SessionUser earner: earners) {
             Transaction transaction = new Transaction(earner.getUser(), session, earner.getService());
             transactionDao.create(transaction);
+            // Update the balance
+            int balance = earner.getUser().getBalance();
+            balance += earner.getService().getEarnings();
+            earner.getUser().setBalance(balance);
         }
         session.setState(Session.State.FINISHED);
         session.setTimestamp(new Date());
@@ -436,12 +439,15 @@ public class SessionService {
     public SessionUser setReport(int sessionUserId, int userId, String report) {
         SessionUser sessionUser = sessionUserDao.findById(sessionUserId);
         Session session = getById(sessionUser.getSession().getId(), userId);
-        if (session == null) return null;
+        if (session == null)
+            throw new TargetNotFoundException(SessionUser.class, sessionUserId);
         if (!EnumSet.of(Session.State.UNDERWAY, Session.State.CLOSED).contains(session.getState())) {
-            return null;
+            throw new InvalidStateException("Session not closed or underway", Session.class, session.getId());
         }
         sessionUser.setReport(report);
         return sessionUser;
     }
+
+
 
 }

@@ -3,9 +3,12 @@ package gl.glue.brahma.test.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import gl.glue.brahma.exceptions.InvalidStateException;
+import gl.glue.brahma.exceptions.TargetNotFoundException;
 import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.model.sessionuser.SessionUser;
 import gl.glue.brahma.service.SessionService;
+import gl.glue.brahma.service.UserService;
 import play.Logger;
 import utils.FakePaypalHelper;
 import utils.FakeRedisHelper;
@@ -22,6 +25,7 @@ import static org.junit.Assert.*;
 public class SessionServiceTest extends TransactionalTest {
 
     private SessionService sessionService = new SessionService();
+    private UserService userService = new UserService();
 
     @Test // Request with invalid user Authentication. User uid = 1 is an invalid user
     public void requestNewSessionWithInvalidAuthentication() {
@@ -105,7 +109,7 @@ public class SessionServiceTest extends TransactionalTest {
         int uid = 90000;
         List<SessionUser> result = sessionService.getState(state, uid);
         assertNotNull(result);
-        assertEquals(2, result.size());
+        assertEquals(3, result.size());
         for (SessionUser session : result) {
             String stateName = session.getSession().getState().name();
             assertTrue(stateName.equals("CLOSED") || stateName.equals("FINISHED"));
@@ -198,6 +202,97 @@ public class SessionServiceTest extends TransactionalTest {
             assertEquals(Json.parse(message), chatMessage);
         }
         fakeRedisHelper.clearAll();
+    }
+
+    @Test
+    public void closeOk() {
+        int sessionId = 90714;
+        int userId = 90005;
+        Session session = sessionService.close(sessionId, userId);
+        assertNotNull(session);
+        assertEquals(Session.State.CLOSED, session.getState());
+    }
+
+    @Test(expected = TargetNotFoundException.class)
+    public void closeNotParticipating() {
+        int sessionId = 90714;
+        int userId = 90006;
+        sessionService.close(sessionId, userId);
+    }
+
+    @Test(expected = InvalidStateException.class)
+    public void closeBadState() {
+        int sessionId = 90709;
+        int userId = 90008;
+        sessionService.close(sessionId, userId);
+    }
+
+    @Test
+    public void setReportOk() {
+        int sessionUserId = 91619;
+        int userId = 90005;
+        String report = "test-report";
+        SessionUser sessionUser = sessionService.setReport(sessionUserId, userId, report);
+        assertNotNull(sessionUser);
+        assertEquals(report, sessionUser.getReport());
+    }
+
+    @Test(expected = TargetNotFoundException.class)
+    public void setReportNotPeer() {
+        int sessionUserId = 91604;
+        int userId = 90005;
+        String report = "test-report";
+        sessionService.setReport(sessionUserId, userId, report);
+    }
+
+    @Test(expected = InvalidStateException.class)
+    public void setReportBadState() {
+        int sessionUserId = 91600;
+        int userId = 90005;
+        String report = "test-report";
+        sessionService.setReport(sessionUserId, userId, report);
+    }
+
+    @Test
+    public void finishOk() {
+        int sessionId = 90715;
+        int userId = 90005;
+        Session session = sessionService.finish(sessionId, userId);
+        assertNotNull(session);
+        assertEquals(Session.State.FINISHED, session.getState());
+        // The user balance should be the initial balance (2300), plus
+        // the earnings from the service 90401 (900).
+        assertEquals(2300 + 900, userService.getById(userId).getBalance());
+        // Client (user 90000) should have the same balance (20000000)
+        assertEquals(20000000, userService.getById(90000).getBalance());
+    }
+
+    @Test(expected = TargetNotFoundException.class)
+    public void finishNotParticipating() {
+        int sessionId = 90715;
+        int userId = 90008;
+        sessionService.finish(sessionId, userId);
+    }
+
+    @Test(expected = InvalidStateException.class)
+    public void finishNotClosed() {
+        int sessionId = 90714;
+        int userId = 90005;
+        sessionService.finish(sessionId, userId);
+    }
+
+    @Test(expected = InvalidStateException.class)
+    public void finishNotClient() {
+        int sessionId = 90709;
+        int userId = 90008;
+        sessionService.finish(sessionId, userId);
+    }
+
+    @Test
+    public void getSessionsOk() {
+        List<SessionUser> sessions = sessionService.getSessions(90001);
+        // User 90001 participates in 4 sessions, but this method skips cancelled ones.
+        assertEquals(3, sessions.size());
     }
 
 }
