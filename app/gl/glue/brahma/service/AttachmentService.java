@@ -9,7 +9,9 @@ import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.model.session.SessionDao;
 import gl.glue.brahma.model.user.User;
 import gl.glue.brahma.model.user.UserDao;
+import gl.glue.brahma.plugins.StoragePlugin;
 import gl.glue.play.amqp.Controller;
+import play.Play;
 import play.db.jpa.Transactional;
 import play.libs.Json;
 import gl.glue.brahma.plugins.S3Plugin;
@@ -26,15 +28,15 @@ public class AttachmentService {
     private AttachmentDao attachmentDao= new AttachmentDao();
     private SessionDao sessionDao = new SessionDao();
     private UserDao userDao = new UserDao();
+    private StoragePlugin storagePlugin = Play.application().plugin(S3Plugin.class);
+
+    public void setStoragePlugin(StoragePlugin storagePlugin) {
+        this.storagePlugin = storagePlugin;
+    }
 
     @Transactional
     public Attachment getById(int id) {
         return attachmentDao.getById(id);
-    }
-
-    @Transactional
-    public void create(Attachment attachment) {
-        attachmentDao.create(attachment);
     }
 
     @Transactional
@@ -69,19 +71,19 @@ public class AttachmentService {
         userMetadata.put("sessionId", Integer.toString(sessionId));
 
         // Upload
-        PutObjectRequest putObjectRequest = S3Plugin.putFile(key, file, userMetadata);
+        String mime = storagePlugin.putFile(key, file, userMetadata);
         if (thumb != null) {
-            S3Plugin.putFile(key + "_thumb", thumb, userMetadata);
+            storagePlugin.putFile(key + "_thumb", thumb, userMetadata);
         }
 
         // Finally add to DB
         Attachment attachment = new Attachment();
         attachment.setUser(user);
         attachment.setSession(session);
-        attachment.setUrl(S3Plugin.key2url(key));
+        attachment.setUrl(storagePlugin.key2url(key));
         attachment.setFilename(filename);
         attachment.setSize((int) file.length());
-        attachment.setMime(putObjectRequest.getMetadata().getContentType());
+        attachment.setMime(mime);
         attachment.setHasThumb(thumb != null);
         attachmentDao.create(attachment);
 

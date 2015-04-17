@@ -15,7 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-public class S3Plugin extends Plugin {
+public class S3Plugin extends Plugin implements StoragePlugin {
 
     public static final String AWS_S3_BUCKET = "aws.s3.bucket";
     public static final String AWS_ACCESS_KEY = "aws.access.key";
@@ -48,18 +48,21 @@ public class S3Plugin extends Plugin {
                 application.configuration().keys().contains(AWS_S3_BUCKET));
     }
 
-    public static String key2url(String key) {
+    @Override
+    public String key2url(String key) {
         return "https://s3.amazonaws.com/" + s3Bucket + "/" + key;
     }
 
-    public static String url2key(String url) {
+    @Override
+    public String url2key(String url) {
         String prefix = key2url("");
         if (url.length() <= prefix.length()) return null;
         if (!prefix.equals(url.substring(0, prefix.length()))) return null;
         return url.substring(prefix.length());
     }
 
-    public static PutObjectRequest putFile(String key, File file, Map<String, String> userMetadata) {
+    @Override
+    public String putFile(String key, File file, Map<String, String> userMetadata) {
         PutObjectRequest putObjectRequest = new PutObjectRequest(s3Bucket, key, file);
         ObjectMetadata meta = putObjectRequest.getMetadata();
         if (meta == null) {
@@ -73,10 +76,11 @@ public class S3Plugin extends Plugin {
         putObjectRequest.withCannedAcl(CannedAccessControlList.PublicRead); // public for all
         amazonS3.putObject(putObjectRequest);
 
-        return  putObjectRequest;
+        return  putObjectRequest.getMetadata().getContentType();
     }
 
-    public static void removeFile(String key) {
+    @Override
+    public void removeFile(String key) {
         amazonS3.deleteObject(s3Bucket, key);
     }
 

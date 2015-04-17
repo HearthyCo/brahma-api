@@ -6,8 +6,10 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import gl.glue.brahma.model.user.User;
 import gl.glue.brahma.model.user.UserDao;
+import gl.glue.brahma.plugins.StoragePlugin;
 import gl.glue.brahma.util.Notificator;
 import org.apache.commons.lang3.RandomStringUtils;
+import play.Play;
 import play.db.jpa.JPA;
 import play.db.jpa.Transactional;
 import play.libs.Json;
@@ -25,9 +27,14 @@ public class UserService {
 
     private UserDao userDao = new UserDao();
     private static Config conf = null;
+    private StoragePlugin storagePlugin = Play.application().plugin(S3Plugin.class);
 
     static {
         conf = ConfigFactory.load();
+    }
+
+    public void setStoragePlugin(StoragePlugin storagePlugin) {
+        this.storagePlugin = storagePlugin;
     }
 
     @Transactional
@@ -125,8 +132,8 @@ public class UserService {
 
         // If the user has one already, invalidate it!
         if (user.getAvatar() != null) {
-            String oldKey = S3Plugin.url2key(user.getAvatar());
-            if (oldKey != null) S3Plugin.removeFile(oldKey);
+            String oldKey = storagePlugin.url2key(user.getAvatar());
+            if (oldKey != null) storagePlugin.removeFile(oldKey);
         }
 
         // Generate a random-looking key using a SHA-256 hash and base64encoding it
@@ -147,8 +154,8 @@ public class UserService {
         userMetadata.put("userId", Integer.toString(uid));
 
         // Upload
-        S3Plugin.putFile(key, file, userMetadata);
-        String url = S3Plugin.key2url(key);
+        storagePlugin.putFile(key, file, userMetadata);
+        String url = storagePlugin.key2url(key);
 
         user.setAvatar(url);
         return user;
