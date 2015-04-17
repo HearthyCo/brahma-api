@@ -6,6 +6,8 @@ import gl.glue.brahma.model.transaction.TransactionDao;
 import gl.glue.brahma.model.user.User;
 import gl.glue.brahma.model.user.UserDao;
 import gl.glue.brahma.util.PaypalHelper;
+import gl.glue.brahma.util.PaypalHelperSdk;
+import gl.glue.brahma.util.PaypalPayment;
 import play.db.jpa.Transactional;
 import play.libs.Json;
 
@@ -15,7 +17,7 @@ public class TransactionService {
 
     private UserDao userDao = new UserDao();
     private TransactionDao transactionDao = new TransactionDao();
-    private PaypalHelper paypalHelper = new PaypalHelper();
+    private PaypalHelper paypalHelper = new PaypalHelperSdk();
 
     /**
      * Service for find in transaction in database
@@ -56,7 +58,7 @@ public class TransactionService {
         User user = userDao.findById(uid);
         if (user == null) return null;
 
-        PaypalHelper.PaypalPayment payment = paypalHelper.createPaypalTransaction(amount, redirectUrls);
+        PaypalPayment payment = paypalHelper.createPaypalTransaction(amount, redirectUrls);
         Transaction transaction = new Transaction(
                 user, amount, payment.getState(), payment.getSku(), Transaction.Reason.TOP_UP);
 
@@ -80,7 +82,7 @@ public class TransactionService {
         Transaction transaction = transactionDao.getBySku(paypalId);
         if(transaction.getState() != Transaction.State.INPROGRESS) return null;
 
-        PaypalHelper.PaypalPayment payment = paypalHelper.executePaypalTransaction(paypalId, payerId);
+        PaypalPayment payment = paypalHelper.executePaypalTransaction(paypalId, payerId);
         if (payment == null) return null;
 
         transaction.setState(payment.getState());
@@ -106,7 +108,7 @@ public class TransactionService {
         User user = userDao.findById(uid);
         if (user == null) return null;
 
-        PaypalHelper.PaypalPayment payment = paypalHelper.capturePaypalTransaction(authorizationId, amount);
+        PaypalPayment payment = paypalHelper.capturePaypalTransaction(authorizationId, amount);
         if (payment == null) return null;
 
         Transaction transaction = new Transaction(

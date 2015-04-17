@@ -5,6 +5,7 @@ import gl.glue.brahma.model.transaction.Transaction;
 import gl.glue.brahma.model.user.User;
 import gl.glue.brahma.service.TransactionService;
 import gl.glue.brahma.service.UserService;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import play.libs.Json;
 import utils.FakePaypalHelper;
@@ -17,8 +18,13 @@ import static org.junit.Assert.assertNotNull;
 
 public class TransactionServiceTest extends TransactionalTest {
 
-    private TransactionService transactionService = new TransactionService();
+    private static TransactionService transactionService = new TransactionService();
     private UserService userService = new UserService();
+
+    @BeforeClass
+    public static void setup() {
+        transactionService.setPaypalHelper(new FakePaypalHelper());
+    }
 
     @Test
     public void getTransactionOk() {
@@ -36,7 +42,7 @@ public class TransactionServiceTest extends TransactionalTest {
     }
 
     @Test
-    public void completePaypalTransaction() {
+    public void createAndexecutePaypalTransactionOk() {
         int uid = 90000;
         int amount = 5000;
         ObjectNode rUrls = Json.newObject();
@@ -48,7 +54,6 @@ public class TransactionServiceTest extends TransactionalTest {
         User user = userService.getById(uid);
         int beforeBalance = user.getBalance();
 
-        transactionService.setPaypalHelper(new FakePaypalHelper());
         Transaction transaction = transactionService.createPaypalTransaction(uid, amount, rUrls);
 
         assertEquals(uid, transaction.getUser().getId());
@@ -63,6 +68,18 @@ public class TransactionServiceTest extends TransactionalTest {
         assertEquals(Transaction.State.APPROVED, transaction2.getState());
         assertEquals(beforeBalance + amount, afterBalance);
 
+    }
+
+    @Test
+    public void capturePaypalTransactionOk() {
+        int uid = 90000;
+        int amount = 5000;
+
+        Transaction transaction = transactionService.capturePaypalTransaction(uid, "some-authentication-id", amount);
+
+        assertEquals(uid, transaction.getUser().getId());
+        assertEquals(amount, transaction.getAmount());
+        assertEquals(Transaction.State.APPROVED, transaction.getState());
     }
 
 }

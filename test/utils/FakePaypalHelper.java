@@ -1,17 +1,15 @@
 package utils;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import gl.glue.brahma.model.transaction.Transaction;
 import gl.glue.brahma.util.PaypalHelper;
+import gl.glue.brahma.util.PaypalHelperSdk;
+import gl.glue.brahma.util.PaypalPayment;
 import play.libs.Json;
 
-public class FakePaypalHelper extends PaypalHelper {
-
-    @Override
-    protected void checkToken() {}
+public class FakePaypalHelper implements PaypalHelper {
 
     @Override
     public PaypalPayment createPaypalTransaction(int amount, ObjectNode rUrls) {
@@ -27,6 +25,12 @@ public class FakePaypalHelper extends PaypalHelper {
 
     @Override
     public PaypalPayment executePaypalTransaction(String sku, String payerId) {
+        ObjectNode meta = Json.newObject();
+        return new PaypalPayment("PAY-TEST-SKU", "TOPUP TEST", Transaction.State.APPROVED, meta);
+    }
+
+    @Override
+    public PaypalPayment capturePaypalTransaction(String authorizationId, int amount) {
         ObjectNode meta = Json.newObject();
         return new PaypalPayment("PAY-TEST-SKU", "TOPUP TEST", Transaction.State.APPROVED, meta);
     }
