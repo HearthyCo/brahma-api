@@ -60,7 +60,7 @@ POST           /v1/client/recover/confirm                                       
 POST           /v1/client/me/confirm                                                gl.glue.brahma.controllers.common.UserController.confirmMail()
 
 GET            /v1/client/me/home                                                   gl.glue.brahma.controllers.client.HomeController.getHome()
-GET            /v1/client/me/sessions                                               gl.glue.brahma.controllers.client.SessionController.getAllState()
+GET            /v1/client/me/sessions                                               gl.glue.brahma.controllers.client.SessionController.getSessions()
 GET            /v1/client/me/sessions/$state<(programmed|underway|closed)\b>        gl.glue.brahma.controllers.client.SessionController.getState(state: String)
 GET            /v1/client/me/transactions                                           gl.glue.brahma.controllers.client.TransactionController.getUserTransactions()
 GET            /v1/client/me/history/:section                                       gl.glue.brahma.controllers.client.HistoryController.getHistorySection(section: String)
@@ -80,6 +80,7 @@ GET            /v1/client/services                                              
 POST           /v1/client/transaction                                               gl.glue.brahma.controllers.client.TransactionController.createPaypalTransaction()
 GET            /v1/client/transaction/:id                                           gl.glue.brahma.controllers.common.TransactionController.getTransaction(id: Integer)
 POST           /v1/client/transaction/execute                                       gl.glue.brahma.controllers.client.TransactionController.executePaypalTransaction()
+POST           /v1/client/transaction/capture                                       gl.glue.brahma.controllers.client.TransactionController.capturePaypalTransaction()
 
 ####
 #### PROFESSIONAL ROUTES

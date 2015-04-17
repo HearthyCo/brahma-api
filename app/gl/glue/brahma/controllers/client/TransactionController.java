@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import com.wordnik.swagger.annotations.*;
 import gl.glue.brahma.model.transaction.Transaction;
 import gl.glue.brahma.model.user.User;
 import gl.glue.brahma.service.TransactionService;
@@ -23,6 +24,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Api(value = "/client", description = "User client functions")
 public class TransactionController extends Controller {
 
     private static TransactionService transactionService = new TransactionService();
@@ -285,4 +287,45 @@ public class TransactionController extends Controller {
 
         return ok(result);
     }
+
+    @ApiOperation(nickname = "capturePayment", value = "Capture Paypal payment",
+            notes = "Captures a previously authorized payment from the mobile sdk",
+            httpMethod = "POST")
+    @ApiImplicitParams(value= {
+            @ApiImplicitParam(name = "body", defaultValue = "{\n" +
+                    "  \"authorizationId\": \"7C972545NV475494G\",\n" +
+                    "  \"amount\": 5000\n" +
+                    "}", value="Object with post params", required = true, dataType = "Object", paramType = "body")})
+    @ApiResponses(value = {
+            @ApiResponse(code = 400, message = "Params is missing a required field."),
+            @ApiResponse(code = 401, message = "User is not logged in."),
+            @ApiResponse(code = 403, message = "Unauthorized"),
+            @ApiResponse(code = 412, message = "Error during capture") })
+    @ClientAuth
+    @Transactional
+    @BodyParser.Of(BodyParser.Json.class)
+    public static Result capturePaypalTransaction() {
+        int uid = Integer.parseInt(session("id"));
+
+        JsonNode json = request().body().asJson();
+
+        ObjectNode result = JsonUtils.checkRequiredFields(json, "authorizationId", "amount");
+        if (result != null) return badRequest(result);
+
+        String authorizationId = json.findPath("authorizationId").asText();
+        int amount = json.findPath("amount").asInt();
+
+        Transaction transaction;
+        transaction = transactionService.capturePaypalTransaction(uid, authorizationId, amount);
+
+        if(transaction == null) return status(412, JsonUtils.simpleError("412", "Transaction is not capturable"));
+
+        // Get session with login
+        result = Json.newObject();
+        result.put("transactions", new ArrayNode(JsonNodeFactory.instance).add(Json.toJson(transaction)));
+        result.put("users", new ArrayNode(JsonNodeFactory.instance).add(Json.toJson(transaction.getUser())));
+
+        return ok(result);
+    }
+
 }

@@ -94,4 +94,31 @@ public class TransactionService {
 
         return transaction;
     }
+
+    /**
+     * Service for capturing paypal transactions previously authorized by the mobile sdk
+     * @param authorizationId Paypal authorization identificator
+     * @param amount Amount of credits to capture
+     * @return A valid transaction in approved status
+     */
+    @Transactional
+    public Transaction capturePaypalTransaction(int uid, String authorizationId, int amount) {
+        User user = userDao.findById(uid);
+        if (user == null) return null;
+
+        PaypalHelper.PaypalPayment payment = paypalHelper.capturePaypalTransaction(authorizationId, amount);
+        if (payment == null) return null;
+
+        Transaction transaction = new Transaction(
+                user, amount, payment.getState(), payment.getSku(), Transaction.Reason.TOP_UP);
+        transactionDao.create(transaction);
+
+        ObjectNode meta = (ObjectNode) transaction.getMeta();
+        meta.put("paypal", payment.getMeta());
+        transaction.setMeta(meta);
+
+        user.setBalance(transactionDao.getUserBalance(user.getId()));
+
+        return transaction;
+    }
 }

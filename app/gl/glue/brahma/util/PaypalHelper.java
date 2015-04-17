@@ -73,6 +73,7 @@ public class PaypalHelper {
         // Initialize brahma dictionary states
         paypalStateTranslator.put("created", Transaction.State.INPROGRESS);
         paypalStateTranslator.put("approved", Transaction.State.APPROVED);
+        paypalStateTranslator.put("completed", Transaction.State.APPROVED);
         paypalStateTranslator.put("failed", Transaction.State.FAILED);
         paypalStateTranslator.put("cancelled", Transaction.State.FAILED);
         paypalStateTranslator.put("expired", Transaction.State.FAILED);
@@ -192,6 +193,42 @@ public class PaypalHelper {
                     conf.getString("paypal.reason"),
                     paypalStateTranslator.get(payment.getState()),
                     Json.toJson(payment));
+
+        } catch (PayPalRESTException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+
+    }
+
+    /**
+     * Capture a payment previously authorized by the mobile sdk
+     * @param authorizationId The id of the authorization
+     * @return PaypalPayment in approved status
+     */
+    public PaypalPayment capturePaypalTransaction(String authorizationId, int amount) {
+        checkToken();
+        APIContext apiContext = new APIContext(contextToken);
+        apiContext.setConfigurationMap(sdkConfig);
+
+        String formattedAmount = String.valueOf(amount / 100);
+        Capture capture = new Capture();
+        capture.setAmount(new Amount(conf.getString("paypal.currency"), formattedAmount));
+        capture.setIsFinalCapture(true);
+
+        try {
+            Authorization authorization = new Authorization();
+            authorization.setId(authorizationId);
+            capture = authorization.capture(apiContext, capture);
+            System.out.println(capture.toJSON());
+            System.out.println(paypalStateTranslator.get(capture.getState()));
+
+            return new PaypalPayment(
+                    capture.getId(),
+                    conf.getString("paypal.reason"),
+                    paypalStateTranslator.get(capture.getState()),
+                    Json.toJson(capture));
 
         } catch (PayPalRESTException e) {
             e.printStackTrace();

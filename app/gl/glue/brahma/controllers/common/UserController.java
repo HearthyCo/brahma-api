@@ -37,7 +37,7 @@ public class UserController extends Controller {
     @BodyParser.Of(BodyParser.Json.class)
     public static Result getMe() {
         User user = userService.getById(Integer.parseInt(session("id")));
-
+        if (user == null) return status(401, JsonUtils.simpleError("401", "Invalid authentication"));
         if (user.isLocked()) return status(403, JsonUtils.simpleError("403", "Banned or removed user"));
 
         ObjectNode result = Json.newObject();
