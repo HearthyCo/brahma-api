@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import gl.glue.brahma.model.availability.Availability;
+import gl.glue.brahma.model.availability.AvailabilityDao;
 import gl.glue.brahma.model.user.User;
 import gl.glue.brahma.model.user.UserDao;
 import gl.glue.brahma.plugins.StoragePlugin;

@@ -5,8 +5,20 @@ import gl.glue.brahma.model.user.Professional;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.Calendar;
 import java.util.Date;
 
+@NamedQueries({
+
+        @NamedQuery(
+                name = "Availability.findByUser",
+                query = "select availability " +
+                        "from Availability availability " +
+                        "where availability.user.id = :uid " +
+                        "order by availability.id"
+        )
+
+})
 @Entity
 public class Availability {
 
@@ -33,6 +45,15 @@ public class Availability {
     private Date scheduleEndTime;
 
     private int repeat;
+
+    public Availability() {
+        setRepeatStartDate(new Date());
+    }
+
+    public Availability(Professional user) {
+        setRepeatStartDate(new Date());
+        this.user = user;
+    }
 
     public int getId() {
         return id;
@@ -66,18 +87,25 @@ public class Availability {
         return scheduleStartTime;
     }
 
-    public void setScheduleStartTime(Date scheduleStartTime) {
-        this.scheduleStartTime = scheduleStartTime;
+    public void setScheduleStartTime(int hours, int minutes) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR, hours);
+        calendar.set(Calendar.MINUTE, minutes);
+        this.scheduleStartTime = calendar.getTime();
     }
 
     public Date getScheduleEndTime() {
         return scheduleEndTime;
     }
 
-    public void setScheduleEndTime(Date scheduleEndTime) {
-        this.scheduleEndTime = scheduleEndTime;
+    public void setScheduleEndTime(int hours, int minutes) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR, hours);
+        calendar.set(Calendar.MINUTE, minutes);
+        this.scheduleEndTime = calendar.getTime();
     }
 
+    // The repeat field is a bitmap in which the 7 lower bits correspond to each day of the week (starting with Mon).
     public int getRepeat() {
         return repeat;
     }
