@@ -86,8 +86,19 @@ import java.util.Date;
                         "and sessionUser.user.id = :uid " +
                         "and service.serviceType.id = :serviceTypeId " +
                         "order by session.timestamp desc"
+        ),
+        @NamedQuery(
+                name = "Session.getSessionsParticipants",
+                query = "select sessionUser.session.id, sessionUser.user.id " +
+                        "from SessionUser sessionUser " +
+                        "where sessionUser.session.state in :states"
+        ),
+        @NamedQuery(
+                name = "Session.getSessionParticipants",
+                query = "select sessionUser.user.id " +
+                        "from SessionUser sessionUser " +
+                        "where sessionUser.session.id = :id"
         )
-
 
 })
 @Entity

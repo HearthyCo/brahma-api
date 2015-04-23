@@ -5,10 +5,7 @@ import play.db.jpa.JPA;
 
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class SessionDao {
 
@@ -164,6 +161,32 @@ public class SessionDao {
     public List<Integer> findIdsByUser(int uid) {
         return JPA.em().createNamedQuery("Session.findIdsByUser", Integer.class)
                 .setParameter("uid", uid)
+                .getResultList();
+    }
+
+    /**
+     * Returns a map of all the currently open sessions to their participants.
+     */
+    public Map<Integer, List<Integer>> getSessionsParticipants(Set<Session.State> states) {
+        Map<Integer, List<Integer>> ret = new LinkedHashMap<>();
+        List<Object[]> participations = JPA.em().createNamedQuery("Session.getSessionsParticipants", Object[].class)
+                .setParameter("states", states)
+                .getResultList();
+        for (Object[] participation: participations) {
+            int sessionId = (Integer)participation[0];
+            int userId = (Integer)participation[1];
+            if (!ret.containsKey(sessionId)) ret.put(sessionId, new ArrayList<>());
+            ret.get(sessionId).add(userId);
+        }
+        return ret;
+    }
+
+    /**
+     * Returns a list of participants of the specified session.
+     */
+    public List<Integer> getSessionParticipants(int sessionId) {
+        return JPA.em().createNamedQuery("Session.getSessionParticipants", Integer.class)
+                .setParameter("id", sessionId)
                 .getResultList();
     }
 

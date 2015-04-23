@@ -295,4 +295,26 @@ public class SessionServiceTest extends TransactionalTest {
         assertEquals(3, sessions.size());
     }
 
+    @Test
+    public void getCurrentSessionsParticipantsOk() {
+        Map<Integer, List<Integer>> participants = sessionService.getCurrentSessionsParticipants();
+        assertNotNull(participants);
+        assertEquals(3, participants.size());
+        assertTrue(participants.containsKey(90712));
+        assertTrue(participants.containsKey(90713));
+        assertTrue(participants.containsKey(90714));
+        List<Integer> uids = participants.get(90714);
+        assertEquals(2, uids.size());
+        assertTrue(uids.contains(90000));
+        assertTrue(uids.contains(90005));
+    }
+
+    @Test
+    public void getSessionParticipantsOk() {
+        List<Integer> uids = sessionService.getSessionParticipants(90714);
+        assertEquals(2, uids.size());
+        assertTrue(uids.contains(90000));
+        assertTrue(uids.contains(90005));
+    }
+
 }

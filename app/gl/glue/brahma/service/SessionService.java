@@ -235,6 +235,17 @@ public class SessionService {
         Transaction transaction = new Transaction(user, session);
         transactionDao.create(transaction);
 
+        Controller.sendMessage("session.users",
+                Json.newObject()
+                        .put("id", session.getId())
+                        .putPOJO("userIds", Json.toJson(getSessionParticipants(session.getId())))
+                        .toString());
+
+        Controller.sendMessage("sessions.pools",
+                Json.newObject()
+                        .putPOJO("serviceTypes", Json.toJson(getPoolsSize()))
+                        .toString());
+
         return session;
     }
 
@@ -292,6 +303,18 @@ public class SessionService {
         sessionUserDao.create(sessionUser);
 
         session.setState(Session.State.UNDERWAY);
+
+        Controller.sendMessage("session.users",
+                Json.newObject()
+                        .put("id", session.getId())
+                        .putPOJO("userIds", Json.toJson(getSessionParticipants(session.getId())))
+                        .toString());
+
+        Controller.sendMessage("sessions.pools",
+                Json.newObject()
+                        .putPOJO("serviceTypes", Json.toJson(getPoolsSize()))
+                        .toString());
+
         return session;
     }
 
@@ -448,6 +471,18 @@ public class SessionService {
         return sessionUser;
     }
 
+    /**
+     * Returns a map of all the currently open sessions to their participants.
+     */
+    public Map<Integer, List<Integer>> getCurrentSessionsParticipants() {
+        return sessionDao.getSessionsParticipants(EnumSet.of(Session.State.REQUESTED, Session.State.UNDERWAY));
+    }
 
+    /**
+     * Returns a list of participants of the specified session.
+     */
+    public List<Integer> getSessionParticipants(int sessionId) {
+        return sessionDao.getSessionParticipants(sessionId);
+    }
 
 }

@@ -29,7 +29,10 @@ public class Router {
          */
         public Route(String pattern) {
             String realPattern = "";
+            boolean isFirst = true;
             for (String s: pattern.split("\\.")) {
+                if (isFirst) isFirst = false;
+                else realPattern += "\\.";
                 if (s.equals("*")) realPattern += "[^.]*";
                 else if (s.equals("#")) realPattern += ".*";
                 else realPattern += Pattern.quote(s);
