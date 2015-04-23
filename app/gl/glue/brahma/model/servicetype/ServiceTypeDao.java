@@ -34,15 +34,6 @@ public class ServiceTypeDao {
      * Find services in database fetch serviceTypes
      * @return List of services
      */
-    public List<ServiceType> findServiceTypes(int uid) {
-        return JPA.em().createNamedQuery("ServiceType.findUserServiceTypes", ServiceType.class)
-                .getResultList();
-    }
-
-    /**
-     * Find services in database fetch serviceTypes
-     * @return List of services
-     */
     public List<ServiceType> findServiceTypesByField(int fid) {
         return JPA.em().createNamedQuery("ServiceType.findServiceTypesByField", ServiceType.class)
                 .setParameter("fid", fid)

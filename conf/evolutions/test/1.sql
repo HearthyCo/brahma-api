@@ -104,12 +104,13 @@ CREATE TABLE IF NOT EXISTS field (
 );
 
 CREATE TABLE IF NOT EXISTS service_type (
-  id       SERIAL       NOT NULL,
-  field_id INT          NOT NULL,
-  price    INT          NOT NULL,
-  name     TEXT         NOT NULL,
-  mode     service_mode NOT NULL,
-  poolsize INT          NOT NULL,
+  id        SERIAL       NOT NULL,
+  field_id  INT          NOT NULL,
+  price     INT          NOT NULL,
+  name      TEXT         NOT NULL,
+  mode      service_mode NOT NULL,
+  poolsize  INT          NULL,
+  userlimit INT          NULL,
   PRIMARY KEY (id),
   CONSTRAINT fk_service_type_field1
   FOREIGN KEY (field_id)

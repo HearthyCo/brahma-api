@@ -176,9 +176,14 @@ public class SessionServiceTest extends TransactionalTest {
         assertNotNull(session);
         JPA.em().flush();
 
-        // There should be only one session in queue for this pool.
-        Session session2 = sessionService.assignSessionFromPool(uid, 90302);
-        assertNull(session2);
+        // We're not using the classic "expected=..." here because we want to make sure that
+        // the exception is thrown on this specific line, and not above.
+        try {
+            sessionService.assignSessionFromPool(uid, 90302);
+            assertTrue(false); // If no exception is thrown, fail the test
+        } catch (InvalidStateException e) {
+            // Everything is fine
+        }
     }
 
     @Test

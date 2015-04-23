@@ -47,11 +47,11 @@ public class SessionDao {
 
 
     /**
-     * Search in database all sessions with state passed
-     * @param states States allowed to search
-     * @param uid User login to filter query
-     * @param limit Number for limit query
-     * @return List Object[] (id, title, startDate, isNew) with all sessions grouped by state.
+     * Finds all the sessions of a user on some specified states, up to a maximum.
+     * @param states Target states
+     * @param uid Target user
+     * @param limit Max number of results returned, or 0 for no limit.
+     * @return List of the matching SessionUsers.
      */
     public List<SessionUser> findByState(Set<Session.State> states, int uid, int limit) {
         String query = "Session.findByStateSortTS";
@@ -89,15 +89,17 @@ public class SessionDao {
     }
 
     /**
-     * Find the number of sessions in the specified state for a given user.
-     * @param states States to include in the count.
+     * Find the number of sessions in the specified state and service type for a given user.
      * @param uid Target user id.
+     * @param states States to include in the count.
+     * @param stid Service Type id to filter by.
      * @return The number of sessions found.
      */
-    public int countByState(Set<Session.State> states, int uid) {
-        return JPA.em().createNamedQuery("Session.countByState", Long.class)
-                .setParameter("states", states)
+    public int countByStateAndType(int uid, Set<Session.State> states, int stid) {
+        return JPA.em().createNamedQuery("Session.countByStateAndType", Long.class)
                 .setParameter("uid", uid)
+                .setParameter("states", states)
+                .setParameter("stid", stid)
                 .getSingleResult()
                 .intValue();
     }

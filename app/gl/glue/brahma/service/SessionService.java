@@ -38,7 +38,6 @@ public class SessionService {
     private static Config conf = ConfigFactory.load();
 
     private static final int MAX_RESULTS = 2;
-    private static final int MAX_SESSIONS_PER_PROFESSIONAL = 10;
     private UserDao userDao = new UserDao();
     private SessionDao sessionDao = new SessionDao();
     private SessionUserDao sessionUserDao = new SessionUserDao();
@@ -59,9 +58,9 @@ public class SessionService {
     public void setRedisHelper(RedisHelper redisHelper) { this.redisHelper = redisHelper; }
 
     /**
-     * Create Session JSON object from object array from Session DAO
-     * @param id Object array to read session values
-     * @return ObjectNode with a session with values passed in sessionObject.
+     * Find all the SessionUsers participating in a session.
+     * @param id The session ID.
+     * @return A list of all the participating SessionUsers.
      */
     @Transactional
     public List<SessionUser> getSessionUsers(int id) {
@@ -70,10 +69,10 @@ public class SessionService {
 
 
     /**
-     * Search session by id
-     * @param id Session id to search
-     * @param uid User login to search
-     * @return Session with id passed
+     * Find a session by its id as seen by the specified user.
+     * @param id Target Session id.
+     * @param uid User id performing the search.
+     * @return The session, or null if not found or the user doesn't participate in it.
      */
     public Session getById(int id, int uid) {
         return sessionDao.findById(id, uid);
@@ -81,9 +80,9 @@ public class SessionService {
 
 
     /**
-     * Search session by id
-     * @param id Session id to search
-     * @return Session with id passed
+     * Find a session by its id.
+     * @param id Target session id.
+     * @return The session, or null if not found.
      */
     public Session getById(int id) {
         return sessionDao.findById(id);
@@ -91,10 +90,10 @@ public class SessionService {
 
 
     /**
-     * Search sessions with state passed
-     * @param state Session State to search
-     * @param uid User Login to search
-     * @return Object array list with sessions with state passed
+     * Find SessionUsers of a user, filtering by session state.
+     * @param state A string specifying the target states.
+     * @param uid Target user id.
+     * @return A list of SessionUsers matching the criteria.
      */
     @Transactional
      public List<SessionUser> getState(String state, int uid) {
@@ -113,9 +112,9 @@ public class SessionService {
     }
 
     /**
-     * Search sessions with state passed
-     * @param uid User Login to search
-     * @return Object array list with sessions with state passed
+     * Find all SessionUsers of a user.
+     * @param uid Target user id.
+     * @return A list of Sessionusers of the user.
      */
     @Transactional
     public List<SessionUser> getSessions(int uid) {
@@ -125,7 +124,7 @@ public class SessionService {
     /**
      * Return a list of session ids for the given user.
      * @param uid The target user ID
-     * @return ObjectNode with all sessions grouped by state.
+     * @return A list of the ids of the user's sessions.
      */
     @Transactional
     public List<Integer> getUserSessionIds(int uid) {
@@ -133,7 +132,7 @@ public class SessionService {
     }
 
     /**
-     * Return the target user's SessionUser for sessions in the given state, limited to MAX_RESULTS.
+     * Return the target user's SessionUsers for sessions in the given state, limited to MAX_RESULTS.
      * @param uid The target user's ID
      * @param state States we're interested in
      * @return List of the selected SessionUsers.
@@ -144,7 +143,7 @@ public class SessionService {
     }
 
     /**
-     * Return the target user's SessionUser for sessions in the given state, up to limit entries.
+     * Return the target user's SessionUsers for sessions in the given state, up to limit entries.
      * @param uid The target user's ID
      * @param state States we're interested in
      * @param limit Max number of results, or a negative number to make it unlimited
@@ -156,9 +155,11 @@ public class SessionService {
     }
 
     /**
-     * Return Sessions by user filtered to show in home screen
-     * @param uid User Login to search in DAO functions
-     * @return ObjectNode with all sessions grouped by state.
+     * Finds a user SessionUsers of a service type and in the specified states.
+     * @param uid Target user.
+     * @param states States to filter by.
+     * @param serviceTypeId Service type id to filter by.
+     * @return List of all the matching SessionUsers.
      */
     @Transactional
     public List<SessionUser> getUserSessionsByService(int uid, Set<Session.State> states, int serviceTypeId) {
@@ -169,10 +170,10 @@ public class SessionService {
 
     /**
      * Creates a new requested session
-     * @param uid           User Login to create session
-     * @param serviceType   Service type id to search in DAO functions
-     * @param state         Session state
-     * @return Session      Session created
+     * @param uid           Target user id.
+     * @param serviceType   Requested service type.
+     * @param state         Initial state for the session.
+     * @return Session      The newly-created session.
      */
     @Transactional
     public Session requestSession(int uid, int serviceType, Session.State state) {
@@ -182,11 +183,11 @@ public class SessionService {
 
     /**
      * Creates a new programmed session
-     * @param uid           User Login to create session
-     * @param serviceType   Service type id to search in DAO functions
-     * @param state         Session state
-     * @param startDate     Date when start session, this param only is important if state is "PROGRAMMED"
-     * @return Session      Session created
+     * @param uid           Target user id.
+     * @param serviceType   Requested service type.
+     * @param state         Initial state for the session.
+     * @param startDate     If state is PROGRAMMED, the chosen date for the session.
+     * @return Session      The newly-created session.
      */
     @Transactional
     public Session requestSession(int uid, int serviceType, Session.State state, Date startDate) {
@@ -273,13 +274,21 @@ public class SessionService {
     public Session assignSessionFromPool(int uid, int service_type_id) {
         User user = userDao.findById(uid);
 
+        ServiceType type = serviceTypeDao.findById(service_type_id);
+
         // Can the User assign more Sessions?
-        int current = sessionDao.countByState(EnumSet.of(Session.State.UNDERWAY), uid);
-        if (current >= MAX_SESSIONS_PER_PROFESSIONAL) return null;
+        int current = sessionDao.countByStateAndType(uid, EnumSet.of(Session.State.UNDERWAY), service_type_id);
+        if (type.getUserlimit() != null && current >= type.getUserlimit()) {
+            String msg = "You have too many sessions";
+            throw new InvalidStateException(msg, ServiceType.class, service_type_id);
+        }
 
         Service service = serviceDao.getServiceForType(uid, service_type_id);
         Session session = sessionDao.getFromPool(service_type_id);
-        if (session == null) return null;
+        if (session == null) {
+            String msg = "No pending sessions found";
+            throw new InvalidStateException(msg, ServiceType.class, service_type_id);
+        }
 
         SessionUser sessionUser = new SessionUser(user, session);
         if (service != null) {
@@ -322,10 +331,10 @@ public class SessionService {
     }
 
     /**
-     * Append a message in session
-     * @param sessionId Target session to append message.
-     * @param message Message for append
-     * @return List of all messages for target session
+     * Append a message to a session.
+     * @param sessionId Target session.
+     * @param message Message to append.
+     * @return A list of all the messages in the target session.
      */
     @Transactional
     public ArrayNode appendChatMessage(int sessionId, String message) {
@@ -338,9 +347,9 @@ public class SessionService {
     }
 
     /**
-     * Get all messages in session
-     * @param sessionId Target session to append message.
-     * @return List of all messages for target session
+     * Get all messages in a session.
+     * @param sessionId Target session.
+     * @return List of all the messages in the target session.
      */
     @Transactional
     public ArrayNode getChatMessages(int sessionId) {
@@ -366,7 +375,7 @@ public class SessionService {
      * Close a session, if the user can close it.
      * If the session is not underway, no changes will be made.
      * @param sessionId Target session to close.
-     * @param userId User performing the action
+     * @param userId User performing the action.
      * @return The session if the user has access to it, or null otherwise.
      */
     @Transactional
@@ -386,7 +395,7 @@ public class SessionService {
      * Finish a session, if the user can finish it.
      * If the session is not closed, no changes will be made.
      * @param sessionId Target session to finish.
-     * @param userId User performing the action
+     * @param userId User performing the action.
      * @return The session if the user has access to it, or null otherwise.
      */
     @Transactional
@@ -457,8 +466,8 @@ public class SessionService {
      * Sets or updates the report of a specified SessionUser.
      * If the session is not underway or closed, or the editor is not on the same session, no changes will be made.
      * @param sessionUserId Target sessionUser to update.
-     * @param userId User performing the action
-     * @param report New value for the report field
+     * @param userId User performing the action.
+     * @param report New value for the report field.
      * @return The sessionUser if the user has access to it, or null otherwise.
      */
     @Transactional

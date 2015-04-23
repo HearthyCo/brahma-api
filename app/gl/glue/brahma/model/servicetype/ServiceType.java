@@ -58,8 +58,9 @@ public class ServiceType {
     @NotNull
     private ServiceMode mode;
 
-    @NotNull
-    private int poolsize;
+    private Integer poolsize;
+
+    private Integer userlimit;
 
 
     public int getId() {
@@ -98,12 +99,20 @@ public class ServiceType {
         this.mode = mode;
     }
 
-    public int getPoolsize() {
+    public Integer getPoolsize() {
         return poolsize;
     }
 
-    public void setPoolsize(int poolsize) {
+    public void setPoolsize(Integer poolsize) {
         this.poolsize = poolsize;
+    }
+
+    public Integer getUserlimit() {
+        return userlimit;
+    }
+
+    public void setUserlimit(Integer userlimit) {
+        this.userlimit = userlimit;
     }
 
 

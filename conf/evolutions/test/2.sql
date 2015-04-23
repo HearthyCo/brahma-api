@@ -33,10 +33,10 @@ INSERT INTO "user" (id, type, manager_user_id, tutor_user_id, collective_collect
 INSERT INTO field (id, name) VALUES
   (90200, 'General');
 
-INSERT INTO service_type (id, name, field_id, price, mode, poolsize) VALUES
-  (90300, 'Video Session', 90200, 1500, 'VIDEO', 5),
-  (90301, 'Chat', 90200, 250, 'ASYNC', 10),
-  (90302, 'Chat Free', 90200, 0, 'ASYNC', 100);
+INSERT INTO service_type (id, name, field_id, price, mode, poolsize, userlimit) VALUES
+  (90300, 'Video Session', 90200, 1500, 'VIDEO', 10, 1),
+  (90301, 'Chat', 90200, 250, 'ASYNC', 50, 5),
+  (90302, 'Chat Free', 90200, 0, 'ASYNC', null, 10);
 
 INSERT INTO service (id, user_id, service_type_id, earnings) VALUES
   (90400, 90005, 90300, 400),

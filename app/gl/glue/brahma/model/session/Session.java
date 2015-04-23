@@ -44,11 +44,12 @@ import java.util.Date;
                         "order by session.timestamp desc"
         ),
         @NamedQuery(
-                name = "Session.countByState",
+                name = "Session.countByStateAndType",
                 query = "select count(sessionUser) " +
                         "from SessionUser sessionUser " +
                         "where sessionUser.session.state in :states " +
-                        "and sessionUser.user.id = :uid"
+                        "and sessionUser.user.id = :uid " +
+                        "and sessionUser.service.serviceType.id = :stid"
         ),
         @NamedQuery(
                 name = "Session.findUsersSession",
