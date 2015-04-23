@@ -190,13 +190,16 @@ public class SessionService {
      */
     @Transactional
     public Session requestSession(int uid, int serviceType, Session.State state, Date startDate) {
-        String title = conf.getString("entity.session") + " " + new SimpleDateFormat("dd-MM-yyyy").format(startDate);
-
         ServiceType service = serviceTypeDao.findById(serviceType);
         if(service == null) return null;
 
         User user = userDao.findById(uid);
         if(user == null) return null;
+
+        String title = user.getFullName();
+        if (title.length() == 0) {
+            title = conf.getString("entity.session") + " " + new SimpleDateFormat("dd-MM-yyyy").format(startDate);
+        }
 
         // Update user balance
         int price = service.getPrice();

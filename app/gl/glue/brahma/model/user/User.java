@@ -147,6 +147,14 @@ public abstract class User {
         this.surname2 = surname2;
     }
 
+    public String getFullName() {
+        StringBuilder fullname = new StringBuilder();
+        if (getName() != null) fullname.append(getName() + " ");
+        if (getSurname1() != null) fullname.append(getSurname1() + " ");
+        if (getSurname2() != null) fullname.append(getSurname2());
+        return fullname.toString().trim();
+    }
+
     public Date getBirthdate() {
         return birthdate;
     }
