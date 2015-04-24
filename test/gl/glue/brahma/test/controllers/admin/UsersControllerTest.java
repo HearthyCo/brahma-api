@@ -45,7 +45,7 @@ public class UsersControllerTest extends TransactionalTest {
         assertEquals(403, result.toScala().header().status());
     }
 
-    //@Test // Disabled: there is some problem with transactions on this layer...
+    @Test
     public void testCreatedProfessionalWithoutRequiredParams() {
         Result auth = TestUtils.makeAdminLoginRequest(loginValid, passwordValid);
 
@@ -149,7 +149,7 @@ public class UsersControllerTest extends TransactionalTest {
         assertEquals(200, result.toScala().header().status());
 
         ObjectNode ret = TestUtils.toJson(result);
-        assertNotEquals(4, ret.get("users").size());
+        assertEquals(4, ret.get("users").size());
     }
 
     @Test
@@ -204,6 +204,7 @@ public class UsersControllerTest extends TransactionalTest {
 
     @Test
     public void testUpdateLockedProfessional() {
+        // Banned professionals can be updated by an admin.
         Result auth = TestUtils.makeAdminLoginRequest(loginValid, passwordValid);
 
         String name = "Updated name";
@@ -213,10 +214,14 @@ public class UsersControllerTest extends TransactionalTest {
 
         Result result = TestUtils.callController(POST, "/v1/admin/users/professional/update/90009", auth, user);
         assertNotNull(result);
-        assertEquals(423, result.toScala().header().status());
+        assertEquals(200, result.toScala().header().status());
+
+        ObjectNode ret = TestUtils.toJson(result);
+        assertEquals(name, ret.get("users").get(0).get("name").asText());
+        assertEquals(name, ret.get("users").get(0).get("surname1").asText());
     }
 
-    //@Test // Disabled: there is some problem with transactions on this layer...
+    @Test
     public void testUpdateProfessionalOk() {
         Result auth = TestUtils.makeAdminLoginRequest(loginValid, passwordValid);
 
@@ -230,8 +235,8 @@ public class UsersControllerTest extends TransactionalTest {
         assertEquals(200, result.toScala().header().status());
 
         ObjectNode ret = TestUtils.toJson(result);
-        assertNotEquals(name, ret.get("users").get(0).get("name").asText());
-        assertNotEquals(name, ret.get("users").get(0).get("surname1").asText());
+        assertEquals(name, ret.get("users").get(0).get("name").asText());
+        assertEquals(name, ret.get("users").get(0).get("surname1").asText());
     }
 
     @Test
@@ -324,7 +329,7 @@ public class UsersControllerTest extends TransactionalTest {
         assertEquals(403, result.toScala().header().status());
     }
 
-    // @Test // Disabled: there is some problem with transactions on this layer...
+    @Test
     public void testBanProfessionalOk() {
         Result auth = TestUtils.makeAdminLoginRequest(loginValid, passwordValid);
 
