@@ -32,6 +32,7 @@ import redis.clients.jedis.Jedis;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class SessionService {
 
@@ -410,6 +411,7 @@ public class SessionService {
               - The state will be set to FINISHED and its timestamp updated to NOW
               - All Professional participants with a Service set on their respective SessionUser
                 will get their earnings added to their balance
+              - An AMQP message will be sent detailing the changes
             NOTE: No balance will be deducted from the paying clients: they have payed already to start the session.
          */
 
@@ -427,10 +429,6 @@ public class SessionService {
             if (user.getUserType().equals("client")) {
                 if (sessionUser.getReport() == null || sessionUser.getReport().length() == 0)
                     throw new InvalidStateException("Client without report", User.class, user.getId());
-                /*
-                if (user.getBalance() < session.getServiceType().getPrice())
-                    throw new InvalidStateException("Client without enough balance", User.class, user.getId());
-                */
                 payers.add(sessionUser);
             } else if (user.getUserType().equals("professional")) {
                 if (sessionUser.getService() != null) earners.add(sessionUser);
@@ -442,12 +440,6 @@ public class SessionService {
             throw new InvalidStateException("Session without any Professionals on Service", Session.class, sessionId);
 
         // Everything seems fine. Apply changes.
-        /*
-        for (SessionUser payer: payers) {
-            Transaction transaction = new Transaction(payer.getUser(), session);
-            transactionDao.create(transaction);
-        }
-        */
         for (SessionUser earner: earners) {
             Transaction transaction = new Transaction(earner.getUser(), session, earner.getService());
             transactionDao.create(transaction);
@@ -458,6 +450,15 @@ public class SessionService {
         }
         session.setState(Session.State.FINISHED);
         session.setTimestamp(new Date());
+
+
+        Controller.sendMessage("session.finish",
+                Json.newObject()
+                        .putPOJO("sessionId", sessionId)
+                        .putPOJO("clients", payers.stream().map(o -> o.getUser().getId()).collect(Collectors.toList()))
+                        .putPOJO("professionals", payers.stream().map(o -> o.getUser().getId()).collect(Collectors.toList()))
+                        .toString());
+
         return session;
     }
 

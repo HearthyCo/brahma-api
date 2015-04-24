@@ -35,6 +35,12 @@ public class SignatureHelper {
             .put("signature", Signing.sign(Integer.toString(uid)))
             .put("value", uid));
 
+        String role = user.getUserType();
+        sign.addPOJO(Json.newObject()
+                .put("id", "userRole")
+                .put("signature", Signing.sign(role))
+                .put("value", role));
+
         node.putPOJO("sign", sign);
     }
 
