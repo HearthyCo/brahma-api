@@ -248,7 +248,7 @@ public class SessionService {
 
         Controller.sendMessage("sessions.pools",
                 Json.newObject()
-                        .putPOJO("serviceTypes", Json.toJson(getPoolsSize()))
+                        .putPOJO("servicetypes", Json.toJson(getPoolsSizeUpdate()))
                         .toString());
 
         return session;
@@ -264,6 +264,34 @@ public class SessionService {
         return sessionDao.getPoolsSize();
     }
 
+    /**
+     * Similar to getPoolsSize(), but instead of a map, returns a JSON list of objects.
+     * This is a convenience method to create servicetype updates when the waiting list changes size.
+     * @return A JSON list of objects with id and waiting fields.
+     */
+    @Transactional
+    private ArrayNode getPoolsSizeUpdate() {
+        ArrayNode update = new ArrayNode(JsonNodeFactory.instance);
+        // Add all those servicetypes which have any waiting sessions
+        Map<Integer, Integer> poolsSize = sessionDao.getPoolsSize();
+        for (Integer id: poolsSize.keySet()) {
+            update.add(Json.newObject()
+                    .put("id", id)
+                    .put("waiting", poolsSize.get(id))
+            );
+        }
+        // But don't forget those with 0 waiting, too
+        List<ServiceType> serviceTypes = serviceTypeDao.findServiceTypes();
+        for (ServiceType st: serviceTypes) {
+            if (!poolsSize.containsKey(st.getId())) {
+                update.add(Json.newObject()
+                        .put("id", st.getId())
+                        .put("waiting", 0)
+                );
+            }
+        }
+        return update;
+    }
 
     /**
      * Assigns a session from the selected pool to a given user.
@@ -325,7 +353,7 @@ public class SessionService {
 
         Controller.sendMessage("sessions.pools",
                 Json.newObject()
-                        .putPOJO("serviceTypes", Json.toJson(getPoolsSize()))
+                        .putPOJO("servicetypes", Json.toJson(getPoolsSizeUpdate()))
                         .toString());
 
         return session;
