@@ -135,11 +135,12 @@ public class SessionController extends Controller {
             }
         }
 
-        ObjectNode ret = Json.newObject();
-        ret.put("sessions", new ArrayNode(JsonNodeFactory.instance).add(Json.toJson(session)));
-        ret.put("users", Json.toJson(visibleUsers));
-        ret.put("sessionusers", Json.toJson(visibleSessionUsers));
-        ret.put("participants", Json.newObject().putPOJO(Integer.toString(id), Json.toJson(participants)));
+        ObjectNode ret = Json.newObject()
+                .putPOJO("sessions", new ArrayNode(JsonNodeFactory.instance).add(Json.toJson(session)))
+                .putPOJO("users", Json.toJson(visibleUsers))
+                .putPOJO("sessionusers", Json.toJson(visibleSessionUsers))
+                .putPOJO("participants", Json.newObject().putPOJO(Integer.toString(id), Json.toJson(participants)))
+                .putPOJO("servicetypes", Json.toJson(serviceService.getAllServiceTypes()));
         return ok(ret);
     }
 
