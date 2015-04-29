@@ -49,9 +49,10 @@ public class HomeController extends Controller {
         User user = userService.getById(uid);
 
         // Create State Session List Array for iterate and pass DAO function a Session.State ArrayList
-        String[] listStates = { "programmed", "underway", "closed" };
+        // String[] listStates = { "programmed", "underway", "closed" };
+        String[] listStates = { "underway", "closed" };
         List<Set<Session.State>> states = new ArrayList<>();
-        states.add(EnumSet.of(Session.State.PROGRAMMED));
+        // states.add(EnumSet.of(Session.State.PROGRAMMED));
         states.add(EnumSet.of(Session.State.REQUESTED, Session.State.UNDERWAY));
         states.add(EnumSet.of(Session.State.CLOSED, Session.State.FINISHED));
 
