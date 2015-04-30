@@ -58,6 +58,7 @@ GET            /v1/client/me                                                    
 POST           /v1/client/recover                                                   gl.glue.brahma.controllers.common.UserController.requestPasswordChange()
 POST           /v1/client/recover/confirm                                           gl.glue.brahma.controllers.common.UserController.confirmPasswordChange()
 POST           /v1/client/me/confirm                                                gl.glue.brahma.controllers.common.UserController.confirmMail()
+POST           /v1/client/me/push                                                   gl.glue.brahma.controllers.client.PushController.update()
 
 GET            /v1/client/me/home                                                   gl.glue.brahma.controllers.client.HomeController.getHome()
 GET            /v1/client/me/sessions                                               gl.glue.brahma.controllers.client.SessionController.getSessions()
