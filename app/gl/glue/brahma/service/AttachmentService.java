@@ -1,6 +1,5 @@
 package gl.glue.brahma.service;
 
-import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import gl.glue.brahma.model.attachment.Attachment;
@@ -21,6 +20,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class AttachmentService {
@@ -37,6 +37,11 @@ public class AttachmentService {
     @Transactional
     public Attachment getById(int id) {
         return attachmentDao.getById(id);
+    }
+
+    @Transactional
+    public List<Attachment> getBySession(int sid) {
+        return attachmentDao.getBySession(sid);
     }
 
     @Transactional

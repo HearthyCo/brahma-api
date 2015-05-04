@@ -2,6 +2,8 @@ package gl.glue.brahma.model.attachment;
 
 import play.db.jpa.JPA;
 
+import java.util.List;
+
 public class AttachmentDao {
 
     /**
@@ -10,6 +12,12 @@ public class AttachmentDao {
      */
     public Attachment getById(int id) {
         return JPA.em().find(Attachment.class, id);
+    }
+
+    public List<Attachment> getBySession(int sid) {
+        return JPA.em().createNamedQuery("Attachment.findBySession", Attachment.class)
+                .setParameter("sid", sid)
+                .getResultList();
     }
 
     /**
