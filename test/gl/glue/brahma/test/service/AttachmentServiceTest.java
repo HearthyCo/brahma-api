@@ -10,6 +10,7 @@ import utils.TransactionalTest;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -29,6 +30,14 @@ public class AttachmentServiceTest extends TransactionalTest {
         Attachment attachment = attachmentService.getById(91201);
         assertNotNull(attachment);
         assertEquals("leaf.jpg", attachment.getFilename());
+    }
+
+    @Test
+    public void getAttachmentBySessionOk() {
+        List<Attachment> attachments = attachmentService.getBySession(90700);
+        assertNotNull(attachments);
+        assertEquals(1, attachments.size());
+        assertEquals("leaf.jpg", attachments.get(0).getFilename());
     }
 
     @Test

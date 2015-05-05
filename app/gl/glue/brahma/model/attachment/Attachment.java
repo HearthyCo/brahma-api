@@ -1,10 +1,7 @@
 package gl.glue.brahma.model.attachment;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.BooleanSerializer;
 import gl.glue.brahma.model.historyentry.HistoryEntry;
 import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.model.user.User;
@@ -12,6 +9,17 @@ import gl.glue.brahma.model.user.User;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
+@NamedQueries({
+
+        @NamedQuery(
+                name = "Attachment.findBySession",
+                query = "select attachment " +
+                        "from Attachment attachment " +
+                        "where attachment.session.id = :sid " +
+                        "order by attachment.id"
+        )
+
+})
 @Entity
 public class Attachment {
 

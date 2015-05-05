@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.wordnik.swagger.annotations.*;
 import gl.glue.brahma.model.session.Session;
 import gl.glue.brahma.service.SessionService;
 import gl.glue.brahma.util.JsonUtils;
@@ -16,8 +17,12 @@ import play.mvc.Result;
 import gl.glue.brahma.model.attachment.Attachment;
 import gl.glue.brahma.service.AttachmentService;
 import play.mvc.Http;
-import java.io.UnsupportedEncodingException;
 
+import javax.ws.rs.PathParam;
+import java.io.UnsupportedEncodingException;
+import java.util.List;
+
+@Api(value = "/common", description = "User functions")
 public class SessionController extends Controller {
 
     private static SessionService sessionService = new SessionService();
@@ -187,6 +192,7 @@ public class SessionController extends Controller {
                         .putPOJO(String.valueOf(session.getId()), redisMessages))
                 .putPOJO("sessions", new ArrayNode(JsonNodeFactory.instance).add(Json.toJson(session))));
     }
+
     @BasicAuth
     @Transactional
     public static Result uploadAttachment(int sessionId) {
@@ -219,4 +225,26 @@ public class SessionController extends Controller {
         return ok(Json.newObject()
                 .putPOJO("attachments", new ArrayNode(JsonNodeFactory.instance).add(Json.toJson(attachment))));
     }
+
+    @ApiOperation(nickname = "getAttachments", value = "Gets a list of attachments for a session",
+            notes = "Allow admin to read an professional user.",
+            httpMethod = "GET")
+    @ApiResponses(value = {
+            @ApiResponse(code = 401, message = "User is not logged in."),
+            @ApiResponse(code = 403, message = "Unauthorized"),
+            @ApiResponse(code = 404, message = "Invalid identifier.")})
+    @BasicAuth
+    @Transactional
+    public static Result getAttachments(
+        @ApiParam(value = "Session id", required = true) @PathParam("session") int sessionId) {
+
+        int uid = Integer.parseInt(session("id"));
+        Session session = sessionService.getById(sessionId, uid);
+        if (session == null) return status(404, JsonUtils.simpleError("404", "Invalid identifier"));
+        List<Attachment> attachments = attachmentService.getBySession(sessionId);
+        return ok(Json.newObject()
+                .putPOJO("attachments", Json.toJson(attachments)));
+
+    }
+
 }

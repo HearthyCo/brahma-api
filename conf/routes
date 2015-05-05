@@ -70,6 +70,7 @@ GET            /v1/client/me/history/:section                                   
 POST           /v1/client/session/create                                            gl.glue.brahma.controllers.client.SessionController.createSession()
 POST           /v1/client/session/book                                              gl.glue.brahma.controllers.client.SessionController.bookSession()
 GET            /v1/client/session/:session                                          gl.glue.brahma.controllers.client.SessionController.getSession(session: Integer)
+GET            /v1/client/session/:session/attachments                              gl.glue.brahma.controllers.common.SessionController.getAttachments(session: Integer)
 POST           /v1/client/session/:session/attach                                   gl.glue.brahma.controllers.common.SessionController.uploadAttachment(session: Integer)
 POST           /v1/client/session/chat                                              gl.glue.brahma.controllers.common.SessionController.appendChatMessage()
 GET            /v1/client/session/chat/:session                                     gl.glue.brahma.controllers.common.SessionController.getChatHistory(session: Integer)
