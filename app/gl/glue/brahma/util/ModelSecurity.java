@@ -14,7 +14,7 @@ public class ModelSecurity {
 
     public static final String[] USER_PROFILE_MODIFIABLE_FIELDS = {
             "gender", "name", "birthdate", "surname1", "surname2", "avatar", "nationalId",
-            "meta.address.*", "meta.cv.*", "meta.account"
+            "meta.address.*", "meta.cv.*", "meta.history.*", "meta.account"
     };
 
     public static final String[] USER_ADMIN_MODIFIABLE_FIELDS = {
