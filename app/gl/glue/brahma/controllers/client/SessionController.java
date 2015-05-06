@@ -330,8 +330,10 @@ public class SessionController extends Controller {
 
         int serviceType = json.findPath("service").asInt();
 
-        Session.State state = Session.State.REQUESTED;
-        Session session = sessionService.requestSession(uid, serviceType, state);
+        ObjectNode meta = null;
+        if (json.has("meta") && json.get("meta").isObject()) meta = (ObjectNode)json.get("meta");
+
+        Session session = sessionService.requestSession(uid, serviceType, meta);
 
         if (session == null) return status(404, JsonUtils.simpleError("404", "Invalid user identifier"));
 
@@ -417,8 +419,10 @@ public class SessionController extends Controller {
         Date now = new Date();
         if (startDate == null || now.after(startDate)) return status(400, JsonUtils.invalidRequiredField("Date"));
 
-        Session.State state = Session.State.PROGRAMMED;
-        Session session = sessionService.requestSession(uid, serviceType, state, startDate);
+        ObjectNode meta = null;
+        if (json.has("meta") && json.get("meta").isObject()) meta = (ObjectNode)json.get("meta");
+
+        Session session = sessionService.programSession(uid, serviceType, startDate, meta);
 
         if (session == null) return status(404, JsonUtils.simpleError("404", "Invalid user identifier"));
 

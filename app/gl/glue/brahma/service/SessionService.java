@@ -170,15 +170,28 @@ public class SessionService {
     }
 
     /**
-     * Creates a new requested session
+     * Creates a new instantaneous session (ie: requested for right now)
      * @param uid           Target user id.
      * @param serviceType   Requested service type.
-     * @param state         Initial state for the session.
+     * @param meta          Other metadata to add to the session and/or user.
      * @return Session      The newly-created session.
      */
-    @Transactional
-    public Session requestSession(int uid, int serviceType, Session.State state) {
-        return requestSession(uid, serviceType, state, new Date());
+    public Session requestSession(int uid, int serviceType, ObjectNode meta) {
+        Session.State state = Session.State.REQUESTED;
+        return createSession(uid, serviceType, state, new Date(), meta);
+    }
+
+    /**
+     * Creates a new programmed session (ie: scheduled for the given date)
+     * @param uid           Target user id.
+     * @param serviceType   Requested service type.
+     * @param startDate     Requested date for the session.
+     * @param meta          Other metadata to add to the session and/or user.
+     * @return Session      The newly-created session.
+     */
+    public Session programSession(int uid, int serviceType, Date startDate, ObjectNode meta) {
+        Session.State state = Session.State.PROGRAMMED;
+        return createSession(uid, serviceType, state, startDate, meta);
     }
 
 
@@ -188,15 +201,16 @@ public class SessionService {
      * @param serviceType   Requested service type.
      * @param state         Initial state for the session.
      * @param startDate     If state is PROGRAMMED, the chosen date for the session.
+     * @param meta          Other metadata to add to the session and/or user.
      * @return Session      The newly-created session.
      */
     @Transactional
-    public Session requestSession(int uid, int serviceType, Session.State state, Date startDate) {
+    private Session createSession(int uid, int serviceType, Session.State state, Date startDate, ObjectNode meta) {
         ServiceType service = serviceTypeDao.findById(serviceType);
-        if(service == null) return null;
+        if(service == null) throw new TargetNotFoundException(ServiceType.class, serviceType);
 
         User user = userDao.findById(uid);
-        if(user == null) return null;
+        if(user == null) throw new TargetNotFoundException(User.class, uid);
 
         String title = user.getFullName();
         if (title.length() == 0) {
@@ -205,34 +219,45 @@ public class SessionService {
 
         // Update user balance
         int price = service.getPrice();
-        if (user.getBalance() < price) return null;
+        if (user.getBalance() < price) throw new InvalidStateException("Not enough balance.", User.class, uid);
         user.setBalance(user.getBalance() - price);
 
         // Create session
         Session session = new Session(service, title, startDate, state);
         SessionUser sessionUser = new SessionUser(user, session);
+        ObjectNode sessionMeta = Json.newObject();
+        ObjectNode sessionUserMeta = Json.newObject();
 
         // OpenTok integration
         if (service.getMode() == ServiceType.ServiceMode.VIDEO) {
             try {
                 // Create room
                 com.opentok.Session otSession = openTok.createSession();
-                ObjectNode meta = Json.newObject();
-                meta.put("opentokSession", otSession.getSessionId());
-                session.setMeta(meta);
+                sessionMeta.put("opentokSession", otSession.getSessionId());
 
                 // Create token for this user
                 TokenOptions.Builder builder = new TokenOptions.Builder();
                 builder.expireTime(System.currentTimeMillis() / 1000 + 3600*24*30);
-                ObjectNode meta2 = Json.newObject();
-                meta2.put("opentokToken", otSession.generateToken(builder.build()));
-                sessionUser.setMeta(meta2);
+                sessionUserMeta.put("opentokToken", otSession.generateToken(builder.build()));
             } catch (OpenTokException e) {
                 // No video, no session! Break the transaction.
                 throw new RuntimeException(e);
             }
         }
 
+        // Add extra meta, if any.
+        if (meta != null) {
+            if (meta.has("reason")) sessionMeta.put("reason", meta.get("reason").asText());
+            if (meta.has("history")) {
+                ObjectNode userMeta = (ObjectNode)user.getMeta();
+                userMeta.putPOJO("history", meta.get("history"));
+                user.setMeta(userMeta);
+            }
+        }
+
+        // Save session
+        session.setMeta(sessionMeta);
+        sessionUser.setMeta(sessionUserMeta);
         sessionDao.create(session);
         sessionUserDao.create(sessionUser);
 

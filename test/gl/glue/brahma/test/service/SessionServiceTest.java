@@ -27,27 +27,28 @@ public class SessionServiceTest extends TransactionalTest {
     private SessionService sessionService = new SessionService();
     private UserService userService = new UserService();
 
-    @Test // Request with invalid user Authentication. User uid = 1 is an invalid user
+    @Test(expected = TargetNotFoundException.class)
     public void requestNewSessionWithInvalidAuthentication() {
+        // Request with invalid user Authentication. User uid = 1 is an invalid user
         int uid = 2135121346;
         int serviceType = 90302;
-        Session result = sessionService.requestSession(uid, serviceType, Session.State.REQUESTED);
-        assertNull(result);
+        sessionService.requestSession(uid, serviceType, null);
     }
 
-    @Test // Request with invalid serviceType. ServiceType = 1 is an invalid serviceType
+    @Test(expected = TargetNotFoundException.class)
     public void requestNewSessionWithInvalidServiceType() {
+        // Request with invalid serviceType. ServiceType = 1 is an invalid serviceType
         int uid = 90001;
         int serviceType = 1;
-        Session result = sessionService.requestSession(uid, serviceType, Session.State.REQUESTED);
-        assertNull(result);
+        sessionService.requestSession(uid, serviceType, null);
     }
 
-    @Test // Request new session
+    @Test
     public void requestNewSession() {
+        // Request new session
         int uid = 90000;
         int serviceType = 90302;
-        Session result = sessionService.requestSession(uid, serviceType, Session.State.REQUESTED);
+        Session result = sessionService.requestSession(uid, serviceType, null);
         ObjectNode ret = (ObjectNode) Json.toJson(result);
         assertEquals(Session.State.REQUESTED, Session.State.valueOf(ret.get("state").asText()));
 

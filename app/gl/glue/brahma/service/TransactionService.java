@@ -63,7 +63,7 @@ public class TransactionService {
                 user, amount, payment.getState(), payment.getSku(), Transaction.Reason.TOP_UP);
 
         ObjectNode meta = Json.newObject();
-        meta.put("paypal", payment.getMeta());
+        meta.putPOJO("paypal", payment.getMeta());
         transaction.setMeta(meta);
 
         transactionDao.create(transaction);
@@ -88,7 +88,7 @@ public class TransactionService {
         transaction.setState(payment.getState());
 
         ObjectNode meta = (ObjectNode) transaction.getMeta();
-        meta.put("paypal", payment.getMeta());
+        meta.putPOJO("paypal", payment.getMeta());
         transaction.setMeta(meta);
 
         User user = transaction.getUser();
@@ -116,7 +116,7 @@ public class TransactionService {
         transactionDao.create(transaction);
 
         ObjectNode meta = (ObjectNode) transaction.getMeta();
-        meta.put("paypal", payment.getMeta());
+        meta.putPOJO("paypal", payment.getMeta());
         transaction.setMeta(meta);
 
         user.setBalance(transactionDao.getUserBalance(user.getId()));
