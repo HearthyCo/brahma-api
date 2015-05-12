@@ -16,6 +16,7 @@ import play.db.jpa.Transactional;
 import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
+import play.mvc.Http;
 import play.mvc.Result;
 
 import javax.persistence.PersistenceException;
@@ -171,4 +172,30 @@ public class UserController extends Controller {
     public static Result getMe() {
         return gl.glue.brahma.controllers.common.UserController.getMe();
     }
+
+
+    @ApiOperation(nickname = "setAvatar", value = "Set Avatar",
+            notes = "Set avatar for the currently logged in client", httpMethod = "POST")
+    @ApiImplicitParams(value= {
+            @ApiImplicitParam(name = "upload", required = true, dataType = "File", paramType = "file")})
+    @ApiResponses(value = {
+            @ApiResponse(code = 400, message = "Missing upload file."),
+            @ApiResponse(code = 401, message = "User is not logged in."),
+            @ApiResponse(code = 403, message = "Unauthorized") })
+    @ClientAuth
+    @Transactional
+    public static Result setAvatar() {
+        Http.MultipartFormData body = request().body().asMultipartFormData();
+        if (body == null) return status(400, JsonUtils.simpleError("400", "Expected multipart/form-data enctype"));
+        Http.MultipartFormData.FilePart uploadFilePart = body.getFile("upload");
+        if (uploadFilePart == null) {
+            return status(400, JsonUtils.simpleError("400", "Missing upload file"));
+        }
+
+        int uid = Integer.parseInt(session("id"));
+        User user = userService.setAvatar(uid, uploadFilePart.getFile());
+
+        return ok(Json.newObject().putPOJO("users", new ArrayNode(JsonNodeFactory.instance).add(Json.toJson(user))));
+    }
+
 }

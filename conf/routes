@@ -54,6 +54,7 @@ POST           /v1/client                                                       
 POST           /v1/client/login                                                     gl.glue.brahma.controllers.client.UserController.login()
 POST           /v1/client/logout                                                    gl.glue.brahma.controllers.common.UserController.logout()
 POST           /v1/client/me/update                                                 gl.glue.brahma.controllers.client.UserController.updateProfile()
+POST           /v1/client/me/avatar                                                 gl.glue.brahma.controllers.client.UserController.setAvatar()
 GET            /v1/client/me                                                        gl.glue.brahma.controllers.client.UserController.getMe()
 POST           /v1/client/recover                                                   gl.glue.brahma.controllers.common.UserController.requestPasswordChange()
 POST           /v1/client/recover/confirm                                           gl.glue.brahma.controllers.common.UserController.confirmPasswordChange()
