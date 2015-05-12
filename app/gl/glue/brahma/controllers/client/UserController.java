@@ -65,7 +65,7 @@ public class UserController extends Controller {
         return ok(result);
     }
 
-    @ApiOperation(nickname = "login", value = "Client register",
+    @ApiOperation(nickname = "register", value = "Client register",
             notes = "Allow client can to register in service.",
             httpMethod = "POST")
     @ApiImplicitParams(value= {
@@ -86,27 +86,39 @@ public class UserController extends Controller {
         ObjectNode result = JsonUtils.checkRequiredFields(json, ModelSecurity.USER_REQUIRED_FIELDS);
         if (result != null) return badRequest(result);
 
-        // Parse the incoming data
-        Client client;
-        try {
-            json = JsonUtils.cleanFields((ObjectNode)json, ModelSecurity.USER_MODIFIABLE_FIELDS);
-            client = Json.fromJson(json, Client.class);
-        } catch (RuntimeException e) {
-            return status(400, JsonUtils.handleDeserializeException(e, "user"));
-        }
-
-        // Quick checks
-        if (client.getGender() == null) client.setGender(User.Gender.OTHER); // TODO: Better value here?
-
-        // Register the user
+        // Check if the user exists already
         User user;
-        try {
-            user = userService.register(client);
-        } catch (PersistenceException e) {
-            return status(409, JsonUtils.simpleError("409", "Email already in use."));
+        user = userService.getByEmail(json.get("email").asText());
+        if (user != null) {
+            // It exists. Try to log him in stead, and throw an error if not possible.
+            if (!user.authenticate(json.get("password").asText())) {
+                return status(409, JsonUtils.simpleError("409", "Email already in use."));
+            }
+        } else {
+            // It doesn't exist. Clear to register!
+
+            // Parse the incoming data
+            Client client;
+            try {
+                json = JsonUtils.cleanFields((ObjectNode) json, ModelSecurity.USER_MODIFIABLE_FIELDS);
+                client = Json.fromJson(json, Client.class);
+            } catch (RuntimeException e) {
+                return status(400, JsonUtils.handleDeserializeException(e, "user"));
+            }
+
+            // Quick checks
+            if (client.getGender() == null) client.setGender(User.Gender.OTHER); // TODO: Better value here?
+
+            // Register the user
+            try {
+                user = userService.register(client);
+            } catch (PersistenceException e) {
+                // Shouldn't happen as we checked already
+                return status(409, JsonUtils.simpleError("409", "Email already in use."));
+            }
         }
 
-        // Also log him in
+        // Finally, either way, log the user in
         session().clear();
         session("id", Integer.toString(user.getId()));
         session("role", user.getUserType());
