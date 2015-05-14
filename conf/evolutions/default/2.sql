@@ -8,8 +8,8 @@ SET search_path TO brahma, PUBLIC;
 
 INSERT INTO field (id, name) VALUES (90200, 'General');
 
-INSERT INTO service_type (id, field_id, price, name, mode, poolsize, userlimit) VALUES (90300, 90200, 1500, 'video-session', 'VIDEO', 10, 1);
-INSERT INTO service_type (id, field_id, price, name, mode, poolsize, userlimit) VALUES (90301, 90200, 250, 'instant-session', 'ASYNC', 50, 5);
+INSERT INTO service_type (id, field_id, price, name, mode, poolsize, userlimit) VALUES (90300, 90200, 999, 'video-session', 'VIDEO', 10, 1);
+INSERT INTO service_type (id, field_id, price, name, mode, poolsize, userlimit) VALUES (90301, 90200, 499, 'instant-session', 'ASYNC', 50, 5);
 INSERT INTO service_type (id, field_id, price, name, mode, poolsize, userlimit) VALUES (90302, 90200, 0, 'free-session', 'ASYNC', null, 10);
 
 INSERT INTO "user" (id, type, manager_user_id, tutor_user_id, collective_collective_id, institution_institution_id, login, password, state, email, name, surname1, surname2, birthdate, avatar, national_id, gender, balance, online_limit, admin_level, meta) VALUES (90010, 'ADMIN', NULL, NULL, NULL, NULL, NULL, '$2a$10$Zv4qmaHQgMwbN8pyoKp5Ue2wKWbF80DhMj7HWwCDI0LZraQ5Xm6s6', 'CONFIRMED', 'testadmin1@glue.gl', 'Bastard', 'Operator', 'From Hell', '1950-01-01', 'http://i.imgur.com/b0zW8TK.jpg', '98765432J', 'MALE', 0, NULL, 0, '{}');
