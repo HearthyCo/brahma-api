@@ -20,10 +20,7 @@ import gl.glue.brahma.plugins.S3Plugin;
 import java.io.File;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class UserService {
 
@@ -132,14 +129,8 @@ public class UserService {
     public User setAvatar(int uid, File file) {
         User user = userDao.findById(uid);
 
-        // If the user has one already, invalidate it!
-        if (user.getAvatar() != null) {
-            String oldKey = storagePlugin.url2key(user.getAvatar());
-            if (oldKey != null) storagePlugin.removeFile(oldKey);
-        }
-
         // Generate a random-looking key using a SHA-256 hash and base64encoding it
-        String in = String.format("%d/%d", uid, System.currentTimeMillis());
+        String in = String.format("%d/%s", uid, conf.getString("avatar.secret"));
         String key;
         try {
             MessageDigest sha = MessageDigest.getInstance("SHA-256");
@@ -159,7 +150,7 @@ public class UserService {
         storagePlugin.putFile(key, file, userMetadata);
         String url = storagePlugin.key2url(key);
 
-        user.setAvatar(url);
+        user.setAvatar(url + "?" + new Date().getTime());
         return user;
     }
 }
