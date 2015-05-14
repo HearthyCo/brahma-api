@@ -13,7 +13,7 @@ public class ModelSecurity {
     };
 
     public static final String[] USER_PROFILE_MODIFIABLE_FIELDS = {
-            "gender", "name", "birthdate", "surname1", "surname2", "avatar", "nationalId",
+            "gender", "name", "birthdate", "surname1", "surname2", "nationalId",
             "meta.address.*", "meta.cv.*", "meta.history.*", "meta.account"
     };
 
