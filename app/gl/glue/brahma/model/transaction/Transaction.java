@@ -178,6 +178,11 @@ public class Transaction {
         this.meta = meta == null ? "{}" : meta.toString();
     }
 
+    public void setMeta(String meta) {
+        this.metaParsed = null;
+        this.meta = meta == null ? "{}" : meta.toString();
+    }
+
 
     @Override
     public String toString() {

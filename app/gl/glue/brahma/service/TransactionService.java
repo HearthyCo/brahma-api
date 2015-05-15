@@ -64,7 +64,7 @@ public class TransactionService {
 
         ObjectNode meta = Json.newObject();
         meta.putPOJO("paypal", payment.getMeta());
-        transaction.setMeta(meta);
+        transaction.setMeta(meta.toString());
 
         transactionDao.create(transaction);
         return transaction;
