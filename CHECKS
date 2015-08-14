@@ -1,0 +1,5 @@
+WAIT=10
+TIMEOUT=10
+ATTEMPTS=10
+/ It works.
+/v1/client/me You are not logged in
